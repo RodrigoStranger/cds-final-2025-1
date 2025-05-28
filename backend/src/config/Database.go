@@ -16,7 +16,7 @@ var DB *gorm.DB // Variable global para almacenar la conexión a la base de dato
 
 func ConnectDB() {
 	// Cargar variables de entorno desde el archivo .env
-	err := godotenv.Load("../.env")
+	err := godotenv.Load("../.env.local")
 	if err != nil {
 		log.Fatalf("Error .env file: %v", err)
 	}
