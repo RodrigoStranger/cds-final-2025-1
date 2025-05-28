@@ -1,12 +1,13 @@
-package controllers
+package controllers // Paquete para los controladores
 
 import (
-	"database/sql"
-	"log"
-	"net/http"
+	"database/sql" // Paquete para manejar la base de datos
+	"log"          // Paquete para manejar los logs
+	"net/http"     // Paquete para manejar las peticiones HTTP
 
-	"github.com/gin-gonic/gin"
-	"backend/src/models"
+	"backend/src/models" // Paquete para los modelos
+
+	"github.com/gin-gonic/gin" // Paquete para manejar las rutas
 )
 
 // ObtenerProductos maneja la solicitud GET para obtener todos los productos
@@ -38,6 +39,7 @@ func ObtenerProductos(c *gin.Context) {
 	values := make([]interface{}, count)
 	valuePtrs := make([]interface{}, count)
 
+	// Preparar el slice para los productos
 	var productos []map[string]interface{}
 
 	for rows.Next() {
