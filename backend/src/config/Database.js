@@ -5,9 +5,9 @@ class Database {
   constructor() {
     this.pool = mysql.createPool({
       host: process.env.MYSQL_HOST,
-      port: process.env.MYSQL_PORT || 3306,
-      user: process.env.MYSQL_USER || 'root',
-      password: process.env.MYSQL_PASSWORD || '',
+      port: process.env.MYSQL_PORT,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
       waitForConnections: true,
       connectionLimit: 10,
@@ -15,6 +15,7 @@ class Database {
     });
   }
 
+  // Función para ejecutar consultas
   async query(sql, params = []) {
     try {
       const [rows] = await this.pool.execute(sql, params);
@@ -28,4 +29,5 @@ class Database {
 // Crear una instancia de la base de datos
 const database = new Database();
 
+// Exportar la instancia
 module.exports = database;
