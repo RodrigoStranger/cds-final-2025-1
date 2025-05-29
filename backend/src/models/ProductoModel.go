@@ -2,16 +2,24 @@ package models // Paquete para los modelos
 
 import (
 	"database/sql" // Paquete para manejar la base de datos
-	"log"          // Paquete para manejar los logs
 )
 
-// Devuelve todos los productos de la base de datos
-func ObtenerTodosProductos(db *sql.DB) (*sql.Rows, error) {
-	query := "SELECT * FROM Productos" // Consulta SQL
-	rows, err := db.Query(query)       // Ejecutar la consulta
+// AgregarProducto llama al procedimiento almacenado para agregar un nuevo producto
+func AgregarProducto(db *sql.DB, nombre string, descripcion *string, precioCompra float64, precioVenta float64, stock int, codCategoria *int, codLinea *int) (string, error) {
+	// Llamar al procedimiento almacenado
+	_, err := db.Exec("CALL AgregarProducto(?, ?, ?, ?, ?, ?, ?)", // Llamar al procedimiento almacenado
+		nombre,       // Nombre del producto
+		descripcion,  // Descripción del producto
+		precioCompra, // Precio de compra del producto
+		precioVenta,  // Precio de venta del producto
+		stock,        // Stock del producto
+		codCategoria, // Categoría del producto
+		codLinea,     // Línea del producto
+	)
+
 	if err != nil {
-		log.Printf("Error al ejecutar la consulta: %v", err) // Imprimir error
-		return nil, err                                      // Retornar error
+		return "", err // Retornar error
 	}
-	return rows, nil // Retornar los resultados
+
+	return "Producto agregado exitosamente", nil // Retornar mensaje de éxito
 }

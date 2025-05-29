@@ -18,7 +18,7 @@ func SetupProductoRoutes(router *gin.Engine, db *sql.DB) {
 	// Grupo de rutas para la API de productos
 	api := router.Group("/api")
 	{
-		// Obtener todos los productos
-		api.GET("/productos", controllers.ObtenerProductos)
+		// Crear un nuevo producto
+		api.POST("/productos", controllers.CrearProducto)
 	}
 }

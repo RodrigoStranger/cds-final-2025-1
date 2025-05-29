@@ -4,14 +4,26 @@ import (
 	"database/sql" // Paquete para manejar la base de datos
 	"log"          // Paquete para manejar los logs
 	"net/http"     // Paquete para manejar las peticiones HTTP
+	"strings"      // Paquete para manipulación de cadenas
 
 	"backend/src/models" // Paquete para los modelos
 
 	"github.com/gin-gonic/gin" // Paquete para manejar las rutas
 )
 
-// ObtenerProductos maneja la solicitud GET para obtener todos los productos
-func ObtenerProductos(c *gin.Context) {
+// Estructura para el cuerpo de la petición de creación de producto
+type ProductoRequest struct {
+	Nombre       string  `json:"nombre" binding:"required"`                 // Nombre del producto
+	Descripcion  *string `json:"descripcion,omitempty"`                     // Descripción del producto
+	PrecioCompra float64 `json:"precio_compra" binding:"required,gt=0"`     // Precio de compra del producto
+	PrecioVenta  float64 `json:"precio_venta" binding:"required,gt=0"`      // Precio de venta del producto
+	Stock        *int    `json:"stock,omitempty" binding:"omitempty,gte=0"` // Stock del producto
+	CodCategoria *int    `json:"cod_categoria,omitempty"`                   // Categoría del producto
+	CodLinea     *int    `json:"cod_linea,omitempty"`                       // Línea del producto
+}
+
+// CrearProducto maneja la solicitud POST para crear un nuevo producto
+func CrearProducto(c *gin.Context) {
 	// Obtener la conexión a la base de datos
 	db, ok := c.MustGet("db").(*sql.DB)
 	if !ok {
@@ -19,59 +31,42 @@ func ObtenerProductos(c *gin.Context) {
 		return
 	}
 
-	// Obtener los productos
-	rows, err := models.ObtenerTodosProductos(db)
+	// Validar y parsear el cuerpo de la petición
+	var productoReq ProductoRequest
+	if err := c.ShouldBindJSON(&productoReq); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos de producto inválidos: " + err.Error()})
+		return
+	}
+
+	// Establecer stock en 0 si no se proporciona
+	stock := 0
+	if productoReq.Stock != nil {
+		stock = *productoReq.Stock // Asignar el valor del puntero
+	}
+
+	// Llamar al modelo para crear el producto
+	mensaje, err := models.AgregarProducto(
+		db,
+		productoReq.Nombre,       // Nombre del producto
+		productoReq.Descripcion,  // Descripción del producto
+		productoReq.PrecioCompra, // Precio de compra del producto
+		productoReq.PrecioVenta,  // Precio de venta del producto
+		stock,                    // Stock del producto
+		productoReq.CodCategoria, // Puede ser nil
+		productoReq.CodLinea,     // Puede ser nil
+	)
+
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los productos"})
-		return
-	}
-	defer rows.Close()
-
-	// Obtener los nombres de las columnas
-	columns, err := rows.Columns()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener las columnas"})
-		return
-	}
-
-	// Preparar los slices para los valores
-	count := len(columns)
-	values := make([]interface{}, count)
-	valuePtrs := make([]interface{}, count)
-
-	// Preparar el slice para los productos
-	var productos []map[string]interface{}
-
-	for rows.Next() {
-		// Preparar los punteros para los valores
-		for i := range columns {
-			valuePtrs[i] = &values[i]
+		log.Printf("Error al crear producto: %v", err)
+		// Extraer solo el mensaje de error después del último ":"
+		errMsg := err.Error() // Obtener el mensaje de error
+		if lastColon := strings.LastIndex(errMsg, ": "); lastColon != -1 {
+			errMsg = strings.TrimSpace(errMsg[lastColon+2:]) // Extraer el mensaje de error
 		}
-
-		// Escanear los valores en los punteros
-		if err := rows.Scan(valuePtrs...); err != nil {
-			log.Printf("Error al escanear fila: %v", err)
-			continue
-		}
-
-		// Crear un mapa para la fila actual
-		producto := make(map[string]interface{})
-		for i, col := range columns {
-			val := values[i]
-			b, ok := val.([]byte)
-			if ok {
-				producto[col] = string(b)
-			} else {
-				producto[col] = val
-			}
-		}
-		productos = append(productos, producto)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": errMsg}) // Devolver error
+		return                                                         // Retornar error
 	}
 
-	if err = rows.Err(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al procesar los resultados"})
-		return
-	}
-
-	c.JSON(http.StatusOK, productos)
+	// Devolver respuesta exitosa
+	c.JSON(http.StatusCreated, gin.H{"mensaje": mensaje}) // Devolver respuesta exitosa
 }
