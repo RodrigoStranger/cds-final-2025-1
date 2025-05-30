@@ -48,6 +48,45 @@ class Categoria {
             throw error;
         }
     }
+
+    static async AgregarCategoria(categoriaData) {
+        try {
+            const {
+                nombre,
+                descripcion = null, // descripcion es opcional
+            } = categoriaData;
+            const sql = `CALL AgregarCategoria(?, ?)`;
+            const params = [
+                nombre,
+                descripcion,
+            ];
+            const [result] = await database.pool.query(sql, params);
+            return result[0];
+        } catch (error) {
+            console.error('Error en Categoria.AgregarCategoria:', error);
+            throw error;
+        }
+    }
+
+    static async ActualizarCategoria(idCategoria, categoriaData) {
+        try {
+            const {
+                nombre,
+                descripcion = null, // descripcion es opcional
+            } = categoriaData;
+            const sql = `CALL ActualizarCategoria(?, ?, ?)`;
+            const params = [
+                idCategoria,
+                nombre,
+                descripcion,
+            ];
+            const [result] = await database.pool.query(sql, params);
+            return result[0];
+        } catch (error) {
+            console.error('Error en Categoria.ActualizarCategoria:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = Categoria;
