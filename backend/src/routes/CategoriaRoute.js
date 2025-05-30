@@ -4,7 +4,7 @@ const CategoriaController = require('../controllers/CategoriaController');
 const router = express.Router();
 
 // Ruta para crear una nueva categoria
-//router.post('/', CategoriaController.AgregarCategoria);
+router.post('/', CategoriaController.AgregarCategoria);
 
 // Ruta para obtener todas las categorias
 router.get('/', CategoriaController.ObtenerTodasLasCategorias);
@@ -13,7 +13,7 @@ router.get('/', CategoriaController.ObtenerTodasLasCategorias);
 router.get('/:id', CategoriaController.ObtenerCategoriaPorId);
 
 // Ruta para actualizar una categoria existente
-//router.put('/:id', CategoriaController.ActualizarCategoria);
+router.put('/:id', CategoriaController.ActualizarCategoria);
 
 // Ruta para verificar si una categoria existe por nombre
 router.get('/existe-nombre/:nombre', CategoriaController.verificarNombreCategoria);

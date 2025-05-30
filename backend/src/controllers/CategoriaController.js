@@ -64,6 +64,49 @@ class CategoriaController {
             res.status(500).json({ error: 'Error al obtener la categoría' });
         }
     }
+
+    // Agregar una nueva categoria
+    static async AgregarCategoria(req, res) {
+        try {
+            const categoriaData = req.body;
+            await Categoria.AgregarCategoria(categoriaData);
+            res.status(201).json({
+                resultado: true,
+                mensaje: 'Categoría agregada exitosamente'
+            });
+        } catch (error) {
+            console.error('Error en AgregarCategoria:', error);
+            res.status(500).json({
+                resultado: false,
+                mensaje: 'Error al agregar la categoría'
+            });
+        }
+    }
+
+    // Actualizar una categoria existente
+    static async ActualizarCategoria(req, res) {
+        try {
+            const { id } = req.params;
+            const categoriaData = req.body;
+            if (!/^\d+$/.test(id)) {
+                return res.status(200).json({
+                  resultado: false,
+                  mensaje: 'id de producto inválido'
+                });
+            }
+            await Categoria.ActualizarCategoria(id, categoriaData);
+            res.status(200).json({
+                resultado: true,
+                mensaje: 'Categoría actualizada exitosamente'
+            });
+        } catch (error) {
+            console.error('Error en ActualizarCategoria:', error);
+            res.status(500).json({
+                resultado: false,
+                mensaje: 'Error al actualizar la categoría'
+            });
+        }
+    }
 }
 
 module.exports = CategoriaController;
