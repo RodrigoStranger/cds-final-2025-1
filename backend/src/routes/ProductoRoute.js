@@ -6,6 +6,9 @@ const router = express.Router();
 // Ruta para crear un nuevo producto
 router.post('/', ProductoController.create);
 
+// Ruta para obtener todos los productos
+router.get('/', ProductoController.getAll);
+
 // Ruta para verificar si un producto existe por nombre
 router.get('/existe-nombre/:nombre', ProductoController.existsByNombre);
 

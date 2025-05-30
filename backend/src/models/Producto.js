@@ -54,6 +54,18 @@ class Product {
       throw error;
     }
   }
+
+  // Obtiene todos los productos disponibles con información relacionada
+  static async getAll() {
+    try {
+      const sql = `CALL ObtenerTodosLosProductos()`;
+      const [results] = await database.pool.query(sql);
+      return results[0]; // Retorna solo el primer conjunto de resultados
+    } catch (error) {
+      console.error('Error en Producto.getAll:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = Product;

@@ -60,6 +60,16 @@ const ProductoController = {
         mensaje: 'Error al buscar el producto' 
       });
     }
+  },
+  
+  // Obtener todos los productos disponibles
+  async getAll(_req, res) {
+    try {
+      const productos = await Product.getAll();
+      res.status(200).json(productos);
+    } catch (error) {
+      res.status(500).json([]);
+    }
   }
 };
 
