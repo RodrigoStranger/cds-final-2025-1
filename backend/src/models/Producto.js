@@ -66,6 +66,18 @@ class Product {
       throw error;
     }
   }
+
+  // Obtiene todos los productos no disponibles (agotados) con información relacionada
+  static async getNoDisponibles() {
+    try {
+      const sql = `CALL ObtenerTodosLosProductosNoDisponibles()`;
+      const [results] = await database.pool.query(sql);
+      return results[0]; // Retorna solo el primer conjunto de resultados
+    } catch (error) {
+      console.error('Error en Producto.getNoDisponibles:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = Product;

@@ -9,6 +9,9 @@ router.post('/', ProductoController.create);
 // Ruta para obtener todos los productos
 router.get('/', ProductoController.getAll);
 
+// Ruta para obtener productos no disponibles (agotados)
+router.get('/no-disponibles', ProductoController.getNoDisponibles);
+
 // Ruta para verificar si un producto existe por nombre
 router.get('/existe-nombre/:nombre', ProductoController.existsByNombre);
 

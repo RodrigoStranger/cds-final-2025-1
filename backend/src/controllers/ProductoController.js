@@ -70,6 +70,16 @@ const ProductoController = {
     } catch (error) {
       res.status(500).json([]);
     }
+  },
+  
+  // Obtener todos los productos no disponibles (agotados)
+  async getNoDisponibles(_req, res) {
+    try {
+      const productos = await Product.getNoDisponibles();
+      res.status(200).json(productos);
+    } catch (error) {
+      res.status(500).json([]);
+    }
   }
 };
 
