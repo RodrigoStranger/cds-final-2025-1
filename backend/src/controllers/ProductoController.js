@@ -17,6 +17,29 @@ const ProductoController = {
         mensaje: 'Error al crear el producto'
       });
     }
+  },
+  
+  // Verificar si un producto existe por nombre
+  async existsByNombre(req, res) {
+    try {
+      const { nombre } = req.params;
+      
+      if (!nombre) {
+        return res.status(400).json(false);
+      }
+      const existe = await Product.existsByNombre(nombre);
+      
+      if (existe) {
+        return res.status(200).json({
+          resultado: true,
+          mensaje: 'Ya existe el producto'
+        });
+      }
+      // Devolver objeto con resultado false cuando el producto no existe
+      res.status(200).json({ resultado: false });
+    } catch (error) {
+      res.status(500).json(false);
+    }
   }
 };
 
