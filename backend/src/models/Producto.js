@@ -2,7 +2,7 @@ const database = require('../config/Database');
 
 class Product {
   // Método para agregar un nuevo producto usando el procedimiento almacenado
-  static async create(productData) {
+  static async AgregarProducto(productData) {
     try {
       const { 
         nombre, 
@@ -32,43 +32,43 @@ class Product {
   }
   
   // Verifica si ya existe un producto con el nombre especificado
-  static async existsByNombre(nombre) {
+  static async verificarNombreProducto(nombre) {
     try {
       const sql = `SELECT EXISTS(SELECT 1 FROM Productos WHERE LOWER(nombre) = LOWER(?)) as existe`;
       const [rows] = await database.pool.query(sql, [nombre]);
       return Boolean(rows[0]?.existe);
     } catch (error) {
-      console.error('Error en Producto.existsByNombre:', error);
+      console.error('Error en Producto.verificarNombreProducto:', error);
       throw error;
     }
   }
 
   // Verifica si existe un producto por su ID
-  static async existsById(cod_producto) {
+  static async verificarIdProducto(cod_producto) {
     try {
       const sql = `SELECT EXISTS(SELECT 1 FROM Productos WHERE cod_producto = ?) as existe`;
       const [rows] = await database.pool.query(sql, [cod_producto]);
       return Boolean(rows[0]?.existe);
     } catch (error) {
-      console.error('Error en Producto.existsById:', error);
+      console.error('Error en Producto.verificarIdProducto:', error);
       throw error;
     }
   }
 
   // Obtiene todos los productos disponibles con información relacionada
-  static async getAll() {
+  static async ObtenerTodosLosProductos() {
     try {
       const sql = `CALL ObtenerTodosLosProductos()`;
       const [results] = await database.pool.query(sql);
       return results[0]; // Retorna solo el primer conjunto de resultados
     } catch (error) {
-      console.error('Error en Producto.getAll:', error);
+      console.error('Error en Producto.ObtenerTodosLosProductos:', error);
       throw error;
     }
   }
 
   // Obtiene todos los productos no disponibles (agotados) con información relacionada
-  static async getNoDisponibles() {
+  static async ObtenerTodosLosProductosNoDisponibles() {
     try {
       const sql = `CALL ObtenerTodosLosProductosNoDisponibles()`;
       const [results] = await database.pool.query(sql);
@@ -80,7 +80,7 @@ class Product {
   }
 
   // Obtiene un producto por su ID con información relacionada
-  static async getById(cod_producto) {
+  static async ObtenerProductoPorId(cod_producto) {
     try {
       const sql = `CALL ObtenerProductoPorId(?)`;
       const [results] = await database.pool.query(sql, [cod_producto]);
@@ -93,7 +93,7 @@ class Product {
   }
 
   // Actualiza un producto existente
-  static async update(cod_producto, productData) {
+  static async ActualizarProducto(cod_producto, productData) {
     try {
       const { 
         nombre, 

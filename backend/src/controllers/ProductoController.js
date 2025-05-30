@@ -2,10 +2,10 @@ const Product = require('../models/Producto');
 
 const ProductoController = {
   // Crear un nuevo producto
-  async create(req, res) {
+  async AgregarProducto(req, res) {
     try {
       const productData = req.body;
-      await Product.create(productData);
+      await Product.AgregarProducto(productData);
       res.status(201).json({
         resultado: true,
         mensaje: 'Producto creado exitosamente'
@@ -20,13 +20,13 @@ const ProductoController = {
   },
   
   // Verificar si un producto existe por nombre
-  async existsByNombre(req, res) {
+  async verificarNombreProducto(req, res) {
     try {
       const { nombre } = req.params;
       if (!nombre) {
         return res.status(400).json(false);
       }
-      const existe = await Product.existsByNombre(nombre);
+      const existe = await Product.verificarNombreProducto(nombre);
       if (existe) {
         return res.status(200).json({
           resultado: true,
@@ -40,7 +40,7 @@ const ProductoController = {
   },
   
   // Verificar si un producto existe por su ID
-  async existsById(req, res) {
+  async verificarIdProducto(req, res) {
     try {
       const { id } = req.params;
       // Validar que el ID sea un número entero válido
@@ -51,7 +51,7 @@ const ProductoController = {
         });
       }
       const idNumero = parseInt(id, 10);
-      const existe = await Product.existsById(idNumero);
+      const existe = await Product.verificarIdProducto(idNumero);
       return res.status(200).json({
         resultado: !!existe
       });
@@ -65,9 +65,9 @@ const ProductoController = {
   },
   
   // Obtener todos los productos disponibles
-  async getAll(_req, res) {
+  async ObtenerTodosLosProductos(_req, res) {
     try {
-      const productos = await Product.getAll();
+      const productos = await Product.ObtenerTodosLosProductos();
       res.status(200).json(productos);
     } catch (error) {
       res.status(500).json([]);
@@ -75,9 +75,9 @@ const ProductoController = {
   },
   
   // Obtener todos los productos no disponibles (agotados)
-  async getNoDisponibles(_req, res) {
+  async ObtenerTodosLosProductosNoDisponibles(_req, res) {
     try {
-      const productos = await Product.getNoDisponibles();
+      const productos = await Product.ObtenerTodosLosProductosNoDisponibles();
       res.status(200).json(productos);
     } catch (error) {
       res.status(500).json([]);
@@ -85,7 +85,7 @@ const ProductoController = {
   },
   
   // Obtener un producto por su ID
-  async getById(req, res) {
+  async ObtenerProductoPorId(req, res) {
     try {
       const { id } = req.params;
       // Validar que el ID sea un número entero válido
@@ -95,7 +95,7 @@ const ProductoController = {
           mensaje: 'id de producto inválido'
         });
       }
-      const producto = await Product.getById(parseInt(id));
+      const producto = await Product.ObtenerProductoPorId(parseInt(id));
       res.status(200).json(producto);
     } catch (error) {
       res.status(500).json({
@@ -105,7 +105,7 @@ const ProductoController = {
   },
   
   // Actualizar un producto existente
-  async update(req, res) {
+  async ActualizarProducto(req, res) {
     try {
       const { id } = req.params;
       // Validar que el ID sea un número entero válido
@@ -117,7 +117,7 @@ const ProductoController = {
       }
       const productData = req.body;
       // Actualizar el producto
-      const actualizado = await Product.update(parseInt(id), productData);
+      const actualizado = await Product.ActualizarProducto(parseInt(id), productData);
       if (actualizado) {
         return res.status(200).json({
           mensaje: `Producto actualizado correctamente`

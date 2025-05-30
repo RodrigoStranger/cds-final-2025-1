@@ -2,7 +2,7 @@ const Linea = require('../models/Linea');
 
 class LineaController {
     // Verifica si ya existe una línea con el nombre especificado
-    static async verificarLinea(req, res) {
+    static async verificarNombreLinea(req, res) {
         try {
             const { nombre } = req.params;
             if (!nombre) {
@@ -23,7 +23,7 @@ class LineaController {
     }
 
     // Verifica si existe ese id en la tabla Lineas
-    static async verificarId(req, res) {
+    static async verificarIdLinea(req, res) {
         try {
             const { id } = req.params;
             if (!id) {
