@@ -21,4 +21,7 @@ router.get('/existe-id/:id', ProductoController.existsById);
 // Ruta para obtener un producto por su ID
 router.get('/:id', ProductoController.getById);
 
+// Ruta para actualizar un producto existente
+router.put('/:id', ProductoController.update);
+
 module.exports = router;

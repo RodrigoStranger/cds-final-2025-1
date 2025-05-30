@@ -91,6 +91,41 @@ class Product {
       throw error;
     }
   }
+
+  // Actualiza un producto existente
+  static async update(cod_producto, productData) {
+    try {
+      const { 
+        nombre, 
+        descripcion = null, // El producto puede tener o no descripcion
+        precio_compra, 
+        precio_venta, 
+        stock, 
+        estado,
+        cod_categoria = null, // El producto puede tener o no categoria
+        cod_linea = null // El producto puede tener o no linea
+      } = productData;
+      
+      const sql = `CALL ActualizarProducto(?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      const params = [
+        cod_producto,
+        nombre,
+        descripcion,
+        precio_compra,
+        precio_venta,
+        stock,
+        estado,
+        cod_categoria,
+        cod_linea
+      ];
+      
+      const [result] = await database.pool.query(sql, params);
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error('Error en Producto.update:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = Product;
