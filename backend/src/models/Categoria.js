@@ -4,7 +4,7 @@ class Categoria {
     static async existeCategoriaPorNombre(nombreCategoria) {
         try {
             const [results] = await database.pool.query(
-                'SELECT 1 FROM Categorias WHERE LOWER(nombre_categoria) = LOWER(?) LIMIT 1',
+                'SELECT 1 FROM Categorias WHERE LOWER(nombre) = LOWER(?) LIMIT 1',
                 [nombreCategoria]
             );
             return results.length > 0;

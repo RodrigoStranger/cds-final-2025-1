@@ -52,13 +52,16 @@ class CategoriaController {
         try {
             const { id } = req.params;
             if (!id) {
-                return res.status(400).json({ resultado: false });
+                return res.status(400).json({ error: 'ID de categoría no proporcionado' });
             }
             const categoria = await Categoria.ObtenerCategoriaPorId(id);
-            return res.status(200).json({ resultado: categoria });
+            if (!categoria) {
+                return res.status(404).json({ error: 'Categoría no encontrada' });
+            }
+            return res.status(200).json(categoria);
         } catch (error) {
             console.error('Error en ObtenerCategoriaPorId:', error);
-            res.status(500).json({ resultado: false });
+            res.status(500).json({ error: 'Error al obtener la categoría' });
         }
     }
 }
