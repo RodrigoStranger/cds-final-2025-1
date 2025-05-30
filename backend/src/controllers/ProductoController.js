@@ -30,7 +30,7 @@ const ProductoController = {
       if (existe) {
         return res.status(200).json({
           resultado: true,
-          mensaje: 'Ya existe el producto'
+          mensaje: 'Ya existe un producto con ese nombre'
         });
       }
       res.status(200).json({ resultado: false });
