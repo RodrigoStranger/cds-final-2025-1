@@ -108,53 +108,26 @@ const ProductoController = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const productData = req.body;
       // Validar que el ID sea un número entero válido
       if (!/^\d+$/.test(id)) {
-        return res.status(400).json({
+        return res.status(200).json({
           resultado: false,
-          mensaje: 'ID de producto inválido'
+          mensaje: 'id de producto inválido'
         });
       }
-      // Validar campos requeridos
-      const requiredFields = ['nombre', 'precio_compra', 'precio_venta', 'stock', 'estado'];
-      const missingFields = requiredFields.filter(field => !productData[field]);
-      
-      if (missingFields.length > 0) {
-        return res.status(400).json({
-          resultado: false,
-          mensaje: `Faltan campos requeridos: ${missingFields.join(', ')}`
-        });
-      }
-      // Validar que el estado sea válido
-      if (!['disponible', 'agotado'].includes(productData.estado)) {
-        return res.status(400).json({
-          resultado: false,
-          mensaje: 'El estado debe ser "disponible" o "agotado"'
-        });
-      }
-      // Verificar si el producto existe
-      const existe = await Product.existsById(parseInt(id));
-      if (!existe) {
-        return res.status(404).json({
-          resultado: false,
-          mensaje: 'Producto no encontrado'
-        });
-      }
+      const productData = req.body;
       // Actualizar el producto
       const actualizado = await Product.update(parseInt(id), productData);
       if (actualizado) {
         return res.status(200).json({
-          mensaje: `Producto ${productData.nombre} actualizado correctamente`
+          mensaje: `Producto actualizado correctamente`
         });
       }
       res.status(400).json({
         mensaje: 'No se pudo actualizar el producto'
       });
     } catch (error) {
-      console.error('Error en update:', error);
       res.status(500).json({
-        resultado: false,
         mensaje: 'Error al actualizar el producto'
       });
     }
