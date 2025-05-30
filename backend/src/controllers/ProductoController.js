@@ -120,6 +120,7 @@ const ProductoController = {
       const actualizado = await Product.ActualizarProducto(parseInt(id), productData);
       if (actualizado) {
         return res.status(200).json({
+          resultado: true,
           mensaje: `Producto actualizado correctamente`
         });
       }

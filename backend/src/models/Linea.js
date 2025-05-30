@@ -66,7 +66,7 @@ class Linea {
         try {
             const sql = `CALL ObtenerLineaPorId(?)`;
             const [results] = await database.pool.query(sql, [idLinea]);
-            return results[0]; // Retorna solo el primer conjunto de resultados
+            return results[0] ? results[0][0] : null;
         } catch (error) {
             console.error('Error en Linea.ObtenerLineaPorId:', error);
             throw error;
