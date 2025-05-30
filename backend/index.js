@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config({ path: '.env.local' });
 const productoRoutes = require('./src/routes/ProductoRoute');
+const lineaRoutes = require('./src/routes/LineaRoute');
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/productos', productoRoutes);
+app.use('/api/lineas', lineaRoutes);
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 4000;

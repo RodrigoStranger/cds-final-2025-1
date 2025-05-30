@@ -34,7 +34,7 @@ class Product {
   // Verifica si ya existe un producto con el nombre especificado
   static async existsByNombre(nombre) {
     try {
-      const sql = `SELECT EXISTS(SELECT 1 FROM Productos WHERE nombre = ?) as existe`;
+      const sql = `SELECT EXISTS(SELECT 1 FROM Productos WHERE LOWER(nombre) = LOWER(?)) as existe`;
       const [rows] = await database.pool.query(sql, [nombre]);
       return Boolean(rows[0]?.existe);
     } catch (error) {
