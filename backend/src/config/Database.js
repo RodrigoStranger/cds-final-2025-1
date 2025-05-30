@@ -14,20 +14,9 @@ class Database {
       queueLimit: 0
     });
   }
-
-  // Función para ejecutar consultas
-  async query(sql, params = []) {
-    try {
-      const [rows] = await this.pool.execute(sql, params);
-      return rows;
-    } catch (error) {
-      throw error;
-    }
-  }
 }
 
-// Crear una instancia de la base de datos
+// Crear y exportar una instancia única de la base de datos
 const database = new Database();
 
-// Exportar la instancia
 module.exports = database;
