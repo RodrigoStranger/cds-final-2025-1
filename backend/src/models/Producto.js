@@ -36,12 +36,21 @@ class Product {
     try {
       const sql = `SELECT EXISTS(SELECT 1 FROM Productos WHERE nombre = ?) as existe`;
       const [rows] = await database.pool.query(sql, [nombre]);
-      
-      // La consulta devuelve 1 si existe, 0 si no existe
-      // Convertimos a booleano explícitamente
       return Boolean(rows[0]?.existe);
     } catch (error) {
       console.error('Error en Producto.existsByNombre:', error);
+      throw error;
+    }
+  }
+
+  // Verifica si existe un producto por su ID
+  static async existsById(cod_producto) {
+    try {
+      const sql = `SELECT EXISTS(SELECT 1 FROM Productos WHERE cod_producto = ?) as existe`;
+      const [rows] = await database.pool.query(sql, [cod_producto]);
+      return Boolean(rows[0]?.existe);
+    } catch (error) {
+      console.error('Error en Producto.existsById:', error);
       throw error;
     }
   }

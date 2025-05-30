@@ -7,6 +7,9 @@ const router = express.Router();
 router.post('/', ProductoController.create);
 
 // Ruta para verificar si un producto existe por nombre
-router.get('/existe/:nombre', ProductoController.existsByNombre);
+router.get('/existe-nombre/:nombre', ProductoController.existsByNombre);
+
+// Ruta para verificar si un producto existe por ID
+router.get('/existe-id/:id', ProductoController.existsById);
 
 module.exports = router;

@@ -23,22 +23,42 @@ const ProductoController = {
   async existsByNombre(req, res) {
     try {
       const { nombre } = req.params;
-      
       if (!nombre) {
         return res.status(400).json(false);
       }
       const existe = await Product.existsByNombre(nombre);
-      
       if (existe) {
         return res.status(200).json({
           resultado: true,
           mensaje: 'Ya existe el producto'
         });
       }
-      // Devolver objeto con resultado false cuando el producto no existe
       res.status(200).json({ resultado: false });
     } catch (error) {
       res.status(500).json(false);
+    }
+  },
+  
+  // Verificar si un producto existe por su ID
+  async existsById(req, res) {
+    try {
+      const { id } = req.params;
+      const existe = await Product.existsById(parseInt(id));
+      if (existe) {
+        return res.status(200).json({
+          resultado: true
+        });
+      }
+      res.status(200).json({ 
+        resultado: false, 
+        mensaje: 'No se encontró el producto' 
+      });
+      
+    } catch (error) {
+      res.status(500).json({ 
+        resultado: false, 
+        mensaje: 'Error al buscar el producto' 
+      });
     }
   }
 };
