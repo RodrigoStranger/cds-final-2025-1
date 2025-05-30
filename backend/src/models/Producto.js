@@ -78,6 +78,19 @@ class Product {
       throw error;
     }
   }
+
+  // Obtiene un producto por su ID con información relacionada
+  static async getById(cod_producto) {
+    try {
+      const sql = `CALL ObtenerProductoPorId(?)`;
+      const [results] = await database.pool.query(sql, [cod_producto]);
+      // Devolver el primer resultado o null si no se encuentra
+      return results[0] ? results[0][0] : null;
+    } catch (error) {
+      console.error('Error en Producto.getById:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = Product;

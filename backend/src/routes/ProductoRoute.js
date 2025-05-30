@@ -18,4 +18,7 @@ router.get('/existe-nombre/:nombre', ProductoController.existsByNombre);
 // Ruta para verificar si un producto existe por ID
 router.get('/existe-id/:id', ProductoController.existsById);
 
+// Ruta para obtener un producto por su ID
+router.get('/:id', ProductoController.getById);
+
 module.exports = router;

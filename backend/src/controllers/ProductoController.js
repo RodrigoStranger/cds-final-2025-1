@@ -43,18 +43,20 @@ const ProductoController = {
   async existsById(req, res) {
     try {
       const { id } = req.params;
-      const existe = await Product.existsById(parseInt(id));
-      if (existe) {
+      // Validar que el ID sea un número entero válido
+      if (!/^\d+$/.test(id)) {
         return res.status(200).json({
-          resultado: true
+          resultado: false,
+          mensaje: 'id de producto inválido'
         });
       }
-      res.status(200).json({ 
-        resultado: false, 
-        mensaje: 'No se encontró el producto' 
+      const idNumero = parseInt(id, 10);
+      const existe = await Product.existsById(idNumero);
+      return res.status(200).json({
+        resultado: !!existe
       });
-      
     } catch (error) {
+      console.error('Error en existsById:', error);
       res.status(500).json({ 
         resultado: false, 
         mensaje: 'Error al buscar el producto' 
@@ -79,6 +81,26 @@ const ProductoController = {
       res.status(200).json(productos);
     } catch (error) {
       res.status(500).json([]);
+    }
+  },
+  
+  // Obtener un producto por su ID
+  async getById(req, res) {
+    try {
+      const { id } = req.params;
+      // Validar que el ID sea un número entero válido
+      if (!/^\d+$/.test(id)) {
+        return res.status(200).json({
+          resultado: false,
+          mensaje: 'id de producto inválido'
+        });
+      }
+      const producto = await Product.getById(parseInt(id));
+      res.status(200).json(producto);
+    } catch (error) {
+      res.status(500).json({
+        resultado: false,
+        });
     }
   }
 };
