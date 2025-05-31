@@ -332,7 +332,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
   }
   
   .icon-button.edit {
@@ -341,6 +343,8 @@
   
   .icon-button.edit:hover {
     color: #166534;
+    background-color: #f0fdf4;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
   
   /* Empty State */
