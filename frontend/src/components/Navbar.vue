@@ -9,6 +9,9 @@
           <span class="mobile-brand">FabiaNatura</span>
         </div>
   
+        <!-- Spacer para empujar el contenido del usuario a la derecha -->
+        <div class="navbar-spacer"></div>
+  
         <!-- User Section -->
         <div class="user-section">
           <!-- User Info -->
@@ -49,14 +52,6 @@
               <div class="dropdown-divider"></div>
               
               <div class="dropdown-items">
-                <button @click="handleProfile" class="dropdown-item">
-                  <User class="icon" />
-                  <span>Mi Perfil</span>
-                </button>
-                <button @click="handleSettings" class="dropdown-item">
-                  <Settings class="icon" />
-                  <span>Configuración</span>
-                </button>
                 <button @click="handleLogout" class="dropdown-item logout">
                   <LogOut class="icon" />
                   <span>Cerrar Sesión</span>
@@ -84,7 +79,7 @@
   
   <script setup>
   import { ref, onMounted, onUnmounted } from 'vue';
-  import { Menu, ChevronDown, User, Settings, LogOut, X } from 'lucide-vue-next';
+  import { Menu, ChevronDown, LogOut, X } from 'lucide-vue-next';
   
   defineProps({
     user: {
@@ -112,16 +107,6 @@
   
   const closeMobileMenu = () => {
     mobileMenuOpen.value = false;
-  };
-  
-  const handleProfile = () => {
-    console.log('Ir a perfil');
-    dropdownOpen.value = false;
-  };
-  
-  const handleSettings = () => {
-    console.log('Ir a configuración');
-    dropdownOpen.value = false;
   };
   
   const handleLogout = () => {
@@ -153,21 +138,15 @@
     position: sticky;
     top: 0;
     z-index: 30;
-    /* En desktop, el navbar se posiciona a la derecha del sidebar */
-    margin-left: 0;
-  }
-  
-  @media (min-width: 768px) {
-    .navbar {
-      margin-left: 250px; /* Ancho del sidebar */
-    }
+    /* El navbar ocupa todo el ancho del main content */
+    width: 100%;
   }
   
   .navbar-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 0.75rem 1.5rem;
+    width: 100%;
     max-width: 100%;
   }
   
@@ -198,20 +177,18 @@
     color: #15803d;
   }
   
+  /* Spacer para empujar el contenido del usuario a la derecha */
+  .navbar-spacer {
+    flex: 1;
+  }
+  
   /* User Section */
   .user-section {
     display: flex;
     align-items: center;
     gap: 1rem;
     position: relative;
-    /* En desktop, asegurar que esté a la derecha */
-    margin-left: auto;
-  }
-  
-  @media (min-width: 768px) {
-    .user-section {
-      margin-left: auto;
-    }
+    flex-shrink: 0;
   }
   
   .user-info {
@@ -350,13 +327,17 @@
     font-size: 0.875rem;
     font-weight: 500;
     color: #111827;
-    truncate: true;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .dropdown-email {
     font-size: 0.75rem;
     color: #6b7280;
-    truncate: true;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .dropdown-divider {
