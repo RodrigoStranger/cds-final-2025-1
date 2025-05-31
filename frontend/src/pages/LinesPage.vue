@@ -224,6 +224,7 @@
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    justify-content: flex-end;
   }
   
   /* Table */
@@ -255,6 +256,7 @@
   
   .table th.actions, .table td.actions {
     text-align: right;
+    width: 120px;
   }
   
   /* Line Cell */
@@ -290,7 +292,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
   }
   
   .icon-button.edit {
@@ -299,6 +303,7 @@
   
   .icon-button.edit:hover {
     color: #166534;
+    background-color: #f0fdf4;
   }
   
   .icon-button.delete {
@@ -307,6 +312,7 @@
   
   .icon-button.delete:hover {
     color: #dc2626;
+    background-color: #fef2f2;
   }
   </style>
   
