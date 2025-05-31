@@ -1,6 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+
+// Configuración de variables de entorno
 require('dotenv').config({ path: '.env.local' });
+
+// Rutas
 const productoRoutes = require('./src/routes/ProductoRoute');
 const lineaRoutes = require('./src/routes/LineaRoute');
 const categoriaRoutes = require('./src/routes/CategoriaRoute');
@@ -26,8 +30,10 @@ app.use('/api/lineas', lineaRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/proveedores', proveedorRoutes);
 
-// Iniciar el servidor
+// Puerto
 const PORT = process.env.PORT || 4000;
+
+// Iniciar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor listo en http://localhost:${PORT}`);
 });
