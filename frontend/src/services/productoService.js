@@ -59,7 +59,12 @@ const ProductoService = {
   // Crear un nuevo producto
   crear: async (productoData) => {
     try {
-      const response = await api.post('/productos', productoData);
+      // Asegurarse de que el estado siempre esté definido
+      const dataToSend = {
+        ...productoData,
+        estado: 'disponible' // Estado por defecto
+      };
+      const response = await api.post('/productos', dataToSend);
       return response.data;
     } catch (error) {
       console.error('Error al crear el producto:', error);
@@ -70,7 +75,12 @@ const ProductoService = {
   // Actualizar un producto existente
   actualizar: async (id, productoData) => {
     try {
-      const response = await api.put(`/productos/${id}`, productoData);
+      // Asegurarse de que el estado siempre esté definido
+      const dataToSend = {
+        ...productoData,
+        estado: 'disponible' // Estado por defecto
+      };
+      const response = await api.put(`/productos/${id}`, dataToSend);
       return response.data;
     } catch (error) {
       console.error('Error al actualizar el producto:', error);

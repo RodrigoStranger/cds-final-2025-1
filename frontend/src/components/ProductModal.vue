@@ -13,14 +13,15 @@
             <div class="form-group">
               <label class="required">Nombre</label>
               <input 
-                v-model="productForm.nombre" 
+                :value="productForm.nombre"
+                @input="(e) => $emit('update:productForm', { ...productForm, nombre: e.target.value })"
                 type="text" 
                 :class="{ 
                   'input-error': productErrors.nombre || nombreExistente,
                   'validating': validandoNombre
                 }"
                 placeholder="Ingrese el nombre del producto"
-                @input="$emit('clear-error', 'nombre')"
+                @input.native="$emit('clear-error', 'nombre')"
                 :disabled="validandoNombre"
               >
               <div class="validation-messages">
@@ -89,10 +90,9 @@
                 v-model.number="productForm.stock" 
                 type="number" 
                 min="0"
-                :class="{ 'input-error': productErrors.stock, 'input-disabled': !productForm.activo }"
+                :class="{ 'input-error': productErrors.stock }"
                 placeholder="0"
                 @input="$emit('clear-error', 'stock')"
-                :disabled="!productForm.activo"
               >
               <transition name="fade">
                 <div v-if="productErrors.stock" class="error-message">
@@ -100,23 +100,7 @@
                 </div>
               </transition>
             </div>
-            <div class="form-group">
-              <label class="checkbox-label">
-                <input 
-                  type="checkbox" 
-                  v-model="productForm.activo"
-                  @change="handleActivoChange"
-                  class="checkbox-input"
-                >
-                <span class="checkbox-custom"></span>
-                <span>Producto Activo</span>
-              </label>
-              <transition name="fade">
-                <div v-if="!productForm.activo" class="info-message">
-                  El producto está inactivo. El stock se ha establecido a 0.
-                </div>
-              </transition>
-            </div>
+
             <div class="form-group">
               <label>Categoría</label>
               <div class="relative">
@@ -355,19 +339,11 @@ const handleClose = () => {
   emit('close');
 };
 
-const handleActivoChange = () => {
-  if (!props.productForm.activo) {
-    props.productForm.stock = 0;
-  }
-};
+
 
 const handleSave = async (e) => {
   e.preventDefault();
   
-  // Asegurarse de que el stock sea 0 si el producto está inactivo
-  if (!props.productForm.activo) {
-    props.productForm.stock = 0;
-  }
   
   if (validateProduct()) {
     // Preparar los datos para enviar

@@ -110,6 +110,7 @@
       :product-errors="productErrors"
       :categorias="categorias"
       :lineas="lineas"
+      @update:productForm="updateProductForm"
       @close="closeProductModal"
       @save="saveProduct"
     />
@@ -117,20 +118,26 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, getCurrentInstance } from 'vue';
 import { Plus, Edit, AlertTriangle, Package, Eye } from 'lucide-vue-next';
 import ProductModal from '../components/ProductModal.vue';
 import { useProductos, useCategorias, useLineas } from '../composables/useApi.js';
 
-// Usar los composables
-const { productos, loading, error, crearProducto, actualizarProducto } = useProductos();
+// Get app instance for toast
+const { proxy } = getCurrentInstance();
+
+// Use composables
+const { productos, loading, error, crearProducto, actualizarProducto, cargarProductos } = useProductos();
 const { categorias, cargarCategorias } = useCategorias();
 const { lineas, cargarLineas } = useLineas();
 
-// Cargar datos al montar el componente
+// Load data when component mounts
 onMounted(async () => {
-  await cargarCategorias();
-  await cargarLineas();
+  await Promise.all([
+    cargarCategorias(),
+    cargarLineas(),
+    cargarProductos()
+  ]);
 });
 
 // Estados para modales
@@ -211,6 +218,10 @@ const toggleProductosAgotados = () => {
 };
 
 // Funciones para productos
+const updateProductForm = (newFormData) => {
+  Object.assign(productForm, newFormData);
+};
+
 const openProductModal = (product = null) => {
   if (product) {
     editingProduct.value = product;
@@ -223,7 +234,7 @@ const openProductModal = (product = null) => {
       stock: product.stock,
       cod_categoria: product.cod_categoria || null,
       cod_linea: product.cod_linea || null,
-      activo: product.activo !== false // Por defecto true si no está definido
+    
     });
   } else {
     editingProduct.value = null;
@@ -259,30 +270,37 @@ const saveProduct = async (productoData) => {
   const datosAEnviar = productoData || {
     ...productForm,
     // Asegurar que la descripción sea null si está vacía
-    descripcion: productForm.descripcion?.trim() || null
+    descripcion: productForm.descripcion?.trim() || null,
+    // Establecer estado como activo por defecto (1 = activo, 0 = inactivo)
+    estado: 1
   };
   
-  // Asegurarse de que el campo activo esté definido (true por defecto)
-  if (datosAEnviar.activo === undefined) {
-    datosAEnviar.activo = true;
-  }
-  
-  // Si el producto está inactivo, forzar el stock a 0
-  if (!datosAEnviar.activo) {
-    datosAEnviar.stock = 0;
-  }
   
   console.log('Datos a enviar:', JSON.parse(JSON.stringify(datosAEnviar)));
   
   try {
     if (editingProduct.value) {
-      console.log('Actualizando producto existente con ID:', editingProduct.value.id);
-      const resultado = await actualizarProducto(editingProduct.value.id, datosAEnviar);
+      // Asegurarse de que el ID sea numérico
+      const productId = parseInt(editingProduct.value.id || editingProduct.value.cod_producto);
+      console.log('Actualizando producto existente con ID:', productId);
+      const resultado = await actualizarProducto(productId, datosAEnviar);
       console.log('Producto actualizado:', resultado);
+      
+      // Recargar los productos después de actualizar
+      await cargarProductos();
+      
+      // Mostrar notificación de éxito
+      proxy.$toast.success('Producto actualizado correctamente', 3000);
     } else {
       console.log('Creando nuevo producto');
       const resultado = await crearProducto(datosAEnviar);
       console.log('Producto creado:', resultado);
+      
+      // Recargar los productos después de crear uno nuevo
+      await cargarProductos();
+      
+      // Mostrar notificación de éxito
+      proxy.$toast.success('Producto creado correctamente', 3000);
     }
     closeProductModal();
   } catch (err) {
@@ -292,10 +310,10 @@ const saveProduct = async (productoData) => {
       console.error('Estado del error:', err.response.status);
       
       // Mostrar mensaje de error al usuario
-      if (proxy && proxy.$toast) {
-        const errorMessage = err.response.data.mensaje || 'Error al guardar el producto';
-        proxy.$toast.error(errorMessage, 3000);
-      }
+      const errorMessage = err.response.data?.mensaje || 'Error al guardar el producto';
+      proxy.$toast.error(errorMessage, 3000);
+    } else {
+      proxy.$toast.error('Error de conexión con el servidor', 3000);
     }
   }
 };
