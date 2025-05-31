@@ -3,22 +3,23 @@
       <div class="card">
         <div class="card-header">
           <div class="card-header-content">
-            <div class="header-left">
-              <h3>Productos</h3>
+            <h3>Productos</h3>
+            <div class="header-actions">
               <button @click="toggleProductosAgotados" class="button secondary">
-                <AlertTriangle class="icon-small" />
+                <Eye v-if="showProductosAgotados" class="icon-small" />
+                <AlertTriangle v-else class="icon-small" />
                 {{ showProductosAgotados ? 'Ver Todos' : 'Ver Agotados' }}
               </button>
+              <button 
+                @click="openProductModal()" 
+                class="button primary"
+                :disabled="showProductosAgotados"
+                :class="{ 'button-disabled': showProductosAgotados }"
+              >
+                <Plus class="icon-small" />
+                Nuevo Producto
+              </button>
             </div>
-            <button 
-              @click="openProductModal()" 
-              class="button primary"
-              :disabled="showProductosAgotados"
-              :class="{ 'button-disabled': showProductosAgotados }"
-            >
-              <Plus class="icon-small" />
-              Nuevo Producto
-            </button>
           </div>
         </div>
         <div class="table-container">
@@ -114,7 +115,7 @@
   
   <script setup>
   import { ref, reactive, computed } from 'vue';
-  import { Plus, Edit, Trash, AlertTriangle, Package } from 'lucide-vue-next';
+  import { Plus, Edit, Trash, AlertTriangle, Package, Eye } from 'lucide-vue-next';
   import ProductModal from '../components/ProductModal.vue';
   import ConfirmDeleteModal from '../components/ConfirmDeleteModal.vue';
   
@@ -326,18 +327,18 @@
     gap: 1rem;
   }
   
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-  
   .card-header h3 {
     font-size: 1.125rem;
     font-weight: 500;
     color: #111827;
     margin: 0;
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
   }
   
   /* Button */
@@ -594,12 +595,24 @@
       align-items: stretch;
     }
     
-    .header-left {
+    .header-actions {
       justify-content: space-between;
     }
     
     .button {
       justify-content: center;
+      flex: 1;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .header-actions {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .button {
+      width: 100%;
     }
   }
   </style>
