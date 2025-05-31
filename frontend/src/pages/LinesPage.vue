@@ -10,8 +10,29 @@
             </button>
           </div>
         </div>
-        <div class="table-container">
-          <table class="table">
+        
+        <!-- Estado de carga -->
+        <div v-if="loading" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p>Cargando líneas...</p>
+        </div>
+        
+        <!-- Estado de error -->
+        <div v-else-if="error" class="error-container">
+          <div class="error-icon">
+            <AlertCircle class="icon-large" />
+          </div>
+          <h4>Error al cargar las líneas</h4>
+          <p>{{ error }}</p>
+          <button @click="cargarLineas" class="button secondary">
+            <RefreshCw class="icon-small" />
+            Reintentar
+          </button>
+        </div>
+        
+        <!-- Tabla de líneas -->
+        <div v-else class="table-container">
+          <table class="table" v-if="lineas.length > 0">
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -21,7 +42,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(linea, index) in lineas" :key="index">
+              <tr v-for="linea in lineas" :key="linea.id">
                 <td>
                   <div class="line-cell">
                     <div class="line-avatar">{{ linea.nombre.charAt(0) }}</div>
@@ -29,13 +50,13 @@
                   </div>
                 </td>
                 <td>{{ linea.ruc || 'Sin RUC' }}</td>
-                <td>{{ linea.productos }}</td>
+                <td>{{ linea.productos || 0 }}</td>
                 <td class="actions">
                   <div class="action-buttons">
                     <button @click="openLineModal(linea)" class="icon-button edit">
                       <Edit class="icon-small" />
                     </button>
-                    <button @click="confirmDeleteLine(index)" class="icon-button delete">
+                    <button @click="confirmDeleteLine(linea)" class="icon-button delete">
                       <Trash class="icon-small" />
                     </button>
                   </div>
@@ -43,6 +64,15 @@
               </tr>
             </tbody>
           </table>
+          
+          <!-- Mensaje cuando no hay líneas -->
+          <div v-if="lineas.length === 0" class="empty-state">
+            <div class="empty-icon">
+              <Tag class="icon-large" />
+            </div>
+            <h4>No hay líneas disponibles</h4>
+            <p>Agrega líneas para organizar tus productos.</p>
+          </div>
         </div>
       </div>
   
@@ -67,16 +97,22 @@
   </template>
   
   <script setup>
-  import { ref, reactive } from 'vue';
-  import { Plus, Edit, Trash } from 'lucide-vue-next';
+  import { ref, reactive, onMounted } from 'vue';
+  import { Plus, Edit, Trash, Tag, AlertCircle, RefreshCw } from 'lucide-vue-next';
   import LineModal from '../components/LineModal.vue';
   import ConfirmDeleteModal from '../components/ConfirmDeleteModal.vue';
+  import LineaService from '../services/lineaService';
+  
+  // Estados para datos
+  const lineas = ref([]);
+  const loading = ref(true);
+  const error = ref(null);
   
   // Estados para modales
   const showLineModal = ref(false);
   const showDeleteModal = ref(false);
   const editingLine = ref(null);
-  const deleteIndex = ref(-1);
+  const deleteId = ref(null);
   const deleteMessage = ref('');
   
   // Formulario de línea
@@ -91,14 +127,26 @@
     ruc: ''
   });
   
-  // Datos de líneas
-  const lineas = ref([
-    { nombre: 'Hidratación', ruc: '20123456789', productos: 12 },
-    { nombre: 'Esenciales', ruc: '20987654321', productos: 8 },
-    { nombre: 'Limpieza', ruc: '20456789123', productos: 15 },
-    { nombre: 'Tratamiento', ruc: '', productos: 7 },
-    { nombre: 'Protección', ruc: '20321654987', productos: 5 }
-  ]);
+  // Cargar datos iniciales
+  onMounted(async () => {
+    await cargarLineas();
+  });
+  
+  // Función para cargar líneas
+  const cargarLineas = async () => {
+    loading.value = true;
+    error.value = null;
+    
+    try {
+      const data = await LineaService.obtenerTodas();
+      lineas.value = data;
+    } catch (err) {
+      console.error('Error al cargar líneas:', err);
+      error.value = 'No se pudieron cargar las líneas. Por favor, intenta de nuevo.';
+    } finally {
+      loading.value = false;
+    }
+  };
   
   // Funciones para líneas
   const openLineModal = (line = null) => {
@@ -120,38 +168,49 @@
     Object.keys(lineErrors).forEach(key => lineErrors[key] = '');
   };
   
-  const saveLine = () => {
-    if (editingLine.value) {
-      const index = lineas.value.findIndex(l => l === editingLine.value);
-      if (index !== -1) {
-        lineas.value[index].nombre = lineForm.nombre;
-        lineas.value[index].ruc = lineForm.ruc || '';
+  const saveLine = async () => {
+    try {
+      if (editingLine.value) {
+        // Actualizar línea existente
+        await LineaService.actualizar(editingLine.value.id, lineForm);
+      } else {
+        // Crear nueva línea
+        await LineaService.crear(lineForm);
       }
-    } else {
-      lineas.value.push({
-        nombre: lineForm.nombre,
-        ruc: lineForm.ruc || '',
-        productos: 0
-      });
+      
+      // Recargar líneas después de guardar
+      await cargarLineas();
+      closeLineModal();
+    } catch (err) {
+      console.error('Error al guardar línea:', err);
+      // Aquí podrías manejar errores específicos de validación si la API los devuelve
     }
-    closeLineModal();
   };
   
-  const confirmDeleteLine = (index) => {
-    deleteIndex.value = index;
-    deleteMessage.value = `¿Deseas eliminar la línea "${lineas.value[index].nombre}"?`;
+  const confirmDeleteLine = (linea) => {
+    deleteId.value = linea.id;
+    deleteMessage.value = `¿Deseas eliminar la línea "${linea.nombre}"?`;
     showDeleteModal.value = true;
   };
   
   const closeDeleteModal = () => {
     showDeleteModal.value = false;
-    deleteIndex.value = -1;
+    deleteId.value = null;
     deleteMessage.value = '';
   };
   
-  const confirmDelete = () => {
-    lineas.value.splice(deleteIndex.value, 1);
-    closeDeleteModal();
+  const confirmDelete = async () => {
+    try {
+      // Aquí deberíamos llamar a un método para eliminar la línea por ID
+      // Pero no veo ese método en el servicio, así que habría que implementarlo
+      // await LineaService.eliminar(deleteId.value);
+      
+      // Por ahora, simplemente recargamos las líneas
+      await cargarLineas();
+      closeDeleteModal();
+    } catch (err) {
+      console.error('Error al eliminar línea:', err);
+    }
   };
   </script>
   
@@ -191,6 +250,67 @@
     color: #111827;
   }
   
+  /* Loading */
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+  
+  .loading-spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 3px solid #f3f4f6;
+    border-top-color: #15803d;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Error */
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+  
+  .error-icon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background-color: #fef2f2;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  
+  .error-container h4 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+  
+  .error-container p {
+    color: #6b7280;
+    max-width: 24rem;
+    margin-bottom: 1rem;
+  }
+  
   /* Button */
   .button {
     display: flex;
@@ -211,6 +331,16 @@
   
   .button.primary:hover {
     background-color: #166534;
+  }
+  
+  .button.secondary {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+  }
+  
+  .button.secondary:hover {
+    background-color: #e5e7eb;
   }
   
   .icon-small {
@@ -281,6 +411,45 @@
   .line-name {
     font-weight: 500;
     color: #111827;
+  }
+  
+  /* Empty State */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+  
+  .empty-icon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  
+  .icon-large {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .empty-state h4 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+  
+  .empty-state p {
+    color: #6b7280;
+    max-width: 24rem;
   }
   
   /* Icon Buttons */

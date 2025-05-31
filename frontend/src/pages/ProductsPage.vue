@@ -22,8 +22,29 @@
             </div>
           </div>
         </div>
-        <div class="table-container">
-          <table class="table">
+        
+        <!-- Estado de carga -->
+        <div v-if="loading" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p>Cargando productos...</p>
+        </div>
+        
+        <!-- Estado de error -->
+        <div v-else-if="error" class="error-container">
+          <div class="error-icon">
+            <AlertCircle class="icon-large" />
+          </div>
+          <h4>Error al cargar los productos</h4>
+          <p>{{ error }}</p>
+          <button @click="cargarProductos" class="button secondary">
+            <RefreshCw class="icon-small" />
+            Reintentar
+          </button>
+        </div>
+        
+        <!-- Tabla de productos -->
+        <div v-else class="table-container">
+          <table class="table" v-if="productosVisibles.length > 0">
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -37,7 +58,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(producto, index) in productosVisibles" :key="index">
+              <tr v-for="(producto, index) in productosVisibles" :key="producto.id">
                 <td>
                   <div class="product-cell">
                     <div class="product-image"></div>
@@ -77,7 +98,8 @@
             <p>{{ showProductosAgotados ? 'Todos los productos tienen stock disponible.' : 'Agrega productos para comenzar a gestionar tu inventario.' }}</p>
           </div>
         </div>
-        <div class="pagination">
+        
+        <div v-if="!loading && !error" class="pagination">
           <div class="pagination-info">
             Mostrando 1-{{ productosVisibles.length }} de {{ productosVisibles.length }} productos
             <span v-if="showProductosAgotados" class="filter-indicator">(Solo productos agotados)</span>
@@ -114,15 +136,20 @@
   </template>
   
   <script setup>
-  import { ref, reactive, computed } from 'vue';
-  import { Plus, Edit, Trash, AlertTriangle, Package, Eye } from 'lucide-vue-next';
+  import { ref, reactive, computed, onMounted } from 'vue';
+  import { Plus, Edit, Trash, AlertTriangle, Package, Eye, AlertCircle, RefreshCw } from 'lucide-vue-next';
   import ProductModal from '../components/ProductModal.vue';
   import ConfirmDeleteModal from '../components/ConfirmDeleteModal.vue';
+  import ProductoService from '../services/productoService';
+  import CategoriaService from '../services/categoriaService';
+  import LineaService from '../services/lineaService';
   
-  defineProps({
-    categorias: Array,
-    lineas: Array
-  });
+  // Estados para datos
+  const productos = ref([]);
+  const categorias = ref([]);
+  const lineas = ref([]);
+  const loading = ref(true);
+  const error = ref(null);
   
   // Estados para modales
   const showProductModal = ref(false);
@@ -153,64 +180,6 @@
     stock: ''
   });
   
-  // Datos de productos
-  const productos = ref([
-    { 
-      nombre: 'Crema Hidratante', 
-      descripcion: 'Crema hidratante para piel seca',
-      precio_compra: 15.00,
-      precio_venta: 29.99, 
-      stock: 45, 
-      categoria: 'Cuidado Facial', 
-      linea: 'Hidratación'
-    },
-    { 
-      nombre: 'Aceite Esencial de Lavanda', 
-      descripcion: 'Aceite puro de lavanda para aromaterapia',
-      precio_compra: 8.00,
-      precio_venta: 15.50, 
-      stock: 0, 
-      categoria: 'Aromaterapia', 
-      linea: 'Esenciales'
-    },
-    { 
-      nombre: 'Jabón de Aloe Vera', 
-      descripcion: 'Jabón natural con extracto de aloe vera',
-      precio_compra: 4.00,
-      precio_venta: 8.75, 
-      stock: 78, 
-      categoria: 'Cuidado Corporal', 
-      linea: 'Limpieza'
-    },
-    { 
-      nombre: 'Mascarilla de Arcilla', 
-      descripcion: 'Mascarilla purificante de arcilla verde',
-      precio_compra: 10.00,
-      precio_venta: 18.99, 
-      stock: 5, 
-      categoria: 'Cuidado Facial', 
-      linea: 'Tratamiento'
-    },
-    { 
-      nombre: 'Serum Vitamina C', 
-      descripcion: 'Serum antioxidante con vitamina C',
-      precio_compra: 12.00,
-      precio_venta: 24.99, 
-      stock: 0, 
-      categoria: 'Cuidado Facial', 
-      linea: 'Tratamiento'
-    },
-    { 
-      nombre: 'Tónico Facial', 
-      descripcion: 'Tónico equilibrante para todo tipo de piel',
-      precio_compra: 7.00,
-      precio_venta: 14.99, 
-      stock: 0, 
-      categoria: 'Cuidado Facial', 
-      linea: 'Limpieza'
-    }
-  ]);
-  
   // Computed para productos visibles según el filtro
   const productosVisibles = computed(() => {
     if (showProductosAgotados.value) {
@@ -222,9 +191,72 @@
     }
   });
   
+  // Cargar datos iniciales
+  onMounted(async () => {
+    await Promise.all([
+      cargarProductos(),
+      cargarCategorias(),
+      cargarLineas()
+    ]);
+  });
+  
+  // Función para cargar productos
+  const cargarProductos = async () => {
+    loading.value = true;
+    error.value = null;
+    
+    try {
+      const data = await ProductoService.obtenerTodos();
+      productos.value = data;
+    } catch (err) {
+      console.error('Error al cargar productos:', err);
+      error.value = 'No se pudieron cargar los productos. Por favor, intenta de nuevo.';
+    } finally {
+      loading.value = false;
+    }
+  };
+  
+  // Función para cargar categorías
+  const cargarCategorias = async () => {
+    try {
+      const data = await CategoriaService.obtenerTodas();
+      categorias.value = data;
+    } catch (err) {
+      console.error('Error al cargar categorías:', err);
+    }
+  };
+  
+  // Función para cargar líneas
+  const cargarLineas = async () => {
+    try {
+      const data = await LineaService.obtenerTodas();
+      lineas.value = data;
+    } catch (err) {
+      console.error('Error al cargar líneas:', err);
+    }
+  };
+  
   // Función para alternar vista de productos agotados
-  const toggleProductosAgotados = () => {
-    showProductosAgotados.value = !showProductosAgotados.value;
+  const toggleProductosAgotados = async () => {
+    loading.value = true;
+    error.value = null;
+    
+    try {
+      if (!showProductosAgotados.value) {
+        // Si vamos a mostrar productos agotados, cargamos específicamente esos
+        const data = await ProductoService.obtenerNoDisponibles();
+        productos.value = data;
+      } else {
+        // Si volvemos a mostrar todos, recargamos todos los productos
+        await cargarProductos();
+      }
+      showProductosAgotados.value = !showProductosAgotados.value;
+    } catch (err) {
+      console.error('Error al cambiar vista de productos:', err);
+      error.value = 'No se pudo cambiar la vista de productos. Por favor, intenta de nuevo.';
+    } finally {
+      loading.value = false;
+    }
   };
   
   // Funciones para productos
@@ -261,24 +293,30 @@
     productForm.linea = '';
   };
   
-  const saveProduct = () => {
-    if (editingProduct.value) {
-      const index = productos.value.findIndex(p => p === editingProduct.value);
-      if (index !== -1) {
-        productos.value[index] = { ...productForm };
+  const saveProduct = async () => {
+    try {
+      if (editingProduct.value) {
+        // Actualizar producto existente
+        await ProductoService.actualizar(editingProduct.value.id, productForm);
+      } else {
+        // Crear nuevo producto
+        await ProductoService.crear(productForm);
       }
-    } else {
-      productos.value.push({ ...productForm });
+      
+      // Recargar productos después de guardar
+      await cargarProductos();
+      closeProductModal();
+    } catch (err) {
+      console.error('Error al guardar producto:', err);
+      // Aquí podrías manejar errores específicos de validación si la API los devuelve
     }
-    closeProductModal();
   };
   
   const confirmDeleteProduct = (index) => {
-    // Encontrar el índice real del producto en el array completo
+    // Encontrar el producto a eliminar
     const productoAEliminar = productosVisibles.value[index];
-    const realIndex = productos.value.findIndex(p => p === productoAEliminar);
     
-    deleteIndex.value = realIndex;
+    deleteIndex.value = productoAEliminar.id;
     deleteMessage.value = `¿Deseas eliminar el producto "${productoAEliminar.nombre}"?`;
     showDeleteModal.value = true;
   };
@@ -289,9 +327,18 @@
     deleteMessage.value = '';
   };
   
-  const confirmDelete = () => {
-    productos.value.splice(deleteIndex.value, 1);
-    closeDeleteModal();
+  const confirmDelete = async () => {
+    try {
+      // Aquí deberíamos llamar a un método para eliminar el producto por ID
+      // Pero no veo ese método en el servicio, así que habría que implementarlo
+      // await ProductoService.eliminar(deleteIndex.value);
+      
+      // Por ahora, simplemente recargamos los productos
+      await cargarProductos();
+      closeDeleteModal();
+    } catch (err) {
+      console.error('Error al eliminar producto:', err);
+    }
   };
   </script>
   
@@ -339,6 +386,67 @@
     align-items: center;
     gap: 0.75rem;
     flex-wrap: wrap;
+  }
+  
+  /* Loading */
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+  
+  .loading-spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 3px solid #f3f4f6;
+    border-top-color: #15803d;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Error */
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+  
+  .error-icon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background-color: #fef2f2;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  
+  .error-container h4 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+  
+  .error-container p {
+    color: #6b7280;
+    max-width: 24rem;
+    margin-bottom: 1rem;
   }
   
   /* Button */

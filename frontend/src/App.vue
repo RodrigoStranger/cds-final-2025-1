@@ -37,6 +37,11 @@ import Navbar from './components/Navbar.vue';
 import ProductsPage from './pages/ProductsPage.vue';
 import LinesPage from './pages/LinesPage.vue';
 import CategoriesPage from './pages/CategoriesPage.vue';
+import { useCategorias, useLineas } from './composables/useApi.js';
+
+// Usar composables para cargar datos de la API
+const { categorias } = useCategorias();
+const { lineas } = useLineas();
 
 // Pestañas
 const activeTab = ref('productos');
@@ -60,22 +65,6 @@ const handleLogout = () => {
   // Por ejemplo: router.push('/login') o limpiar tokens
 };
 
-// Datos compartidos para productos
-const categorias = ref([
-  { nombre: 'Cuidado Facial', descripcion: 'Productos para el cuidado del rostro', productos: 18 },
-  { nombre: 'Cuidado Corporal', descripcion: 'Productos para el cuidado del cuerpo', productos: 24 },
-  { nombre: 'Aromaterapia', descripcion: 'Aceites esenciales y productos aromáticos', productos: 12 },
-  { nombre: 'Cuidado Capilar', descripcion: '', productos: 9 },
-  { nombre: 'Protección Solar', descripcion: 'Productos de protección solar', productos: 6 }
-]);
-
-const lineas = ref([
-  { nombre: 'Hidratación', ruc: '20123456789', productos: 12 },
-  { nombre: 'Esenciales', ruc: '20987654321', productos: 8 },
-  { nombre: 'Limpieza', ruc: '20456789123', productos: 15 },
-  { nombre: 'Tratamiento', ruc: '', productos: 7 },
-  { nombre: 'Protección', ruc: '20321654987', productos: 5 }
-]);
 </script>
 
 <style>
