@@ -39,15 +39,12 @@ const selectedSupplier = reactive({
 
 // Watch for changes in the lineForm prop
 watch(() => props.lineForm, (newVal) => {
-  console.log('lineForm changed:', JSON.stringify(newVal, null, 2));
   selectedSupplier.ruc = newVal?.proveedorRuc || null;
   selectedSupplier.nombre = newVal?.proveedorNombre || null;
 }, { immediate: true });
 
 // Watch for changes in the selected supplier RUC
 watch(() => selectedSupplier.ruc, (newRuc) => {
-  console.log('Selected RUC changed:', newRuc);
-  
   // Find the selected supplier to update the name
   const selectedProveedor = newRuc 
     ? props.proveedores.find(p => p.ruc == newRuc)
@@ -67,19 +64,15 @@ watch(() => selectedSupplier.ruc, (newRuc) => {
     ruc: newRuc  // Ensure RUC is also set at the root level for compatibility
   };
   
-  console.log('Emitting update:lineForm with:', updatedForm);
   emit('update:lineForm', updatedForm);
 });
 
 // Watch for changes in proveedores prop
 watch(() => props.proveedores, (newProveedores) => {
-  console.log('Proveedores actualizados en el modal:', JSON.stringify(newProveedores, null, 2));
-  
   // If we have a selected RUC, make sure the supplier still exists
   if (selectedSupplier.ruc && newProveedores.length > 0) {
     const found = newProveedores.find(p => p.ruc == selectedSupplier.ruc);
     if (!found) {
-      console.warn(`Proveedor con RUC ${selectedSupplier.ruc} no encontrado en la lista`);
       // Reset selection if supplier no longer exists
       selectedSupplier.ruc = null;
       selectedSupplier.nombre = null;
@@ -92,15 +85,12 @@ watch(() => props.proveedores, (newProveedores) => {
 
 const handleProveedorChange = (event) => {
   const selectedRuc = event?.target?.value ? event.target.value : null;
-  console.log('Selected RUC from event:', selectedRuc);
   
   // Encontrar el proveedor seleccionado
   const selectedProveedor = selectedRuc 
     ? props.proveedores.find(p => p.ruc == selectedRuc)
     : null;
     
-  console.log('Found proveedor:', selectedProveedor);
-  
   // Actualizar el formulario local
   props.lineForm.proveedorRuc = selectedRuc;
   props.lineForm.proveedorNombre = selectedProveedor?.nombre || null;
@@ -167,32 +157,26 @@ const validateLine = () => {
           </div>
 
           <!-- Supplier Selection -->
-          <div class="mb-4">
-            <label for="proveedor" class="block text-sm font-medium text-gray-700 mb-1">
-              Proveedor (opcional)
-            </label>
-            <select
-              id="proveedor"
-              v-model="lineForm.proveedorRuc"
-              @change="handleProveedorChange"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              <option :value="null">Seleccione un proveedor (opcional)</option>
-              <option 
-                v-for="proveedor in proveedores" 
-                :key="proveedor.ruc" 
-                :value="proveedor.ruc"
+          <div class="form-group">
+            <label>Proveedor</label>
+            <div class="relative">
+              <select 
+                v-model="lineForm.proveedorRuc" 
+                @change="handleProveedorChange"
+                class="w-full"
+                :class="{ error: lineErrors.proveedorId }"
               >
-                {{ proveedor.nombre }} ({{ proveedor.ruc }})
-              </option>
-            </select>
-            <div v-if="lineErrors.proveedorId" class="mt-1 text-sm text-red-600">
-              {{ lineErrors.proveedorId }}
+                <option :value="null">Sin proveedor</option>
+                <option 
+                  v-for="proveedor in proveedores" 
+                  :key="proveedor.ruc" 
+                  :value="proveedor.ruc"
+                >
+                  {{ proveedor.nombre }}
+                </option>
+              </select>
             </div>
-            <div class="mt-1 text-xs text-gray-500">
-              <div>Proveedor seleccionado: {{ selectedSupplier.nombre || 'Ninguno' }}</div>
-              <div>RUC: {{ selectedSupplier.ruc || 'No seleccionado' }}</div>
-            </div>
+            <span v-if="lineErrors.proveedorId" class="error-message">{{ lineErrors.proveedorId }}</span>
           </div>
           <div class="modal-actions">
             <button type="button" @click="$emit('close')" class="button secondary">Cancelar</button>

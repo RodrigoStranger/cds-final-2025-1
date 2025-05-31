@@ -219,19 +219,8 @@ const saveLine = async () => {
       }
     }
 
-    // Debug: Log all available suppliers and form data
-    console.log('=== DEBUG: Iniciando guardado de línea ===');
-    console.log('Formulario actual:', JSON.stringify(lineForm.value, null, 2));
-    console.log('Proveedores disponibles:', JSON.stringify(proveedores.value, null, 2));
-    
-    // Log the form data for debugging
-    console.log('=== DATOS DEL FORMULARIO ===');
-    console.log('Nombre de línea:', nombre);
-    console.log('Formulario completo:', JSON.stringify(lineForm.value, null, 2));
-    
     // Obtener el RUC del formulario
     const ruc = lineForm.value.proveedorRuc;
-    console.log('RUC a guardar:', ruc, 'Tipo:', typeof ruc);
     
     // Preparar los datos para guardar
     const lineData = {
@@ -243,11 +232,6 @@ const saveLine = async () => {
     if (lineData.ruc !== null) {
       lineData.ruc = String(lineData.ruc);
     }
-    
-    console.log('Datos a guardar:', lineData);
-    
-    console.log('=== DATOS A ENVIAR AL BACKEND ===');
-    console.log(JSON.stringify(lineData, null, 2));
     
     // Save or update the line
     if (editingLine.value) {
