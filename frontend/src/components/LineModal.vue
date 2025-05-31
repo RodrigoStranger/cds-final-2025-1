@@ -31,6 +31,20 @@ const emit = defineEmits([
   'clear-error'
 ]);
 
+// Manejar el cierre del modal
+const handleClose = () => {
+  // Limpiar errores antes de cerrar
+  if (props.lineErrors) {
+    Object.keys(props.lineErrors).forEach(key => {
+      if (props.lineErrors[key]) {
+        emit('clear-error', key);
+      }
+    });
+  }
+  
+  emit('close');
+};
+
 // Use a reactive object to track the selected supplier
 const selectedSupplier = reactive({
   ruc: props.lineForm?.proveedorRuc || null,
@@ -104,7 +118,8 @@ const handleProveedorChange = (event) => {
   emit('update:lineForm', { ...props.lineForm });
 };
 
-const handleSave = () => {
+const handleSave = (e) => {
+  e.preventDefault();
   if (validateLine()) {
     emit('save');
   }
@@ -130,11 +145,11 @@ const validateLine = () => {
 </script>
 
 <template>
-  <div v-if="show" class="modal-overlay" @click="$emit('close')">
-    <div class="modal" @click.stop>
+  <div v-if="show" class="modal-overlay">
+    <div class="modal">
       <div class="modal-header">
         <h3>{{ editingLine ? 'Editar Línea' : 'Nueva Línea' }}</h3>
-        <button @click="$emit('close')" class="close-button">
+        <button @click="handleClose" class="close-button">
           <X class="icon" />
         </button>
       </div>
@@ -142,13 +157,15 @@ const validateLine = () => {
         <form @submit.prevent="handleSave">
           <div class="form-group">
             <label class="required">Nombre</label>
-            <input 
-              v-model="lineForm.nombre" 
-              type="text" 
-              :class="{ 'input-error': lineErrors && lineErrors.nombre }"
-              placeholder="Ingrese el nombre de la línea"
-              @input="emit('clear-error', 'nombre')"
-            >
+            <div class="input-wrapper">
+              <input 
+                v-model="lineForm.nombre" 
+                type="text" 
+                :class="{ 'input-error': lineErrors && lineErrors.nombre }"
+                placeholder="Ingrese el nombre de la línea"
+                @input="emit('clear-error', 'nombre')"
+              >
+            </div>
             <transition name="fade">
               <div v-if="lineErrors && lineErrors.nombre" class="error-message">
                 {{ lineErrors.nombre }}
@@ -179,7 +196,7 @@ const validateLine = () => {
             <span v-if="lineErrors.proveedorId" class="error-message">{{ lineErrors.proveedorId }}</span>
           </div>
           <div class="modal-actions">
-            <button type="button" @click="$emit('close')" class="button secondary">Cancelar</button>
+            <button type="button" @click="handleClose" class="button secondary">Cancelar</button>
             <button type="submit" class="button primary">{{ editingLine ? 'Actualizar' : 'Crear' }}</button>
           </div>
         </form>
@@ -190,6 +207,35 @@ const validateLine = () => {
 
 <style scoped>
 @import '../styles/components/LineModal.css';
+
+/* Estilos para el input personalizado */
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-wrapper input:focus {
+  outline: none;
+  border-color: #15803d;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
+}
+
+.input-wrapper.input-error input {
+  border-color: #dc2626;
+}
 
 /* Estilos para el select personalizado */
 .form-select {
