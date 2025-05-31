@@ -4,6 +4,7 @@ require('dotenv').config({ path: '.env.local' });
 const productoRoutes = require('./src/routes/ProductoRoute');
 const lineaRoutes = require('./src/routes/LineaRoute');
 const categoriaRoutes = require('./src/routes/CategoriaRoute');
+const proveedorRoutes = require('./src/routes/ProveedorRoute');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/api/productos', productoRoutes);
 app.use('/api/lineas', lineaRoutes);
 app.use('/api/categorias', categoriaRoutes);
+app.use('/api/proveedores', proveedorRoutes);
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 4000;
