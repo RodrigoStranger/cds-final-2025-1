@@ -212,25 +212,24 @@ const toggleProductosAgotados = () => {
 
 // Funciones para productos
 const openProductModal = (product = null) => {
-  // No permitir abrir modal si estamos viendo productos agotados y no es edición
-  if (showProductosAgotados.value && !product) {
-    return;
-  }
-  
   if (product) {
     editingProduct.value = product;
-    // Copiar todas las propiedades del producto al formulario
-    Object.keys(productForm).forEach(key => {
-      if (key in product) {
-        productForm[key] = product[key];
-      }
+    // Inicializar el formulario con los datos del producto
+    Object.assign(productForm, {
+      nombre: product.nombre,
+      descripcion: product.descripcion || '',
+      precio_compra: product.precio_compra,
+      precio_venta: product.precio_venta,
+      stock: product.stock,
+      cod_categoria: product.cod_categoria || null,
+      cod_linea: product.cod_linea || null,
+      activo: product.activo !== false // Por defecto true si no está definido
     });
-    // Asegurarse de que los campos de relación se copien correctamente
-    if (product.cod_categoria) productForm.cod_categoria = product.cod_categoria;
-    if (product.cod_linea) productForm.cod_linea = product.cod_linea;
   } else {
     editingProduct.value = null;
     resetProductForm();
+    // Asegurarse de que el producto nuevo esté activo por defecto
+    productForm.activo = true;
   }
   showProductModal.value = true;
 };
@@ -250,17 +249,28 @@ const resetProductForm = () => {
   productForm.stock = 0;
   productForm.cod_categoria = null;
   productForm.cod_linea = null;
+  productForm.activo = true; // Por defecto, un nuevo producto está activo
 };
 
-const saveProduct = async () => {
+const saveProduct = async (productoData) => {
   console.log('Iniciando saveProduct');
   
-  // Crear una copia del formulario para modificar los datos
-  const datosAEnviar = {
+  // Usar los datos del formulario o los proporcionados en el parámetro
+  const datosAEnviar = productoData || {
     ...productForm,
     // Asegurar que la descripción sea null si está vacía
     descripcion: productForm.descripcion?.trim() || null
   };
+  
+  // Asegurarse de que el campo activo esté definido (true por defecto)
+  if (datosAEnviar.activo === undefined) {
+    datosAEnviar.activo = true;
+  }
+  
+  // Si el producto está inactivo, forzar el stock a 0
+  if (!datosAEnviar.activo) {
+    datosAEnviar.stock = 0;
+  }
   
   console.log('Datos a enviar:', JSON.parse(JSON.stringify(datosAEnviar)));
   
@@ -280,6 +290,12 @@ const saveProduct = async () => {
     if (err.response) {
       console.error('Detalles del error:', err.response.data);
       console.error('Estado del error:', err.response.status);
+      
+      // Mostrar mensaje de error al usuario
+      if (proxy && proxy.$toast) {
+        const errorMessage = err.response.data.mensaje || 'Error al guardar el producto';
+        proxy.$toast.error(errorMessage, 3000);
+      }
     }
   }
 };

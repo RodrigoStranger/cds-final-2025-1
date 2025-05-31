@@ -86,15 +86,34 @@
             <div class="form-group">
               <label class="required">Stock</label>
               <input 
-                v-model="productForm.stock" 
-                type="number"
-                :class="{ 'input-error': productErrors.stock }"
+                v-model.number="productForm.stock" 
+                type="number" 
+                min="0"
+                :class="{ 'input-error': productErrors.stock, 'input-disabled': !productForm.activo }"
                 placeholder="0"
                 @input="$emit('clear-error', 'stock')"
+                :disabled="!productForm.activo"
               >
               <transition name="fade">
                 <div v-if="productErrors.stock" class="error-message">
                   {{ productErrors.stock }}
+                </div>
+              </transition>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  v-model="productForm.activo"
+                  @change="handleActivoChange"
+                  class="checkbox-input"
+                >
+                <span class="checkbox-custom"></span>
+                <span>Producto Activo</span>
+              </label>
+              <transition name="fade">
+                <div v-if="!productForm.activo" class="info-message">
+                  El producto está inactivo. El stock se ha establecido a 0.
                 </div>
               </transition>
             </div>
@@ -336,22 +355,105 @@ const handleClose = () => {
   emit('close');
 };
 
+const handleActivoChange = () => {
+  if (!props.productForm.activo) {
+    props.productForm.stock = 0;
+  }
+};
+
 const handleSave = async (e) => {
   e.preventDefault();
-  console.log('Validando formulario...');
+  
+  // Asegurarse de que el stock sea 0 si el producto está inactivo
+  if (!props.productForm.activo) {
+    props.productForm.stock = 0;
+  }
   
   if (validateProduct()) {
-    console.log('Formulario válido, emitiendo evento save...');
-    console.log('Datos a guardar:', JSON.parse(JSON.stringify(props.productForm)));
-    emit('save');
-  } else {
-    console.log('Validación fallida, no se emite el evento save');
+    // Preparar los datos para enviar
+    const dataToSend = { ...props.productForm };
+    
+    // Si es una actualización, asegurarse de incluir el ID
+    if (props.editingProduct) {
+      dataToSend.cod_producto = props.editingProduct.cod_producto;
+    }
+    
+    // Emitir el evento save con los datos formateados
+    emit('save', dataToSend);
   }
 };
 </script>
 
 <style scoped>
 @import '../styles/components/ProductModal.css';
+
+/* Estilos para el checkbox personalizado */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  user-select: none;
+}
+
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkbox-custom {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  margin-right: 8px;
+  transition: all 0.2s;
+}
+
+.checkbox-input:checked ~ .checkbox-custom {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+.checkbox-input:checked ~ .checkbox-custom:after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-input:focus ~ .checkbox-custom {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* Estilos para el campo de stock deshabilitado */
+.input-disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Estilos para el mensaje de información */
+.info-message {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  border-right: 3px solid #9ca3af;
+}
 
 .validation-messages {
   min-height: 1.5rem;
