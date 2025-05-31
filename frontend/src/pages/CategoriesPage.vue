@@ -153,7 +153,11 @@ const previousPage = () => {
 // Funciones para categorías
 const openCategoryModal = (category = null) => {
   if (category) {
-    editingCategory.value = category;
+    // Make sure we're using the correct ID field (cod_categoria)
+    editingCategory.value = {
+      id: category.cod_categoria || category.id,
+      ...category
+    };
     categoryForm.nombre = category.nombre;
     categoryForm.descripcion = category.descripcion || '';
   } else {
@@ -219,34 +223,106 @@ const saveCategory = async () => {
       descripcion: categoryForm.descripcion?.trim() || null
     };
 
+    let response;
+    
     // Save or update the category
     if (editingCategory.value) {
-      await actualizarCategoria(editingCategory.value.id, categoriaData);
-      proxy.$toast.success('¡Categoría actualizada exitosamente!', 2000);
+      // Use cod_categoria if available, otherwise fall back to id
+      const categoryId = editingCategory.value.cod_categoria || editingCategory.value.id;
+      
+      // Ensure we have a valid ID
+      if (!categoryId) {
+        throw new Error('ID de categoría no proporcionado');
+      }
+      
+      // Convert ID to number and validate
+      const idNum = parseInt(categoryId, 10);
+      if (isNaN(idNum)) {
+        throw new Error('ID de categoría inválido');
+      }
+      
+      // Log the data being sent for debugging
+      console.log('Updating category with ID:', idNum, 'Data:', categoriaData);
+      
+      response = await actualizarCategoria(idNum, {
+        nombre: categoriaData.nombre,
+        descripcion: categoriaData.descripcion || null
+      });
+      
+      if (response && response.resultado) {
+        proxy.$toast.success(response.mensaje || '¡Categoría actualizada exitosamente!', 2000);
+      } else {
+        throw new Error(response?.mensaje || 'Error al actualizar la categoría');
+      }
     } else {
-      await crearCategoria(categoriaData);
-      proxy.$toast.success('¡Categoría creada exitosamente!', 2000);
+      // For create
+      response = await crearCategoria(categoriaData);
+      
+      if (response && response.resultado) {
+        proxy.$toast.success(response.mensaje || '¡Categoría creada exitosamente!', 2000);
+      } else {
+        throw new Error(response?.mensaje || 'Error al crear la categoría');
+      }
     }
     
-    cargarCategorias();
+    // Force a refresh of the categories list
+    await cargarCategorias();
     
-    closeCategoryModal();
+    // Close the modal after a short delay to show the success message
+    setTimeout(() => {
+      closeCategoryModal();
+    }, 500);
   } catch (err) {
     console.error('Error al guardar la categoría:', err);
-    // No mostrar toast de error, solo registrar en consola
-    if (err.response?.data?.error) {
-      error.value = err.response.data.error;
-      // Si el error es de nombre duplicado, mostrarlo en el campo correspondiente
-      if (err.response.data.error.toLowerCase().includes('nombre')) {
-        categoryErrors.nombre = err.response.data.error;
+    
+    // Check for validation errors from the server
+    if (err.response) {
+      // Server responded with a status code outside the 2xx range
+      console.error('Error response data:', err.response.data);
+      console.error('Error status:', err.response.status);
+      
+      // Handle specific error cases
+      if (err.response.status === 400) {
+        // Bad Request - validation errors
+        if (err.response.data.error) {
+          // Show the error message from the server
+          proxy.$toast.error(err.response.data.error, 3000);
+          
+          // If there's a field-specific error, show it in the form
+          if (err.response.data.field) {
+            categoryErrors[err.response.data.field] = err.response.data.error;
+          }
+        }
+      } else if (err.response.status === 404) {
+        // Not Found
+        proxy.$toast.error('Categoría no encontrada', 3000);
+      } else if (err.response.status === 409) {
+        // Conflict - duplicate name
+        if (err.response.data.error?.toLowerCase().includes('nombre')) {
+          categoryErrors.nombre = err.response.data.error;
+        }
+        proxy.$toast.error(err.response.data.error || 'Error de validación', 3000);
+      } else {
+        // Other server errors
+        proxy.$toast.error('Error en el servidor al procesar la solicitud', 3000);
       }
-      // Show error toast
-      proxy.$toast.error(err.response.data.error, 3000);
+    } else if (err.request) {
+      // The request was made but no response was received
+      console.error('No response received:', err.request);
+      proxy.$toast.error('No se pudo conectar con el servidor', 3000);
+    } else if (err.message) {
+      // Something happened in setting up the request
+      console.error('Request setup error:', err.message);
+      
+      // Show user-friendly error messages for known errors
+      if (err.message.includes('ID de categoría')) {
+        proxy.$toast.error(err.message, 3000);
+      } else {
+        proxy.$toast.error('Error al procesar la solicitud', 3000);
+      }
     } else {
-      const errorMsg = 'Ocurrió un error al guardar la categoría';
-      error.value = errorMsg;
-      // Show error toast
-      proxy.$toast.error(errorMsg, 3000);
+      // Unknown error
+      proxy.$toast.error('Ocurrió un error inesperado', 3000);
     }
   }
 };

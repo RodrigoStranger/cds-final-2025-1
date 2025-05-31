@@ -56,14 +56,29 @@ import { ref } from 'vue';
 import { X } from 'lucide-vue-next';
 import CategoriaService from '../services/categoriaService';
 
-const props = defineProps({
+defineProps({
   show: Boolean,
-  editingCategory: Object,
-  categoryForm: Object,
-  categoryErrors: Object
+  editingCategory: {
+    type: Object,
+    default: null
+  },
+  categoryForm: {
+    type: Object,
+    required: true
+  },
+  categoryErrors: {
+    type: Object,
+    required: true
+  },
+  isSubmitting: {
+    type: Boolean,
+    default: false
+  }
 });
 
-const emit = defineEmits(['close']);
+// Declare the events this component emits
+defineEmits(['close', 'save', 'clear-error']);
+
 const isSubmitting = ref(false);
 </script>
 
