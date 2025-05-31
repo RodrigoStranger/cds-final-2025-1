@@ -34,7 +34,7 @@ class Linea {
     static async AgregarLinea(lineaData) {
         try {
             const {
-                ruc = null,
+                ruc,
                 nombre_linea,
                 
             } = lineaData;

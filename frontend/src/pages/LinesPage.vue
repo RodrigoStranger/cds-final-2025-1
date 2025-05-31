@@ -82,6 +82,7 @@
       :editing-line="editingLine"
       :line-form="lineForm"
       :line-errors="lineErrors"
+      :proveedores="proveedores"
       @close="closeLineModal"
       @save="saveLine"
     />
@@ -89,13 +90,25 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, getCurrentInstance } from 'vue';
 import { Plus, Edit, Tag } from 'lucide-vue-next';
 import LineModal from '../components/LineModal.vue';
 import { useLineas } from '../composables/useApi.js';
 
+// Obtener la instancia actual para acceder al plugin de toast
+const { proxy } = getCurrentInstance();
+
 // Usar el composable para líneas
-const { lineas, loading, error, cargarLineas, crearLinea, actualizarLinea } = useLineas();
+const { 
+  lineas, 
+  proveedores, 
+  loading, 
+  error, 
+  cargarLineas, 
+  crearLinea, 
+  actualizarLinea,
+  verificarNombreLinea 
+} = useLineas();
 
 // Estados para modales
 const showLineModal = ref(false);
@@ -106,16 +119,16 @@ const currentPage = ref(1);
 const itemsPerPage = 20;
 
 // Formulario de línea
-const lineForm = reactive({
+const lineForm = ref({
   nombre: '',
-  ruc: '',
-  proveedor: ''
+  proveedorId: null,
+  proveedorRuc: null
 });
 
 // Errores de validación
 const lineErrors = reactive({
   nombre: '',
-  ruc: ''
+  proveedorId: ''
 });
 
 // Computed para paginación
@@ -152,14 +165,18 @@ const previousPage = () => {
 const openLineModal = (line = null) => {
   if (line) {
     editingLine.value = line;
-    lineForm.nombre = line.nombre;
-    lineForm.ruc = line.ruc || '';
-    lineForm.proveedor = line.proveedor || '';
+    lineForm.value = {
+      nombre: line.nombre,
+      proveedorRuc: line.ruc || null,
+      proveedorNombre: line.proveedor || null
+    };
   } else {
     editingLine.value = null;
-    lineForm.nombre = '';
-    lineForm.ruc = '';
-    lineForm.proveedor = '';
+    lineForm.value = { 
+      nombre: '', 
+      proveedorRuc: null,
+      proveedorNombre: null
+    };
   }
   showLineModal.value = true;
 };
@@ -167,19 +184,113 @@ const openLineModal = (line = null) => {
 const closeLineModal = () => {
   showLineModal.value = false;
   editingLine.value = null;
-  Object.keys(lineErrors).forEach(key => lineErrors[key] = '');
+  // Resetear los errores
+  lineErrors.nombre = '';
+  lineErrors.proveedorId = '';
 };
 
 const saveLine = async () => {
   try {
-    if (editingLine.value) {
-      await actualizarLinea(editingLine.value.id, lineForm);
-    } else {
-      await crearLinea(lineForm);
+    // Reset errors
+    lineErrors.nombre = '';
+    lineErrors.proveedorId = '';
+    
+    // Validate required fields
+    if (!lineForm.value.nombre?.trim()) {
+      lineErrors.nombre = 'El nombre es requerido';
+      return;
     }
+
+    // Trim and validate name
+    const nombre = lineForm.value.nombre.trim();
+    
+    // Validate name length
+    if (nombre.length < 2) {
+      lineErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
+      return;
+    }
+
+    // Check if line name already exists (only for new lines or when name changes)
+    if (!editingLine.value || editingLine.value.nombre !== nombre) {
+      const response = await verificarNombreLinea(nombre);
+      if (response && response.resultado === true) {
+        lineErrors.nombre = response.mensaje || 'Ya existe una línea con este nombre';
+        return;
+      }
+    }
+
+    // Debug: Log all available suppliers and form data
+    console.log('=== DEBUG: Iniciando guardado de línea ===');
+    console.log('Formulario actual:', JSON.stringify(lineForm.value, null, 2));
+    console.log('Proveedores disponibles:', JSON.stringify(proveedores.value, null, 2));
+    
+    // Log the form data for debugging
+    console.log('=== DATOS DEL FORMULARIO ===');
+    console.log('Nombre de línea:', nombre);
+    console.log('Formulario completo:', JSON.stringify(lineForm.value, null, 2));
+    
+    // Obtener el RUC del formulario
+    const ruc = lineForm.value.proveedorRuc;
+    console.log('RUC a guardar:', ruc, 'Tipo:', typeof ruc);
+    
+    // Preparar los datos para guardar
+    const lineData = {
+      nombre_linea: nombre,
+      ruc: ruc || null
+    };
+    
+    // Asegurarse de que el RUC sea un string si existe
+    if (lineData.ruc !== null) {
+      lineData.ruc = String(lineData.ruc);
+    }
+    
+    console.log('Datos a guardar:', lineData);
+    
+    console.log('=== DATOS A ENVIAR AL BACKEND ===');
+    console.log(JSON.stringify(lineData, null, 2));
+    
+    // Save or update the line
+    if (editingLine.value) {
+      // Use cod_linea if available, otherwise fall back to id
+      const lineId = editingLine.value.cod_linea || editingLine.value.id;
+      
+      // Ensure we have a valid ID
+      if (!lineId) {
+        throw new Error('ID de línea no proporcionado');
+      }
+      
+      // Convert ID to number and validate
+      const idNum = parseInt(lineId, 10);
+      if (isNaN(idNum)) {
+        throw new Error('ID de línea inválido');
+      }
+      
+      // For updates, we handle the response here
+      const updateResponse = await actualizarLinea(idNum, lineData);
+      if (updateResponse && updateResponse.resultado) {
+        proxy.$toast.success(updateResponse.mensaje || '¡Línea actualizada exitosamente!', 2000);
+        await cargarLineas();
+        closeLineModal();
+      } else {
+        throw new Error(updateResponse?.mensaje || 'Error al actualizar la línea');
+      }
+    } else {
+      // For new lines, the response is handled in crearLinea
+      await crearLinea(lineData);
+      // No need to show success message here as it's handled in crearLinea
+    }
+    
+    await cargarLineas();
     closeLineModal();
   } catch (err) {
-    console.error('Error al guardar línea:', err);
+    console.error('Error al guardar la línea:', err);
+    const errorMessage = err.response?.data?.mensaje || 'Error al guardar la línea';
+    
+    if (err.response?.data?.field) {
+      lineErrors[err.response.data.field] = errorMessage;
+    } else if (proxy && proxy.$toast) {
+      proxy.$toast.error(errorMessage, 3000);
+    }
   }
 };
 
