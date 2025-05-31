@@ -75,6 +75,11 @@ const handleLogout = () => {
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #333;
@@ -83,8 +88,10 @@ body {
 
 .dashboard {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
   background-color: #f9fafb;
+  overflow: hidden;
 }
 
 /* Main Content */
@@ -93,6 +100,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
 }
 
 /* Content */

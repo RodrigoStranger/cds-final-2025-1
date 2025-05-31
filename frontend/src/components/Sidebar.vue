@@ -34,9 +34,8 @@ defineEmits(['tab-change']);
 
 <style scoped>
 .sidebar-container {
-  position: relative;
   height: 100vh;
-  min-height: 100vh;
+  flex-shrink: 0;
 }
 
 /* Desktop Sidebar */
@@ -46,20 +45,14 @@ defineEmits(['tab-change']);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: none;
   height: 100vh;
-  min-height: 100vh;
-  position: fixed;
-  left: 0;
-  top: 0;
+  position: relative;
   z-index: 20;
+  flex-direction: column;
 }
 
 @media (min-width: 768px) {
   .sidebar {
     display: flex;
-    flex-direction: column;
-    position: sticky;
-    height: 100vh;
-    min-height: 100vh;
   }
 }
 
@@ -77,10 +70,9 @@ defineEmits(['tab-change']);
 }
 
 .sidebar-nav {
-  margin-top: 2rem;
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 2rem;
+  padding: 2rem 0;
 }
 
 .sidebar-item {
