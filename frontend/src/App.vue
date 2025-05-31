@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Package, Tag, Grid } from 'lucide-vue-next';
 import Sidebar from './components/Sidebar.vue';
 import Navbar from './components/Navbar.vue';
@@ -38,10 +38,6 @@ import ProductsPage from './pages/ProductsPage.vue';
 import LinesPage from './pages/LinesPage.vue';
 import CategoriesPage from './pages/CategoriesPage.vue';
 import { useCategorias, useLineas } from './composables/useApi.js';
-
-// Usar composables para cargar datos de la API
-const { categorias } = useCategorias();
-const { lineas } = useLineas();
 
 // Pestañas
 const activeTab = ref('productos');
@@ -65,81 +61,20 @@ const handleLogout = () => {
   // Por ejemplo: router.push('/login') o limpiar tokens
 };
 
+// Usar composables para cargar datos de la API
+const categorias = ref([]);
+const lineas = ref([]);
+
+onMounted(async () => {
+  const categoriasData = await useCategorias();
+  categorias.value = categoriasData.categorias.value;
+
+  const lineasData = await useLineas();
+  lineas.value = lineasData.lineas.value;
+});
+
 </script>
 
 <style>
-/* Estilos generales */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
-  overflow: hidden;
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #333;
-  line-height: 1.5;
-}
-
-.dashboard {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  background-color: #f9fafb;
-  overflow: hidden;
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 0;
-}
-
-/* Content */
-.content {
-  flex: 1;
-  overflow: auto;
-  background-color: #f9fafb;
-  padding: 2rem 1rem;
-}
-
-.content-container {
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
-/* Estilos globales para formularios */
-.form-group label.required::after {
-  content: " *";
-  color: #ef4444;
-}
-
-.form-group input.error,
-.form-group select.error,
-.form-group textarea.error {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.error-message {
-  color: #ef4444;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  display: block;
-}
-
-.help-text {
-  color: #6b7280;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  display: block;
-}
+@import './styles/App.css';
 </style>
