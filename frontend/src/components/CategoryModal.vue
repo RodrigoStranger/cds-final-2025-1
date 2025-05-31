@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="modal-overlay" @click="$emit('close')">
+  <div v-if="show" class="modal-overlay">
     <div class="modal" @click.stop>
       <div class="modal-header">
         <h3>{{ editingCategory ? 'Editar Categoría' : 'Nueva Categoría' }}</h3>
@@ -98,6 +98,23 @@ const isSubmitting = ref(false);
 .input-error {
   border-color: #ef4444 !important;
   box-shadow: 0 0 0 1px #ef4444;
+}
+
+/* Modal overlay styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  overflow-y: auto;
+  pointer-events: auto;
 }
 
 /* Fade transition for error messages */
