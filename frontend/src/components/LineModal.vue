@@ -32,6 +32,14 @@
               <span v-if="lineErrors.ruc" class="error-message">{{ lineErrors.ruc }}</span>
               <span class="help-text">El RUC debe tener 11 dígitos</span>
             </div>
+            <div class="form-group">
+              <label>Proveedor</label>
+              <input 
+                v-model="lineForm.proveedor" 
+                type="text"
+                placeholder="Nombre del proveedor (opcional)"
+              >
+            </div>
             <div class="modal-actions">
               <button type="button" @click="$emit('close')" class="button secondary">Cancelar</button>
               <button type="submit" class="button primary">{{ editingLine ? 'Actualizar' : 'Crear' }}</button>

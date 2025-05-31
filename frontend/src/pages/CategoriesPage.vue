@@ -10,37 +10,15 @@
             </button>
           </div>
         </div>
-        
-        <!-- Estado de carga -->
-        <div v-if="loading" class="loading-container">
-          <div class="loading-spinner"></div>
-          <p>Cargando categorías...</p>
-        </div>
-        
-        <!-- Estado de error -->
-        <div v-else-if="error" class="error-container">
-          <div class="error-icon">
-            <AlertCircle class="icon-large" />
-          </div>
-          <h4>Error al cargar las categorías</h4>
-          <p>{{ error }}</p>
-          <button @click="cargarCategorias" class="button secondary">
-            <RefreshCw class="icon-small" />
-            Reintentar
-          </button>
-        </div>
-        
-        <!-- Categorías -->
-        <div v-else class="categories-grid">
-          <div v-for="(categoria, index) in categorias" :key="categoria.id" class="category-card">
+        <div class="categories-grid">
+          <div v-for="categoria in categoriasPaginadas" :key="categoria.id" class="category-card">
             <div class="category-content">
               <div class="category-icon">
-                <component :is="getCategoryIcon(categoria)" class="icon" />
+                {{ categoria.nombre.charAt(0).toUpperCase() }}
               </div>
               <div class="category-info">
                 <h4>{{ categoria.nombre }}</h4>
                 <p class="category-description">{{ categoria.descripcion || 'Sin descripción' }}</p>
-                <p class="category-products">{{ categoria.productos || 0 }} productos</p>
               </div>
             </div>
             <div class="category-actions">
@@ -48,20 +26,41 @@
                 <button @click="openCategoryModal(categoria)" class="icon-button edit">
                   <Edit class="icon-small" />
                 </button>
-                <button @click="confirmDeleteCategory(categoria)" class="icon-button delete">
-                  <Trash class="icon-small" />
-                </button>
               </div>
             </div>
           </div>
-          
-          <!-- Mensaje cuando no hay categorías -->
-          <div v-if="categorias.length === 0" class="empty-state">
-            <div class="empty-icon">
-              <Grid class="icon-large" />
-            </div>
-            <h4>No hay categorías disponibles</h4>
-            <p>Agrega categorías para organizar tus productos.</p>
+        </div>
+        
+        <!-- Mensaje cuando no hay categorías -->
+        <div v-if="categorias.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <Grid class="icon-large" />
+          </div>
+          <h4>No hay categorías disponibles</h4>
+          <p>Agrega categorías para organizar tus productos.</p>
+        </div>
+        
+        <!-- Paginación -->
+        <div v-if="categorias.length > 0" class="pagination">
+          <div class="pagination-info">
+            Mostrando {{ startIndex + 1 }}-{{ endIndex }} de {{ categorias.length }} categorías
+          </div>
+          <div class="pagination-controls">
+            <button 
+              v-if="currentPage > 1"
+              @click="previousPage" 
+              class="pagination-button"
+            >
+              Anterior
+            </button>
+            <button class="pagination-button active">{{ currentPage }}</button>
+            <button 
+              v-if="currentPage < totalPages"
+              @click="nextPage" 
+              class="pagination-button"
+            >
+              Siguiente
+            </button>
           </div>
         </div>
       </div>
@@ -76,34 +75,25 @@
         @save="saveCategory"
       />
   
-      <!-- Modal de Confirmación -->
-      <ConfirmDeleteModal
-        :show="showDeleteModal"
-        :message="deleteMessage"
-        @close="closeDeleteModal"
-        @confirm="confirmDelete"
-      />
     </div>
   </template>
   
   <script setup>
-  import { ref, reactive, onMounted } from 'vue';
-  import { Plus, Edit, Trash, Smile, Heart, Droplet, Leaf, Sun, Grid, AlertCircle, RefreshCw } from 'lucide-vue-next';
+  import { ref, reactive, computed, onMounted } from 'vue';
+  import { Plus, Edit, Grid } from 'lucide-vue-next';
   import CategoryModal from '../components/CategoryModal.vue';
-  import ConfirmDeleteModal from '../components/ConfirmDeleteModal.vue';
-  import CategoriaService from '../services/categoriaService';
+  import { useCategorias } from '../composables/useApi.js';
   
-  // Estados para datos
-  const categorias = ref([]);
-  const loading = ref(true);
-  const error = ref(null);
+  // Usar el composable para categorías
+  const { categorias, loading, error, crearCategoria, actualizarCategoria } = useCategorias();
   
   // Estados para modales
   const showCategoryModal = ref(false);
-  const showDeleteModal = ref(false);
   const editingCategory = ref(null);
-  const deleteId = ref(null);
-  const deleteMessage = ref('');
+  
+  // Estados para paginación
+  const currentPage = ref(1);
+  const itemsPerPage = 20;
   
   // Formulario de categoría
   const categoryForm = reactive({
@@ -116,35 +106,34 @@
     nombre: ''
   });
   
-  // Iconos disponibles para categorías
-  const categoryIcons = [Smile, Heart, Droplet, Leaf, Sun];
-  
-  // Cargar datos iniciales
-  onMounted(async () => {
-    await cargarCategorias();
+  // Computed para paginación
+  const totalPages = computed(() => {
+    return Math.ceil(categorias.value.length / itemsPerPage);
   });
   
-  // Función para cargar categorías
-  const cargarCategorias = async () => {
-    loading.value = true;
-    error.value = null;
-    
-    try {
-      const data = await CategoriaService.obtenerTodas();
-      categorias.value = data;
-    } catch (err) {
-      console.error('Error al cargar categorías:', err);
-      error.value = 'No se pudieron cargar las categorías. Por favor, intenta de nuevo.';
-    } finally {
-      loading.value = false;
+  const startIndex = computed(() => {
+    return (currentPage.value - 1) * itemsPerPage;
+  });
+  
+  const endIndex = computed(() => {
+    return Math.min(startIndex.value + itemsPerPage, categorias.value.length);
+  });
+  
+  const categoriasPaginadas = computed(() => {
+    return categorias.value.slice(startIndex.value, endIndex.value);
+  });
+  
+  // Funciones de paginación
+  const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+      currentPage.value++;
     }
   };
   
-  // Función para obtener un icono para la categoría
-  const getCategoryIcon = (categoria) => {
-    // Si la categoría tiene un icono asignado, usarlo
-    // De lo contrario, asignar uno basado en el ID o algún otro criterio
-    return categoryIcons[categoria.id % categoryIcons.length];
+  const previousPage = () => {
+    if (currentPage.value > 1) {
+      currentPage.value--;
+    }
   };
   
   // Funciones para categorías
@@ -170,47 +159,20 @@
   const saveCategory = async () => {
     try {
       if (editingCategory.value) {
-        // Actualizar categoría existente
-        await CategoriaService.actualizar(editingCategory.value.id, categoryForm);
+        await actualizarCategoria(editingCategory.value.id, categoryForm);
       } else {
-        // Crear nueva categoría
-        await CategoriaService.crear(categoryForm);
+        await crearCategoria(categoryForm);
       }
-      
-      // Recargar categorías después de guardar
-      await cargarCategorias();
       closeCategoryModal();
     } catch (err) {
       console.error('Error al guardar categoría:', err);
-      // Aquí podrías manejar errores específicos de validación si la API los devuelve
     }
   };
   
-  const confirmDeleteCategory = (categoria) => {
-    deleteId.value = categoria.id;
-    deleteMessage.value = `¿Deseas eliminar la categoría "${categoria.nombre}"?`;
-    showDeleteModal.value = true;
-  };
-  
-  const closeDeleteModal = () => {
-    showDeleteModal.value = false;
-    deleteId.value = null;
-    deleteMessage.value = '';
-  };
-  
-  const confirmDelete = async () => {
-    try {
-      // Aquí deberíamos llamar a un método para eliminar la categoría por ID
-      // Pero no veo ese método en el servicio, así que habría que implementarlo
-      // await CategoriaService.eliminar(deleteId.value);
-      
-      // Por ahora, simplemente recargamos las categorías
-      await cargarCategorias();
-      closeDeleteModal();
-    } catch (err) {
-      console.error('Error al eliminar categoría:', err);
-    }
-  };
+  onMounted(() => {
+    // Trigger the composable to fetch categories on component mount
+    useCategorias();
+  });
   </script>
   
   <style scoped>
@@ -249,67 +211,6 @@
     color: #111827;
   }
   
-  /* Loading */
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1.5rem;
-    text-align: center;
-  }
-  
-  .loading-spinner {
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 3px solid #f3f4f6;
-    border-top-color: #15803d;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-  
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  /* Error */
-  .error-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1.5rem;
-    text-align: center;
-  }
-  
-  .error-icon {
-    width: 4rem;
-    height: 4rem;
-    border-radius: 50%;
-    background-color: #fef2f2;
-    color: #ef4444;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-  }
-  
-  .error-container h4 {
-    font-size: 1.125rem;
-    font-weight: 500;
-    color: #111827;
-    margin-bottom: 0.5rem;
-  }
-  
-  .error-container p {
-    color: #6b7280;
-    max-width: 24rem;
-    margin-bottom: 1rem;
-  }
-  
   /* Button */
   .button {
     display: flex;
@@ -330,16 +231,6 @@
   
   .button.primary:hover {
     background-color: #166534;
-  }
-  
-  .button.secondary {
-    background-color: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
-  }
-  
-  .button.secondary:hover {
-    background-color: #e5e7eb;
   }
   
   .icon-small {
@@ -398,14 +289,17 @@
   .category-icon {
     width: 2.5rem;
     height: 2.5rem;
-    border-radius: 0.375rem;
+    border-radius: 50%;
     background-color: #f0fdf4;
     color: #15803d;
+    border: 2px solid #15803d;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 0.75rem;
     flex-shrink: 0;
+    font-weight: 600;
+    font-size: 1rem;
   }
   
   .category-info {
@@ -425,19 +319,32 @@
     margin-bottom: 0.25rem;
   }
   
-  .category-products {
-    font-size: 0.75rem;
-    color: #15803d;
-    font-weight: 500;
-  }
-  
   .category-actions {
     margin-left: 0.5rem;
   }
   
+  /* Icon Buttons */
+  .icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+  }
+  
+  .icon-button.edit {
+    color: #15803d;
+  }
+  
+  .icon-button.edit:hover {
+    color: #166534;
+  }
+  
   /* Empty State */
   .empty-state {
-    grid-column: 1 / -1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -475,37 +382,45 @@
     max-width: 24rem;
   }
   
-  /* Icon Buttons */
-  .icon-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #4b5563;
+  /* Pagination */
+  .pagination {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 0.25rem;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
   
-  .icon-button.edit {
+  .pagination-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .pagination-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .pagination-button {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    background-color: white;
+    color: #4b5563;
+    cursor: pointer;
+  }
+  
+  .pagination-button:hover {
+    background-color: #f9fafb;
+  }
+  
+  .pagination-button.active {
+    background-color: #f0fdf4;
     color: #15803d;
-  }
-  
-  .icon-button.edit:hover {
-    color: #166534;
-  }
-  
-  .icon-button.delete {
-    color: #ef4444;
-  }
-  
-  .icon-button.delete:hover {
-    color: #dc2626;
-  }
-  
-  .icon {
-    width: 1.25rem;
-    height: 1.25rem;
+    border-color: #15803d;
   }
   </style>
   

@@ -22,29 +22,8 @@
             </div>
           </div>
         </div>
-        
-        <!-- Estado de carga -->
-        <div v-if="loading" class="loading-container">
-          <div class="loading-spinner"></div>
-          <p>Cargando productos...</p>
-        </div>
-        
-        <!-- Estado de error -->
-        <div v-else-if="error" class="error-container">
-          <div class="error-icon">
-            <AlertCircle class="icon-large" />
-          </div>
-          <h4>Error al cargar los productos</h4>
-          <p>{{ error }}</p>
-          <button @click="cargarProductos" class="button secondary">
-            <RefreshCw class="icon-small" />
-            Reintentar
-          </button>
-        </div>
-        
-        <!-- Tabla de productos -->
-        <div v-else class="table-container">
-          <table class="table" v-if="productosVisibles.length > 0">
+        <div class="table-container">
+          <table class="table">
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -58,10 +37,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(producto, index) in productosVisibles" :key="producto.id">
+              <tr v-for="(producto, index) in productosPaginados" :key="producto.id">
                 <td>
                   <div class="product-cell">
-                    <div class="product-image"></div>
+                    <div class="product-image">
+                      {{ producto.nombre.charAt(0).toUpperCase() }}
+                    </div>
                     <div class="product-name">{{ producto.nombre }}</div>
                   </div>
                 </td>
@@ -80,9 +61,6 @@
                     <button @click="openProductModal(producto)" class="icon-button edit">
                       <Edit class="icon-small" />
                     </button>
-                    <button @click="confirmDeleteProduct(index)" class="icon-button delete">
-                      <Trash class="icon-small" />
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -98,17 +76,28 @@
             <p>{{ showProductosAgotados ? 'Todos los productos tienen stock disponible.' : 'Agrega productos para comenzar a gestionar tu inventario.' }}</p>
           </div>
         </div>
-        
-        <div v-if="!loading && !error" class="pagination">
+        <div class="pagination">
           <div class="pagination-info">
-            Mostrando 1-{{ productosVisibles.length }} de {{ productosVisibles.length }} productos
+            Mostrando {{ startIndex + 1 }}-{{ endIndex }} de {{ productosVisibles.length }} productos
             <span v-if="showProductosAgotados" class="filter-indicator">(Solo productos agotados)</span>
             <span v-else class="filter-indicator">(Solo productos con stock)</span>
           </div>
           <div class="pagination-controls">
-            <button class="pagination-button">Anterior</button>
-            <button class="pagination-button active">1</button>
-            <button class="pagination-button">Siguiente</button>
+            <button 
+              v-if="currentPage > 1"
+              @click="previousPage" 
+              class="pagination-button"
+            >
+              Anterior
+            </button>
+            <button class="pagination-button active">{{ currentPage }}</button>
+            <button 
+              v-if="currentPage < totalPages"
+              @click="nextPage" 
+              class="pagination-button"
+            >
+              Siguiente
+            </button>
           </div>
         </div>
       </div>
@@ -124,42 +113,33 @@
         @close="closeProductModal"
         @save="saveProduct"
       />
-  
-      <!-- Modal de Confirmación -->
-      <ConfirmDeleteModal
-        :show="showDeleteModal"
-        :message="deleteMessage"
-        @close="closeDeleteModal"
-        @confirm="confirmDelete"
-      />
     </div>
   </template>
   
   <script setup>
-  import { ref, reactive, computed, onMounted } from 'vue';
-  import { Plus, Edit, Trash, AlertTriangle, Package, Eye, AlertCircle, RefreshCw } from 'lucide-vue-next';
+  import { ref, reactive, computed } from 'vue';
+  import { Plus, Edit, AlertTriangle, Package, Eye } from 'lucide-vue-next';
   import ProductModal from '../components/ProductModal.vue';
-  import ConfirmDeleteModal from '../components/ConfirmDeleteModal.vue';
-  import ProductoService from '../services/productoService';
-  import CategoriaService from '../services/categoriaService';
-  import LineaService from '../services/lineaService';
+  import { useProductos } from '../composables/useApi.js';
   
-  // Estados para datos
-  const productos = ref([]);
-  const categorias = ref([]);
-  const lineas = ref([]);
-  const loading = ref(true);
-  const error = ref(null);
+  defineProps({
+    categorias: Array,
+    lineas: Array
+  });
+  
+  // Usar el composable para productos
+  const { productos, loading, error, crearProducto, actualizarProducto } = useProductos();
   
   // Estados para modales
   const showProductModal = ref(false);
-  const showDeleteModal = ref(false);
   const editingProduct = ref(null);
-  const deleteIndex = ref(-1);
-  const deleteMessage = ref('');
   
   // Estado para filtro de productos agotados
   const showProductosAgotados = ref(false);
+  
+  // Estados para paginación
+  const currentPage = ref(1);
+  const itemsPerPage = 20;
   
   // Formulario de producto
   const productForm = reactive({
@@ -191,72 +171,40 @@
     }
   });
   
-  // Cargar datos iniciales
-  onMounted(async () => {
-    await Promise.all([
-      cargarProductos(),
-      cargarCategorias(),
-      cargarLineas()
-    ]);
+  // Computed para paginación
+  const totalPages = computed(() => {
+    return Math.ceil(productosVisibles.value.length / itemsPerPage);
   });
   
-  // Función para cargar productos
-  const cargarProductos = async () => {
-    loading.value = true;
-    error.value = null;
-    
-    try {
-      const data = await ProductoService.obtenerTodos();
-      productos.value = data;
-    } catch (err) {
-      console.error('Error al cargar productos:', err);
-      error.value = 'No se pudieron cargar los productos. Por favor, intenta de nuevo.';
-    } finally {
-      loading.value = false;
+  const startIndex = computed(() => {
+    return (currentPage.value - 1) * itemsPerPage;
+  });
+  
+  const endIndex = computed(() => {
+    return Math.min(startIndex.value + itemsPerPage, productosVisibles.value.length);
+  });
+  
+  const productosPaginados = computed(() => {
+    return productosVisibles.value.slice(startIndex.value, endIndex.value);
+  });
+  
+  // Funciones de paginación
+  const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+      currentPage.value++;
     }
   };
   
-  // Función para cargar categorías
-  const cargarCategorias = async () => {
-    try {
-      const data = await CategoriaService.obtenerTodas();
-      categorias.value = data;
-    } catch (err) {
-      console.error('Error al cargar categorías:', err);
-    }
-  };
-  
-  // Función para cargar líneas
-  const cargarLineas = async () => {
-    try {
-      const data = await LineaService.obtenerTodas();
-      lineas.value = data;
-    } catch (err) {
-      console.error('Error al cargar líneas:', err);
+  const previousPage = () => {
+    if (currentPage.value > 1) {
+      currentPage.value--;
     }
   };
   
   // Función para alternar vista de productos agotados
-  const toggleProductosAgotados = async () => {
-    loading.value = true;
-    error.value = null;
-    
-    try {
-      if (!showProductosAgotados.value) {
-        // Si vamos a mostrar productos agotados, cargamos específicamente esos
-        const data = await ProductoService.obtenerNoDisponibles();
-        productos.value = data;
-      } else {
-        // Si volvemos a mostrar todos, recargamos todos los productos
-        await cargarProductos();
-      }
-      showProductosAgotados.value = !showProductosAgotados.value;
-    } catch (err) {
-      console.error('Error al cambiar vista de productos:', err);
-      error.value = 'No se pudo cambiar la vista de productos. Por favor, intenta de nuevo.';
-    } finally {
-      loading.value = false;
-    }
+  const toggleProductosAgotados = () => {
+    showProductosAgotados.value = !showProductosAgotados.value;
+    currentPage.value = 1; // Resetear a la primera página
   };
   
   // Funciones para productos
@@ -296,48 +244,13 @@
   const saveProduct = async () => {
     try {
       if (editingProduct.value) {
-        // Actualizar producto existente
-        await ProductoService.actualizar(editingProduct.value.id, productForm);
+        await actualizarProducto(editingProduct.value.id, productForm);
       } else {
-        // Crear nuevo producto
-        await ProductoService.crear(productForm);
+        await crearProducto(productForm);
       }
-      
-      // Recargar productos después de guardar
-      await cargarProductos();
       closeProductModal();
     } catch (err) {
       console.error('Error al guardar producto:', err);
-      // Aquí podrías manejar errores específicos de validación si la API los devuelve
-    }
-  };
-  
-  const confirmDeleteProduct = (index) => {
-    // Encontrar el producto a eliminar
-    const productoAEliminar = productosVisibles.value[index];
-    
-    deleteIndex.value = productoAEliminar.id;
-    deleteMessage.value = `¿Deseas eliminar el producto "${productoAEliminar.nombre}"?`;
-    showDeleteModal.value = true;
-  };
-  
-  const closeDeleteModal = () => {
-    showDeleteModal.value = false;
-    deleteIndex.value = -1;
-    deleteMessage.value = '';
-  };
-  
-  const confirmDelete = async () => {
-    try {
-      // Aquí deberíamos llamar a un método para eliminar el producto por ID
-      // Pero no veo ese método en el servicio, así que habría que implementarlo
-      // await ProductoService.eliminar(deleteIndex.value);
-      
-      // Por ahora, simplemente recargamos los productos
-      await cargarProductos();
-      closeDeleteModal();
-    } catch (err) {
-      console.error('Error al eliminar producto:', err);
     }
   };
   </script>
@@ -386,67 +299,6 @@
     align-items: center;
     gap: 0.75rem;
     flex-wrap: wrap;
-  }
-  
-  /* Loading */
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1.5rem;
-    text-align: center;
-  }
-  
-  .loading-spinner {
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 3px solid #f3f4f6;
-    border-top-color: #15803d;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-  
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  /* Error */
-  .error-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1.5rem;
-    text-align: center;
-  }
-  
-  .error-icon {
-    width: 4rem;
-    height: 4rem;
-    border-radius: 50%;
-    background-color: #fef2f2;
-    color: #ef4444;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-  }
-  
-  .error-container h4 {
-    font-size: 1.125rem;
-    font-weight: 500;
-    color: #111827;
-    margin-bottom: 0.5rem;
-  }
-  
-  .error-container p {
-    color: #6b7280;
-    max-width: 24rem;
-    margin-bottom: 1rem;
   }
   
   /* Button */
@@ -536,7 +388,7 @@
   
   .table th.actions, .table td.actions {
     text-align: right;
-    width: 120px;
+    width: 80px;
   }
   
   /* Product Cell */
@@ -548,9 +400,16 @@
   .product-image {
     width: 2.5rem;
     height: 2.5rem;
-    background-color: #e5e7eb;
-    border-radius: 0.375rem;
+    background-color: #f0fdf4;
+    color: #15803d;
+    border: 2px solid #15803d;
+    border-radius: 50%;
     margin-right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
   }
   
   .product-name {
@@ -639,15 +498,6 @@
   .icon-button.edit:hover {
     color: #166534;
     background-color: #f0fdf4;
-  }
-  
-  .icon-button.delete {
-    color: #ef4444;
-  }
-  
-  .icon-button.delete:hover {
-    color: #dc2626;
-    background-color: #fef2f2;
   }
   
   /* Pagination */

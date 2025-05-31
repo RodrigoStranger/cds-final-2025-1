@@ -149,7 +149,13 @@ export function useLineas() {
     error.value = null
     try {
       const data = await LineaService.obtenerTodas()
-      lineas.value = data
+      // Mapear los campos del API a los nombres que usamos en la UI
+      lineas.value = data.map(linea => ({
+        id: linea.cod_linea,
+        nombre: linea.nombre_linea,
+        ruc: linea.ruc,
+        proveedor: linea.proveedor
+      }))
     } catch (err) {
       error.value = "Error al cargar las líneas"
       console.error("Error cargando líneas:", err)
@@ -160,9 +166,22 @@ export function useLineas() {
 
   const crearLinea = async (lineaData) => {
     try {
-      const nuevaLinea = await LineaService.crear(lineaData)
-      lineas.value.push(nuevaLinea)
-      return nuevaLinea
+      // Mapear los campos de la UI a los nombres que espera el API
+      const dataParaAPI = {
+        nombre_linea: lineaData.nombre,
+        ruc: lineaData.ruc,
+        proveedor: lineaData.proveedor || ''
+      }
+      const nuevaLinea = await LineaService.crear(dataParaAPI)
+      // Mapear la respuesta del API al formato que usa la UI
+      const lineaFormateada = {
+        id: nuevaLinea.cod_linea,
+        nombre: nuevaLinea.nombre_linea,
+        ruc: nuevaLinea.ruc,
+        proveedor: nuevaLinea.proveedor
+      }
+      lineas.value.push(lineaFormateada)
+      return lineaFormateada
     } catch (err) {
       error.value = "Error al crear la línea"
       throw err
@@ -171,12 +190,25 @@ export function useLineas() {
 
   const actualizarLinea = async (id, lineaData) => {
     try {
-      const lineaActualizada = await LineaService.actualizar(id, lineaData)
+      // Mapear los campos de la UI a los nombres que espera el API
+      const dataParaAPI = {
+        nombre_linea: lineaData.nombre,
+        ruc: lineaData.ruc,
+        proveedor: lineaData.proveedor || ''
+      }
+      const lineaActualizada = await LineaService.actualizar(id, dataParaAPI)
+      // Mapear la respuesta del API al formato que usa la UI
+      const lineaFormateada = {
+        id: lineaActualizada.cod_linea,
+        nombre: lineaActualizada.nombre_linea,
+        ruc: lineaActualizada.ruc,
+        proveedor: lineaActualizada.proveedor
+      }
       const index = lineas.value.findIndex((l) => l.id === id)
       if (index !== -1) {
-        lineas.value[index] = lineaActualizada
+        lineas.value[index] = lineaFormateada
       }
-      return lineaActualizada
+      return lineaFormateada
     } catch (err) {
       error.value = "Error al actualizar la línea"
       throw err
