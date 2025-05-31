@@ -9,6 +9,9 @@
 
     <!-- Main Content -->
     <div class="main-content">
+      <!-- Navbar -->
+      <Navbar :user="currentUser" @logout="handleLogout" />
+      
       <!-- Main Content Area -->
       <main class="content">
         <div class="content-container">
@@ -30,6 +33,7 @@
 import { ref } from 'vue';
 import { Package, Tag, Grid } from 'lucide-vue-next';
 import Sidebar from './components/Sidebar.vue';
+import Navbar from './components/Navbar.vue';
 import ProductsPage from './pages/ProductsPage.vue';
 import LinesPage from './pages/LinesPage.vue';
 import CategoriesPage from './pages/CategoriesPage.vue';
@@ -41,6 +45,20 @@ const tabs = [
   { id: 'lineas', name: 'Líneas', icon: Tag },
   { id: 'categorias', name: 'Categorías', icon: Grid }
 ];
+
+// Usuario actual
+const currentUser = ref({
+  name: 'Juan Pérez',
+  email: 'juan.perez@fabianatura.com',
+  avatar: null // Si no hay avatar, se usará la inicial
+});
+
+// Función para manejar logout
+const handleLogout = () => {
+  // Aquí puedes agregar la lógica de logout
+  console.log('Cerrando sesión...');
+  // Por ejemplo: router.push('/login') o limpiar tokens
+};
 
 // Datos compartidos para productos
 const categorias = ref([
