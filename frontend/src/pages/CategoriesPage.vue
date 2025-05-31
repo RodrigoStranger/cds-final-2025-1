@@ -4,10 +4,33 @@
       <div class="card-header">
         <div class="card-header-content">
           <h3>Categorías</h3>
-          <button @click="openCategoryModal()" class="button primary">
-            <Plus class="icon-small" />
-            Nueva Categoría
-          </button>
+          <div class="header-actions">
+            <!-- Buscador -->
+            <div class="search-container">
+              <div class="search-input-wrapper">
+                <Search class="search-icon" />
+                <input 
+                  v-model="searchTerm"
+                  type="text" 
+                  placeholder="Buscar categorías..."
+                  class="search-input"
+                  @input="handleSearch"
+                />
+                <button 
+                  v-if="searchTerm"
+                  @click="clearSearch"
+                  class="clear-search-button"
+                >
+                  <X class="icon-small" />
+                </button>
+              </div>
+            </div>
+            
+            <button @click="openCategoryModal()" class="button primary">
+              <Plus class="icon-small" />
+              Nueva Categoría
+            </button>
+          </div>
         </div>
       </div>
       <div class="categories-grid">
@@ -32,18 +55,24 @@
       </div>
       
       <!-- Mensaje cuando no hay categorías -->
-      <div v-if="categorias.length === 0" class="empty-state">
+      <div v-if="categoriasVisibles.length === 0" class="empty-state">
         <div class="empty-icon">
           <Grid class="icon-large" />
         </div>
-        <h4>No hay categorías disponibles</h4>
-        <p>Agrega categorías para organizar tus productos.</p>
+        <h4 v-if="searchTerm">No se encontraron categorías</h4>
+        <h4 v-else>No hay categorías disponibles</h4>
+        <p v-if="searchTerm">No hay categorías que coincidan con "{{ searchTerm }}"</p>
+        <p v-else>Agrega categorías para organizar tus productos.</p>
+        <button v-if="searchTerm" @click="clearSearch" class="button secondary">
+          Limpiar búsqueda
+        </button>
       </div>
       
       <!-- Paginación -->
-      <div v-if="categorias.length > 0" class="pagination">
+      <div v-if="categoriasVisibles.length > 0" class="pagination">
         <div class="pagination-info">
-          Mostrando {{ startIndex + 1 }}-{{ endIndex }} de {{ categorias.length }} categorías
+          Mostrando {{ startIndex + 1 }}-{{ endIndex }} de {{ categoriasVisibles.length }} categorías
+          <span v-if="searchTerm" class="filter-indicator">(Búsqueda: "{{ searchTerm }}"")</span>
         </div>
         <div class="pagination-controls">
           <button 
@@ -80,8 +109,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, getCurrentInstance } from 'vue';
-import { Plus, Edit, Grid } from 'lucide-vue-next';
+import { ref, reactive, computed, onMounted, getCurrentInstance, watch } from 'vue';
+import { Plus, Edit, Grid, Search, X } from 'lucide-vue-next';
 import CategoryModal from '../components/CategoryModal.vue';
 import { useCategorias } from '../composables/useApi.js';
 
@@ -99,6 +128,9 @@ const {
 // Estados para modales
 const showCategoryModal = ref(false);
 const editingCategory = ref(null);
+
+// Estado para búsqueda
+const searchTerm = ref('');
 
 // Cargar categorías al montar el componente
 onMounted(() => {
@@ -120,9 +152,27 @@ const categoryErrors = reactive({
   nombre: ''
 });
 
+// Función para filtrar categorías por búsqueda
+const filtrarCategoriasPorBusqueda = (categorias, termino) => {
+  if (!termino.trim()) return categorias;
+  
+  const terminoLower = termino.toLowerCase().trim();
+  return categorias.filter(categoria => {
+    return (
+      categoria.nombre?.toLowerCase().includes(terminoLower) ||
+      categoria.descripcion?.toLowerCase().includes(terminoLower)
+    );
+  });
+};
+
+// Computed para categorías visibles según la búsqueda
+const categoriasVisibles = computed(() => {
+  return filtrarCategoriasPorBusqueda(categorias.value, searchTerm.value);
+});
+
 // Computed para paginación
 const totalPages = computed(() => {
-  return Math.ceil(categorias.value.length / itemsPerPage);
+  return Math.ceil(categoriasVisibles.value.length / itemsPerPage);
 });
 
 const startIndex = computed(() => {
@@ -130,12 +180,27 @@ const startIndex = computed(() => {
 });
 
 const endIndex = computed(() => {
-  return Math.min(startIndex.value + itemsPerPage, categorias.value.length);
+  return Math.min(startIndex.value + itemsPerPage, categoriasVisibles.value.length);
 });
 
 const categoriasPaginadas = computed(() => {
-  return categorias.value.slice(startIndex.value, endIndex.value);
+  return categoriasVisibles.value.slice(startIndex.value, endIndex.value);
 });
+
+// Watch para resetear la página cuando cambie la búsqueda
+watch(searchTerm, () => {
+  currentPage.value = 1;
+});
+
+// Funciones de búsqueda
+const handleSearch = () => {
+  currentPage.value = 1;
+};
+
+const clearSearch = () => {
+  searchTerm.value = '';
+  currentPage.value = 1;
+};
 
 // Funciones de paginación
 const nextPage = () => {

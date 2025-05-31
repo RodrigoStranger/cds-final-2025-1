@@ -5,6 +5,27 @@
         <div class="card-header-content">
           <h3>Productos</h3>
           <div class="header-actions">
+            <!-- Buscador -->
+            <div class="search-container">
+              <div class="search-input-wrapper">
+                <Search class="search-icon" />
+                <input 
+                  v-model="searchTerm"
+                  type="text" 
+                  placeholder="Buscar productos..."
+                  class="search-input"
+                  @input="handleSearch"
+                />
+                <button 
+                  v-if="searchTerm"
+                  @click="clearSearch"
+                  class="clear-search-button"
+                >
+                  <X class="icon-small" />
+                </button>
+              </div>
+            </div>
+            
             <button @click="toggleProductosAgotados" class="button secondary">
               <Eye v-if="showProductosAgotados" class="icon-small" />
               <AlertTriangle v-else class="icon-small" />
@@ -72,14 +93,22 @@
           <div class="empty-icon">
             <Package class="icon-large" />
           </div>
-          <h4>{{ showProductosAgotados ? 'No hay productos agotados' : 'No hay productos disponibles' }}</h4>
-          <p>{{ showProductosAgotados ? 'Todos los productos tienen stock disponible.' : 'Agrega productos para comenzar a gestionar tu inventario.' }}</p>
+          <h4 v-if="searchTerm">No se encontraron productos</h4>
+          <h4 v-else-if="showProductosAgotados">No hay productos agotados</h4>
+          <h4 v-else>No hay productos disponibles</h4>
+          <p v-if="searchTerm">No hay productos que coincidan con "{{ searchTerm }}"</p>
+          <p v-else-if="showProductosAgotados">Todos los productos tienen stock disponible.</p>
+          <p v-else>Agrega productos para comenzar a gestionar tu inventario.</p>
+          <button v-if="searchTerm" @click="clearSearch" class="button secondary">
+            Limpiar búsqueda
+          </button>
         </div>
       </div>
-      <div class="pagination">
+      <div class="pagination" v-if="productosVisibles.length > 0">
         <div class="pagination-info">
           Mostrando {{ startIndex + 1 }}-{{ endIndex }} de {{ productosVisibles.length }} productos
-          <span v-if="showProductosAgotados" class="filter-indicator">(Solo productos agotados)</span>
+          <span v-if="searchTerm" class="filter-indicator">(Búsqueda: "{{ searchTerm }}")</span>
+          <span v-else-if="showProductosAgotados" class="filter-indicator">(Solo productos agotados)</span>
           <span v-else class="filter-indicator">(Solo productos con stock)</span>
         </div>
         <div class="pagination-controls">
@@ -118,8 +147,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, getCurrentInstance } from 'vue';
-import { Plus, Edit, AlertTriangle, Package, Eye } from 'lucide-vue-next';
+import { ref, reactive, computed, onMounted, getCurrentInstance, watch } from 'vue';
+import { Plus, Edit, AlertTriangle, Package, Eye, Search, X } from 'lucide-vue-next';
 import ProductModal from '../components/ProductModal.vue';
 import { useProductos, useCategorias, useLineas } from '../composables/useApi.js';
 
@@ -147,6 +176,9 @@ const editingProduct = ref(null);
 // Estado para filtro de productos agotados
 const showProductosAgotados = ref(false);
 
+// Estado para búsqueda
+const searchTerm = ref('');
+
 // Estados para paginación
 const currentPage = ref(1);
 const itemsPerPage = 20;
@@ -170,15 +202,34 @@ const productErrors = reactive({
   stock: ''
 });
 
-// Computed para productos visibles según el filtro
+// Función para filtrar productos por búsqueda
+const filtrarProductosPorBusqueda = (productos, termino) => {
+  if (!termino.trim()) return productos;
+  
+  const terminoLower = termino.toLowerCase().trim();
+  return productos.filter(producto => {
+    return (
+      producto.nombre?.toLowerCase().includes(terminoLower) ||
+      producto.descripcion?.toLowerCase().includes(terminoLower) ||
+      producto.categoria?.toLowerCase().includes(terminoLower) ||
+      producto.linea?.toLowerCase().includes(terminoLower)
+    );
+  });
+};
+
+// Computed para productos visibles según el filtro y búsqueda
 const productosVisibles = computed(() => {
+  let productosBase = productos.value;
+  
+  // Aplicar filtro de stock
   if (showProductosAgotados.value) {
-    // Mostrar solo productos agotados (stock = 0)
-    return productos.value.filter(producto => producto.stock === 0);
+    productosBase = productosBase.filter(producto => producto.stock === 0);
   } else {
-    // Mostrar solo productos con stock > 0
-    return productos.value.filter(producto => producto.stock > 0);
+    productosBase = productosBase.filter(producto => producto.stock > 0);
   }
+  
+  // Aplicar filtro de búsqueda
+  return filtrarProductosPorBusqueda(productosBase, searchTerm.value);
 });
 
 // Computed para paginación
@@ -197,6 +248,21 @@ const endIndex = computed(() => {
 const productosPaginados = computed(() => {
   return productosVisibles.value.slice(startIndex.value, endIndex.value);
 });
+
+// Watch para resetear la página cuando cambie la búsqueda o el filtro
+watch([searchTerm, showProductosAgotados], () => {
+  currentPage.value = 1;
+});
+
+// Funciones de búsqueda
+const handleSearch = () => {
+  currentPage.value = 1;
+};
+
+const clearSearch = () => {
+  searchTerm.value = '';
+  currentPage.value = 1;
+};
 
 // Funciones de paginación
 const nextPage = () => {
