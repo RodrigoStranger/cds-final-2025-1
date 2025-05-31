@@ -4,10 +4,32 @@
       <div class="card-header">
         <div class="card-header-content">
           <h3>Líneas de Productos</h3>
-          <button @click="openLineModal()" class="button primary">
-            <Plus class="icon-small" />
-            Nueva Línea
-          </button>
+          <div class="header-actions">
+            <!-- Buscador -->
+            <div class="search-container">
+              <div class="search-input-wrapper">
+                <Search class="search-icon" />
+                <input 
+                  v-model="searchTerm"
+                  type="text" 
+                  placeholder="Buscar líneas..."
+                  class="search-input"
+                  @input="handleSearch"
+                />
+                <button 
+                  v-if="searchTerm"
+                  @click="clearSearch"
+                  class="clear-search-button"
+                >
+                  <X class="icon-small" />
+                </button>
+              </div>
+            </div>
+            <button @click="openLineModal()" class="button primary">
+              <Plus class="icon-small" />
+              Nueva Línea
+            </button>
+          </div>
         </div>
       </div>
       <div class="table-container">
@@ -41,20 +63,26 @@
           </tbody>
         </table>
         
-        <!-- Mensaje cuando no hay líneas -->
-        <div v-if="lineas.length === 0" class="empty-state">
+        <!-- Mensaje cuando no hay líneas o no hay resultados de búsqueda -->
+        <div v-if="lineasFiltradas.length === 0" class="empty-state">
           <div class="empty-icon">
             <Tag class="icon-large" />
           </div>
-          <h4>No hay líneas disponibles</h4>
-          <p>Agrega líneas para organizar tus productos.</p>
+          <h4 v-if="searchTerm">No se encontraron líneas</h4>
+          <h4 v-else>No hay líneas disponibles</h4>
+          <p v-if="searchTerm">No hay líneas que coincidan con "{{ searchTerm }}"</p>
+          <p v-else>Agrega líneas para organizar tus productos.</p>
+          <button v-if="searchTerm" @click="clearSearch" class="button secondary">
+            Limpiar búsqueda
+          </button>
         </div>
       </div>
       
       <!-- Paginación -->
-      <div v-if="lineas.length > 0" class="pagination">
+      <div v-if="lineasFiltradas.length > 0" class="pagination">
         <div class="pagination-info">
-          Mostrando {{ startIndex + 1 }}-{{ endIndex }} de {{ lineas.length }} líneas
+          Mostrando {{ startIndex + 1 }}-{{ endIndex }} de {{ lineasFiltradas.length }} líneas
+          <span v-if="searchTerm" class="filter-indicator">(Búsqueda: "{{ searchTerm }}")</span>
         </div>
         <div class="pagination-controls">
           <button 
@@ -90,8 +118,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, getCurrentInstance } from 'vue';
-import { Plus, Edit, Tag } from 'lucide-vue-next';
+import { ref, reactive, computed, onMounted, getCurrentInstance, watch } from 'vue';
+import { Plus, Edit, Tag, Search, X } from 'lucide-vue-next';
 import LineModal from '../components/LineModal.vue';
 import { useLineas } from '../composables/useApi.js';
 
@@ -114,9 +142,13 @@ const {
 const showLineModal = ref(false);
 const editingLine = ref(null);
 
-// Estados para paginación
+// Estados para búsqueda y paginación
+const searchTerm = ref('');
 const currentPage = ref(1);
 const itemsPerPage = 20;
+
+// Referencia para el timeout de búsqueda
+let searchTimeout = null;
 
 // Formulario de línea
 const lineForm = ref({
@@ -133,7 +165,7 @@ const lineErrors = reactive({
 
 // Computed para paginación
 const totalPages = computed(() => {
-  return Math.ceil(lineas.value.length / itemsPerPage);
+  return Math.ceil(lineasFiltradas.value.length / itemsPerPage);
 });
 
 const startIndex = computed(() => {
@@ -144,20 +176,57 @@ const endIndex = computed(() => {
   return Math.min(startIndex.value + itemsPerPage, lineas.value.length);
 });
 
-const lineasPaginadas = computed(() => {
-  return lineas.value.slice(startIndex.value, endIndex.value);
+// Filtrar líneas según el término de búsqueda
+const lineasFiltradas = computed(() => {
+  if (!searchTerm.value) return lineas.value;
+  
+  const search = searchTerm.value.toLowerCase();
+  return lineas.value.filter(linea => {
+    return (
+      (linea.nombre && linea.nombre.toLowerCase().includes(search)) ||
+      (linea.ruc && linea.ruc.toString().toLowerCase().includes(search)) ||
+      (linea.proveedor && linea.proveedor.toLowerCase().includes(search))
+    );
+  });
 });
+
+const lineasPaginadas = computed(() => {
+  return lineasFiltradas.value.slice(startIndex.value, endIndex.value);
+});
+
+// Resetear a la primera página cuando cambia el término de búsqueda
+watch(searchTerm, () => {
+  currentPage.value = 1;
+});
+
+// Función para manejar la búsqueda con debounce sin dependencias externas
+const handleSearch = () => {
+  if (searchTimeout) clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    // La búsqueda se actualiza automáticamente a través de la propiedad computada
+  }, 300);
+};
+
+// Limpiar búsqueda
+const clearSearch = () => {
+  searchTerm.value = '';
+  currentPage.value = 1;
+};
 
 // Funciones de paginación
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
+    // Desplazarse al inicio de la página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 };
 
 const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
+    // Desplazarse al inicio de la página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 };
 
