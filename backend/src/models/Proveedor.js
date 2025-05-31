@@ -1,6 +1,7 @@
 const database = require('../config/Database');
 
 class Proveedor {
+    // Obtener todos los proveedores
     static async ObtenerTodosLosProveedores() {
         try {
             const sql = `CALL ObtenerTodosLosProveedores()`;

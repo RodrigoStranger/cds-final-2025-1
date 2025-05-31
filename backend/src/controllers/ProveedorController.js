@@ -1,6 +1,7 @@
 const Proveedor = require('../models/Proveedor');
 
 class ProveedorController {
+    // Obtener todos los proveedores
     static async ObtenerTodosLosProveedores(req, res) {
         try {
             const proveedores = await Proveedor.ObtenerTodosLosProveedores();
