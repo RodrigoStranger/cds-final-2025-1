@@ -244,7 +244,7 @@ const closeProductModal = () => {
 
 const resetProductForm = () => {
   productForm.nombre = '';
-  productForm.descripcion = '';
+  productForm.descripcion = null; // Establecer como null por defecto
   productForm.precio_compra = 0;
   productForm.precio_venta = 0;
   productForm.stock = 0;
@@ -254,16 +254,24 @@ const resetProductForm = () => {
 
 const saveProduct = async () => {
   console.log('Iniciando saveProduct');
-  console.log('Datos del formulario:', JSON.parse(JSON.stringify(productForm)));
+  
+  // Crear una copia del formulario para modificar los datos
+  const datosAEnviar = {
+    ...productForm,
+    // Asegurar que la descripción sea null si está vacía
+    descripcion: productForm.descripcion?.trim() || null
+  };
+  
+  console.log('Datos a enviar:', JSON.parse(JSON.stringify(datosAEnviar)));
   
   try {
     if (editingProduct.value) {
       console.log('Actualizando producto existente con ID:', editingProduct.value.id);
-      const resultado = await actualizarProducto(editingProduct.value.id, productForm);
+      const resultado = await actualizarProducto(editingProduct.value.id, datosAEnviar);
       console.log('Producto actualizado:', resultado);
     } else {
       console.log('Creando nuevo producto');
-      const resultado = await crearProducto(productForm);
+      const resultado = await crearProducto(datosAEnviar);
       console.log('Producto creado:', resultado);
     }
     closeProductModal();

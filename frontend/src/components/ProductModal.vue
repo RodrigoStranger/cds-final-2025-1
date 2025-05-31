@@ -15,15 +15,27 @@
               <input 
                 v-model="productForm.nombre" 
                 type="text" 
-                :class="{ 'input-error': productErrors.nombre }"
+                :class="{ 
+                  'input-error': productErrors.nombre || nombreExistente,
+                  'validating': validandoNombre
+                }"
                 placeholder="Ingrese el nombre del producto"
                 @input="$emit('clear-error', 'nombre')"
+                :disabled="validandoNombre"
               >
-              <transition name="fade">
-                <div v-if="productErrors.nombre" class="error-message">
-                  {{ productErrors.nombre }}
-                </div>
-              </transition>
+              <div class="validation-messages">
+                <transition name="fade">
+                  <div v-if="validandoNombre" class="validating-message">
+                    Validando nombre...
+                  </div>
+                  <div v-else-if="nombreExistente" class="error-message">
+                    {{ nombreExistente }}
+                  </div>
+                  <div v-else-if="productErrors.nombre" class="error-message">
+                    {{ productErrors.nombre }}
+                  </div>
+                </transition>
+              </div>
             </div>
             <div class="form-group">
               <label>Descripción</label>
@@ -149,6 +161,8 @@
 
 <script setup>
 import { X } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
+import ProductoService from '../services/productoService';
 
 const props = defineProps({
   show: Boolean,
@@ -159,7 +173,58 @@ const props = defineProps({
   lineas: Array
 });
 
-const emit = defineEmits(['close', 'save']);
+const emit = defineEmits(['update:show', 'save', 'close', 'clear-error']);
+
+// Estado para el mensaje de validación de nombre existente
+const nombreExistente = ref('');
+const validandoNombre = ref(false);
+
+// Función de debounce para la validación del nombre
+let timeoutId = null;
+
+const validarNombreUnico = async () => {
+  const nombre = props.productForm.nombre?.trim();
+  
+  if (!nombre || (props.editingProduct && nombre === props.editingProduct.nombre)) {
+    nombreExistente.value = '';
+    return;
+  }
+  
+  // Validar solo si el nombre tiene al menos 2 caracteres
+  if (nombre.length < 2) {
+    nombreExistente.value = '';
+    return;
+  }
+  
+  try {
+    validandoNombre.value = true;
+    const respuesta = await ProductoService.verificarNombre(nombre);
+    // Usar el mensaje del servidor si existe, o uno por defecto
+    nombreExistente.value = respuesta.resultado ? respuesta.mensaje || 'Ya existe un producto con este nombre' : '';
+  } catch (error) {
+    console.error('Error al verificar el nombre:', error);
+    // Mostrar mensaje genérico si hay un error de conexión
+    if (error.response) {
+      // El servidor respondió con un código de error
+      nombreExistente.value = 'Error al verificar el nombre. Intente nuevamente.';
+    }
+  } finally {
+    validandoNombre.value = false;
+  }
+};
+
+// Watcher para validar el nombre cuando cambia
+watch(() => props.productForm.nombre, () => {
+  // Limpiar timeout anterior
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+  }
+  
+  // Establecer nuevo timeout
+  timeoutId = setTimeout(() => {
+    validarNombreUnico();
+  }, 500); // 500ms de delay
+});
 
 const validateProduct = () => {
   let isValid = true;
@@ -167,16 +232,18 @@ const validateProduct = () => {
   // Reset errores
   Object.keys(props.productErrors).forEach(key => props.productErrors[key] = '');
   
-  // Validar nombre (OBLIGATORIO)
-  if (!props.productForm.nombre || !props.productForm.nombre.trim()) {
-    props.productErrors.nombre = 'El nombre es requerido';
+  // Validar nombre
+  if (!props.productForm.nombre || props.productForm.nombre.trim() === '') {
+    props.productErrors.nombre = 'El nombre es obligatorio';
     isValid = false;
   } else if (props.productForm.nombre.length < 2) {
     props.productErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
     isValid = false;
-  } else if (props.productForm.nombre.length > 100) {
-    props.productErrors.nombre = 'El nombre no puede exceder 100 caracteres';
+  } else if (nombreExistente.value) {
+    // No permitir guardar si el nombre ya existe
     isValid = false;
+  } else {
+    props.productErrors.nombre = '';
   }
   
   // Validar descripción (OPCIONAL)
@@ -252,10 +319,20 @@ const validateProduct = () => {
 };
 
 const handleClose = () => {
+  // Limpiar timeout si existe
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+  }
+  
   // Limpiar errores antes de cerrar
   Object.keys(props.productErrors).forEach(key => {
     props.productErrors[key] = '';
   });
+  
+  // Limpiar estado de validación
+  nombreExistente.value = '';
+  validandoNombre.value = false;
+  
   emit('close');
 };
 
@@ -275,4 +352,50 @@ const handleSave = async (e) => {
 
 <style scoped>
 @import '../styles/components/ProductModal.css';
+
+.validation-messages {
+  min-height: 1.5rem;
+  margin-top: 0.25rem;
+  position: relative;
+  width: 100%;
+}
+
+.validating-message {
+  color: #666;
+  font-size: 0.8rem;
+  font-style: italic;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.error-message {
+  color: #e53e3e;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.input-error {
+  border-color: #f56565 !important;
+}
+
+.validating {
+  background-color: #f7fafc;
+  border-color: #cbd5e0 !important;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Asegurar que el input ocupe todo el ancho disponible */
+.form-group input[type="text"] {
+  width: 100%;
+}
 </style>
