@@ -249,30 +249,51 @@ const saveLine = async () => {
         throw new Error('ID de línea inválido');
       }
       
-      // For updates, we handle the response here
-      const updateResponse = await actualizarLinea(idNum, lineData);
-      if (updateResponse && updateResponse.resultado) {
-        proxy.$toast.success(updateResponse.mensaje || '¡Línea actualizada exitosamente!', 2000);
-        await cargarLineas();
-        closeLineModal();
-      } else {
-        throw new Error(updateResponse?.mensaje || 'Error al actualizar la línea');
+      try {
+        // For updates, we handle the response here
+        const updateResponse = await actualizarLinea(idNum, lineData);
+        
+        if (updateResponse && updateResponse.resultado) {
+          proxy.$toast.success(updateResponse.mensaje || '¡Línea actualizada exitosamente!', 2000);
+          await cargarLineas();
+          closeLineModal();
+        } else {
+          throw new Error(updateResponse?.mensaje || 'Error al actualizar la línea');
+        }
+      } catch (updateError) {
+        console.error('Error al actualizar la línea:', updateError);
+        const errorMessage = updateError.response?.data?.mensaje || 'Error al actualizar la línea. Por favor, intente nuevamente.';
+        
+        if (updateError.response?.data?.field) {
+          lineErrors[updateError.response.data.field] = errorMessage;
+        } else if (proxy && proxy.$toast) {
+          proxy.$toast.error(errorMessage, 3000);
+        }
+        return; // Exit early on error
       }
     } else {
       // For new lines, the response is handled in crearLinea
-      await crearLinea(lineData);
-      // No need to show success message here as it's handled in crearLinea
+      try {
+        await crearLinea(lineData);
+        // No need to show success message here as it's handled in crearLinea
+        await cargarLineas();
+        closeLineModal();
+      } catch (createError) {
+        console.error('Error al crear la línea:', createError);
+        const errorMessage = createError.response?.data?.mensaje || 'Error al crear la línea. Por favor, intente nuevamente.';
+        
+        if (createError.response?.data?.field) {
+          lineErrors[createError.response.data.field] = errorMessage;
+        } else if (proxy && proxy.$toast) {
+          proxy.$toast.error(errorMessage, 3000);
+        }
+      }
     }
-    
-    await cargarLineas();
-    closeLineModal();
   } catch (err) {
-    console.error('Error al guardar la línea:', err);
-    const errorMessage = err.response?.data?.mensaje || 'Error al guardar la línea';
+    console.error('Error inesperado al guardar la línea:', err);
+    const errorMessage = err.response?.data?.mensaje || 'Ocurrió un error inesperado. Por favor, intente nuevamente.';
     
-    if (err.response?.data?.field) {
-      lineErrors[err.response.data.field] = errorMessage;
-    } else if (proxy && proxy.$toast) {
+    if (proxy && proxy.$toast) {
       proxy.$toast.error(errorMessage, 3000);
     }
   }

@@ -32,8 +32,24 @@ const LineaService = {
 
   // Actualizar una línea existente
   actualizar: async (id, lineaData) => {
-    const response = await api.put(`/lineas/${id}`, lineaData);
-    return response.data;
+    try {
+      console.log(`Actualizando línea ${id} con datos:`, lineaData);
+      const response = await api.put(`/lineas/${id}`, lineaData);
+      console.log('Respuesta de actualización:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error en la petición de actualización:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          data: error.config?.data
+        }
+      });
+      throw error;
+    }
   },
 
   // Verificar si un nombre de línea existe

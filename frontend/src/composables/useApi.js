@@ -185,29 +185,36 @@ export function useLineas() {
   }
 
   const actualizarLinea = async (id, lineaData) => {
+    loading.value = true;
+    error.value = null;
+    
     try {
+      console.log('Actualizando línea con ID:', id, 'Datos:', lineaData);
+      
       // Mapear los campos de la UI a los nombres que espera el API
       const dataParaAPI = {
-        nombre_linea: lineaData.nombre,
-        ruc: lineaData.ruc,
-        proveedor: lineaData.proveedor || "",
+        nombre_linea: lineaData.nombre_linea || lineaData.nombre, // Aceptar ambos formatos
+        ruc: lineaData.ruc || null,
+        // No incluir proveedor si no es necesario en el backend
+      };
+      
+      console.log('Enviando a la API:', dataParaAPI);
+      
+      const response = await LineaService.actualizar(id, dataParaAPI);
+      
+      // Si la respuesta es exitosa, recargar la lista de líneas
+      if (response && (response.resultado || response.cod_linea)) {
+        await cargarLineas();
+        return response;
+      } else {
+        throw new Error(response?.mensaje || 'Error al actualizar la línea');
       }
-      const lineaActualizada = await LineaService.actualizar(id, dataParaAPI)
-      // Mapear la respuesta del API al formato que usa la UI
-      const lineaFormateada = {
-        id: lineaActualizada.cod_linea,
-        nombre: lineaActualizada.nombre_linea,
-        ruc: lineaActualizada.ruc,
-        proveedor: lineaActualizada.proveedor,
-      }
-      const index = lineas.value.findIndex((l) => l.id === id)
-      if (index !== -1) {
-        lineas.value[index] = lineaFormateada
-      }
-      return lineaFormateada
     } catch (err) {
-      error.value = "Error al actualizar la línea"
-      throw err
+      console.error('Error en actualizarLinea:', err);
+      error.value = err.message || 'Error al actualizar la línea';
+      throw err;
+    } finally {
+      loading.value = false;
     }
   }
 
