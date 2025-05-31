@@ -117,18 +117,21 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { Plus, Edit, AlertTriangle, Package, Eye } from 'lucide-vue-next';
 import ProductModal from '../components/ProductModal.vue';
-import { useProductos } from '../composables/useApi.js';
+import { useProductos, useCategorias, useLineas } from '../composables/useApi.js';
 
-defineProps({
-  categorias: Array,
-  lineas: Array
-});
-
-// Usar el composable para productos
+// Usar los composables
 const { productos, loading, error, crearProducto, actualizarProducto } = useProductos();
+const { categorias, cargarCategorias } = useCategorias();
+const { lineas, cargarLineas } = useLineas();
+
+// Cargar datos al montar el componente
+onMounted(async () => {
+  await cargarCategorias();
+  await cargarLineas();
+});
 
 // Estados para modales
 const showProductModal = ref(false);
@@ -148,8 +151,8 @@ const productForm = reactive({
   precio_compra: 0,
   precio_venta: 0,
   stock: 0,
-  categoria: '',
-  linea: ''
+  cod_categoria: null,
+  cod_linea: null
 });
 
 // Errores de validación
@@ -216,7 +219,15 @@ const openProductModal = (product = null) => {
   
   if (product) {
     editingProduct.value = product;
-    Object.assign(productForm, product);
+    // Copiar todas las propiedades del producto al formulario
+    Object.keys(productForm).forEach(key => {
+      if (key in product) {
+        productForm[key] = product[key];
+      }
+    });
+    // Asegurarse de que los campos de relación se copien correctamente
+    if (product.cod_categoria) productForm.cod_categoria = product.cod_categoria;
+    if (product.cod_linea) productForm.cod_linea = product.cod_linea;
   } else {
     editingProduct.value = null;
     resetProductForm();
@@ -237,20 +248,31 @@ const resetProductForm = () => {
   productForm.precio_compra = 0;
   productForm.precio_venta = 0;
   productForm.stock = 0;
-  productForm.categoria = '';
-  productForm.linea = '';
+  productForm.cod_categoria = null;
+  productForm.cod_linea = null;
 };
 
 const saveProduct = async () => {
+  console.log('Iniciando saveProduct');
+  console.log('Datos del formulario:', JSON.parse(JSON.stringify(productForm)));
+  
   try {
     if (editingProduct.value) {
-      await actualizarProducto(editingProduct.value.id, productForm);
+      console.log('Actualizando producto existente con ID:', editingProduct.value.id);
+      const resultado = await actualizarProducto(editingProduct.value.id, productForm);
+      console.log('Producto actualizado:', resultado);
     } else {
-      await crearProducto(productForm);
+      console.log('Creando nuevo producto');
+      const resultado = await crearProducto(productForm);
+      console.log('Producto creado:', resultado);
     }
     closeProductModal();
   } catch (err) {
     console.error('Error al guardar producto:', err);
+    if (err.response) {
+      console.error('Detalles del error:', err.response.data);
+      console.error('Estado del error:', err.response.status);
+    }
   }
 };
 </script>
