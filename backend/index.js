@@ -8,8 +8,16 @@ const proveedorRoutes = require('./src/routes/ProveedorRoute');
 
 const app = express();
 
+// Configuración de CORS
+const corsOptions = {
+  origin: 'http://localhost:5173' , // URL del frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Rutas
