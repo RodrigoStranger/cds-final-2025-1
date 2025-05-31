@@ -8,24 +8,35 @@
         </button>
       </div>
       <div class="modal-body">
-        <form @submit.prevent="handleSave">
+        <form @submit.prevent="$emit('save')" novalidate>
           <div class="form-group">
             <label class="required">Nombre</label>
             <input 
               v-model="categoryForm.nombre" 
               type="text" 
-              required
-              :class="{ error: categoryErrors.nombre }"
+              :class="{ 'input-error': categoryErrors.nombre }"
               placeholder="Ingrese el nombre de la categoría"
+              @input="$emit('clear-error', 'nombre')"
             >
-            <span v-if="categoryErrors.nombre" class="error-message">{{ categoryErrors.nombre }}</span>
+            <transition name="fade">
+              <div v-if="categoryErrors.nombre" class="error-message">
+                {{ categoryErrors.nombre }}
+              </div>
+            </transition>
           </div>
           <div class="form-group">
             <label>Descripción</label>
             <textarea 
               v-model="categoryForm.descripcion"
+              :class="{ 'input-error': categoryErrors.descripcion }"
               placeholder="Descripción de la categoría (opcional)"
+              @input="$emit('clear-error', 'descripcion')"
             ></textarea>
+            <transition name="fade">
+              <div v-if="categoryErrors.descripcion" class="error-message">
+                {{ categoryErrors.descripcion }}
+              </div>
+            </transition>
           </div>
           <div class="modal-actions">
             <button type="button" @click="$emit('close')" class="button secondary">Cancelar</button>
@@ -52,66 +63,36 @@ const props = defineProps({
   categoryErrors: Object
 });
 
-const emit = defineEmits(['close', 'save']);
+const emit = defineEmits(['close']);
 const isSubmitting = ref(false);
-
-// Función para verificar si el nombre de la categoría ya existe
-const verificarNombreExistente = async (nombre) => {
-  try {
-    // Si estamos editando y el nombre no ha cambiado, no es necesario verificar
-    if (props.editingCategory && props.editingCategory.nombre === nombre) {
-      return false;
-    }
-    
-    const response = await CategoriaService.verificarNombre(nombre);
-    return response.existe;
-  } catch (error) {
-    console.error('Error al verificar el nombre de la categoría:', error);
-    return false;
-  }
-};
-
-const validateCategory = async () => {
-  let isValid = true;
-  
-  // Reset errores
-  Object.keys(props.categoryErrors).forEach(key => props.categoryErrors[key] = '');
-  
-  // Validar nombre (OBLIGATORIO)
-  if (!props.categoryForm.nombre.trim()) {
-    props.categoryErrors.nombre = 'El nombre es requerido';
-    isValid = false;
-  } else if (props.categoryForm.nombre.length < 2) {
-    props.categoryErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
-    isValid = false;
-  } else if (props.categoryForm.nombre.length > 30) {
-    props.categoryErrors.nombre = 'El nombre no puede exceder 30 caracteres';
-    isValid = false;
-  } else {
-    // Verificar si el nombre ya existe en la base de datos
-    const nombreExiste = await verificarNombreExistente(props.categoryForm.nombre);
-    if (nombreExiste) {
-      props.categoryErrors.nombre = 'Este nombre de categoría ya existe';
-      isValid = false;
-    }
-  }
-  
-  return isValid;
-};
-
-const handleSave = async () => {
-  isSubmitting.value = true;
-  
-  try {
-    if (await validateCategory()) {
-      emit('save');
-    }
-  } finally {
-    isSubmitting.value = false;
-  }
-};
 </script>
 
 <style scoped>
 @import '../styles/components/CategoryModal.css';
+
+/* Error message styling */
+.error-message {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+  min-height: 1.25rem;
+}
+
+/* Input error state */
+.input-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444;
+}
+
+/* Fade transition for error messages */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

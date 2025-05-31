@@ -13,7 +13,7 @@
       <div class="categories-grid">
         <div v-for="categoria in categoriasPaginadas" :key="categoria.id" class="category-card">
           <div class="category-content">
-            <div class="category-icon">
+            <div class="category-icon" v-if="categoria?.nombre">
               {{ categoria.nombre.charAt(0).toUpperCase() }}
             </div>
             <div class="category-info">
@@ -73,23 +73,37 @@
       :category-errors="categoryErrors"
       @close="closeCategoryModal"
       @save="saveCategory"
+      @clear-error="clearError"
     />
 
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, getCurrentInstance } from 'vue';
 import { Plus, Edit, Grid } from 'lucide-vue-next';
 import CategoryModal from '../components/CategoryModal.vue';
 import { useCategorias } from '../composables/useApi.js';
 
 // Usar el composable para categorías
-const { categorias, loading, error, crearCategoria, actualizarCategoria, verificarNombreCategoria } = useCategorias();
+const { 
+  categorias, 
+  loading, 
+  error, 
+  cargarCategorias,
+  crearCategoria, 
+  actualizarCategoria, 
+  verificarNombreCategoria 
+} = useCategorias();
 
 // Estados para modales
 const showCategoryModal = ref(false);
 const editingCategory = ref(null);
+
+// Cargar categorías al montar el componente
+onMounted(() => {
+  cargarCategorias();
+});
 
 // Estados para paginación
 const currentPage = ref(1);
@@ -153,30 +167,90 @@ const openCategoryModal = (category = null) => {
 const closeCategoryModal = () => {
   showCategoryModal.value = false;
   editingCategory.value = null;
-  Object.keys(categoryErrors).forEach(key => categoryErrors[key] = '');
+  clearError();
 };
+
+const clearError = (field = null) => {
+  if (field) {
+    categoryErrors[field] = '';
+  } else {
+    Object.keys(categoryErrors).forEach(key => categoryErrors[key] = '');
+  }
+};
+
+// Get the current app instance to access the toast plugin
+const { proxy } = getCurrentInstance();
 
 const saveCategory = async () => {
   try {
-    if (editingCategory.value) {
-      await actualizarCategoria(editingCategory.value.id, categoryForm);
-    } else {
-      await crearCategoria(categoryForm);
+    // Reset errors
+    clearError();
+    
+    // Validate required fields
+    if (!categoryForm.nombre?.trim()) {
+      categoryErrors.nombre = 'El nombre es requerido';
+      return;
     }
+
+    // Validate name length
+    const nombre = categoryForm.nombre.trim();
+    if (nombre.length < 2) {
+      categoryErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
+      return;
+    }
+
+    if (nombre.length > 30) {
+      categoryErrors.nombre = 'El nombre no puede exceder 30 caracteres';
+      return;
+    }
+
+    // Check if category name already exists (only for new categories or when name changes)
+    if (!editingCategory.value || editingCategory.value.nombre !== nombre) {
+      const response = await verificarNombreCategoria(nombre);
+      if (response.existe) {
+        categoryErrors.nombre = response.mensaje || 'Ya existe una categoría con este nombre';
+        return;
+      }
+    }
+
+    // Prepare the payload
+    const categoriaData = {
+      nombre: nombre,
+      descripcion: categoryForm.descripcion?.trim() || null
+    };
+
+    // Save or update the category
+    if (editingCategory.value) {
+      await actualizarCategoria(editingCategory.value.id, categoriaData);
+      proxy.$toast.success('¡Categoría actualizada exitosamente!', 2000);
+    } else {
+      await crearCategoria(categoriaData);
+      proxy.$toast.success('¡Categoría creada exitosamente!', 2000);
+    }
+    
+    cargarCategorias();
+    
     closeCategoryModal();
   } catch (err) {
-    console.error('Error al guardar categoría:', err);
-    // Si el error es por nombre duplicado, mostrar mensaje
-    if (err.response && err.response.data && err.response.data.error === 'El nombre de la categoría ya existe') {
-      categoryErrors.nombre = 'Este nombre de categoría ya existe';
+    console.error('Error al guardar la categoría:', err);
+    // No mostrar toast de error, solo registrar en consola
+    if (err.response?.data?.error) {
+      error.value = err.response.data.error;
+      // Si el error es de nombre duplicado, mostrarlo en el campo correspondiente
+      if (err.response.data.error.toLowerCase().includes('nombre')) {
+        categoryErrors.nombre = err.response.data.error;
+      }
+      // Show error toast
+      proxy.$toast.error(err.response.data.error, 3000);
+    } else {
+      const errorMsg = 'Ocurrió un error al guardar la categoría';
+      error.value = errorMsg;
+      // Show error toast
+      proxy.$toast.error(errorMsg, 3000);
     }
   }
 };
 
-onMounted(() => {
-  // Trigger the composable to fetch categories on component mount
-  useCategorias();
-});
 </script>
 
 <style scoped>

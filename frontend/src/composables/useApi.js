@@ -124,10 +124,6 @@ export function useCategorias() {
     }
   }
 
-  onMounted(() => {
-    cargarCategorias()
-  })
-
   return {
     categorias,
     loading,

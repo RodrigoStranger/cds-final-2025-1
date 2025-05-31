@@ -49,10 +49,17 @@ const CategoriaService = {
   verificarNombre: async (nombre) => {
     try {
       const response = await api.get(`/categorias/existe-nombre/${encodeURIComponent(nombre)}`);
-      return response.data;
+      // Mapear la respuesta del backend al formato esperado
+      return {
+        existe: response.data.resultado,
+        mensaje: response.data.mensaje
+      };
     } catch (error) {
       console.error('Error al verificar el nombre de la categoría:', error);
-      throw error;
+      return {
+        existe: false,
+        mensaje: 'Error al verificar el nombre de la categoría'
+      };
     }
   },
 
