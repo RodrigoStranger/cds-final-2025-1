@@ -150,11 +150,11 @@ export function useLineas() {
     try {
       const data = await LineaService.obtenerTodas()
       // Mapear los campos del API a los nombres que usamos en la UI
-      lineas.value = data.map(linea => ({
+      lineas.value = data.map((linea) => ({
         id: linea.cod_linea,
         nombre: linea.nombre_linea,
         ruc: linea.ruc,
-        proveedor: linea.proveedor
+        proveedor: linea.proveedor,
       }))
     } catch (err) {
       error.value = "Error al cargar las líneas"
@@ -170,7 +170,7 @@ export function useLineas() {
       const dataParaAPI = {
         nombre_linea: lineaData.nombre,
         ruc: lineaData.ruc,
-        proveedor: lineaData.proveedor || ''
+        proveedor: lineaData.proveedor || "",
       }
       const nuevaLinea = await LineaService.crear(dataParaAPI)
       // Mapear la respuesta del API al formato que usa la UI
@@ -178,7 +178,7 @@ export function useLineas() {
         id: nuevaLinea.cod_linea,
         nombre: nuevaLinea.nombre_linea,
         ruc: nuevaLinea.ruc,
-        proveedor: nuevaLinea.proveedor
+        proveedor: nuevaLinea.proveedor,
       }
       lineas.value.push(lineaFormateada)
       return lineaFormateada
@@ -194,7 +194,7 @@ export function useLineas() {
       const dataParaAPI = {
         nombre_linea: lineaData.nombre,
         ruc: lineaData.ruc,
-        proveedor: lineaData.proveedor || ''
+        proveedor: lineaData.proveedor || "",
       }
       const lineaActualizada = await LineaService.actualizar(id, dataParaAPI)
       // Mapear la respuesta del API al formato que usa la UI
@@ -202,7 +202,7 @@ export function useLineas() {
         id: lineaActualizada.cod_linea,
         nombre: lineaActualizada.nombre_linea,
         ruc: lineaActualizada.ruc,
-        proveedor: lineaActualizada.proveedor
+        proveedor: lineaActualizada.proveedor,
       }
       const index = lineas.value.findIndex((l) => l.id === id)
       if (index !== -1) {
