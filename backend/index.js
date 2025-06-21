@@ -16,11 +16,28 @@ const proveedorRoutes = require('./src/routes/ProveedorRoute');
 const app = express();
 
 // Configuración de CORS
+const allowedOrigins = [
+  'http://localhost:5173',         // Desarrollo local
+  'https://fabianatura.vercel.app', // Producción en Vercel
+  'http://54.233.155.184:3000'      // IP de AWS
+];
+
 const corsOptions = {
-  origin: 'http://localhost:5173' , // URL del frontend
+  origin: function (origin, callback) {
+    // Permitir solicitudes sin origen (como aplicaciones móviles o curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'El origen de la solicitud no está permitido por CORS';
+      console.warn(`Intento de acceso no autorizado desde: ${origin}`);
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200 // Algunos navegadores antiguos (IE11, varios SmartTVs) fallan con 204
 };
 
 // Middleware
@@ -85,7 +102,7 @@ const server = app.listen(PORT, async () => {
     console.log(`   Error: ${dbStatus.error}`);
   }
   console.log('='.repeat(60));
-  console.log('📡 Endpoints disponibles:');
+  console.log('📡 Algunos endpoints disponibles:');
   console.log(`   - GET  /api/health        Verificar estado del servidor`);
   console.log(`   - GET  /api/productos     Obtener productos`);
   console.log(`   - GET  /api/lineas        Obtener líneas`);
