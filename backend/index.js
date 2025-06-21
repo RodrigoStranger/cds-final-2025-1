@@ -56,7 +56,7 @@ app.use('/api/categorias', categoriaRoutes);
 app.use('/api/proveedores', proveedorRoutes);
 
 // Puerto
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
 // Función para verificar la conexión a la base de datos
 async function checkDatabaseConnection() {
@@ -78,7 +78,7 @@ async function checkDatabaseConnection() {
 const server = app.listen(PORT, async () => {
   const dbStatus = await checkDatabaseConnection();
   console.log('='.repeat(60));
-  console.log(`🚀 Servidor listo en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor listo en el puerto: ${PORT}`);
   console.log('📊 Estado de la base de datos:');
   console.log(`   ${dbStatus.message}`);
   if (!dbStatus.connected) {
