@@ -26,7 +26,7 @@ const corsOptions = {
 
 // Log para depuración
 console.log('Configuración CORS:', {
-  origin: 'Todos los orígenes permitidos (modo prueba)',
+  origin: corsOptions.origin,
   methods: corsOptions.methods,
   allowedHeaders: corsOptions.allowedHeaders
 });
