@@ -41,6 +41,7 @@ const activeTab = computed(() => {
   if (path.startsWith('/productos')) return 'productos';
   if (path.startsWith('/lineas')) return 'lineas';
   if (path.startsWith('/categorias')) return 'categorias';
+  if (path.startsWith('/proveedores')) return 'proveedores';
   return 'productos';
 });
 </script>

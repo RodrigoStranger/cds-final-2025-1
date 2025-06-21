@@ -48,9 +48,11 @@
               <td>{{ proveedor.nombre || 'N/A' }}</td>
               <td>{{ proveedor.telefono || 'N/A' }}</td>
               <td class="actions">
-                <button @click="editarProveedor(proveedor)" class="icon-button" title="Editar">
-                  <Edit class="icon" />
-                </button>
+                <div class="action-buttons">
+                  <button @click="editarProveedor(proveedor)" class="icon-button edit">
+                    <Edit class="icon-small" />
+                  </button>
+                </div>
               </td>
             </tr>
             <tr v-if="proveedoresFiltrados.length === 0">
@@ -281,21 +283,43 @@ let searchTimeout = null;
   text-align: right;
 }
 
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
 .icon-button {
   background: none;
   border: none;
   cursor: pointer;
   color: #4b5563;
-  padding: 4px;
-  border-radius: 4px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
 }
 
-.icon-button:hover {
-  background-color: #f3f4f6;
-  color: #111827;
+.icon-button.edit {
+  color: #15803d !important;
+}
+
+.icon-button.edit .icon-small {
+  color: #15803d !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  stroke: currentColor !important;
+}
+
+.icon-button.edit:hover .icon-small {
+  color: #166534 !important;
+}
+
+.icon-button.edit:hover {
+  color: #166534 !important;
+  background-color: #f0fdf4;
 }
 
 .icon {
