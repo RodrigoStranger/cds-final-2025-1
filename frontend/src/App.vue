@@ -4,25 +4,18 @@
     <Sidebar 
       :active-tab="activeTab" 
       :tabs="tabs"
-      @tab-change="activeTab = $event"
     />
 
     <!-- Main Content -->
     <div class="main-content">
       <!-- Navbar -->
-      <Navbar :user="currentUser" @logout="handleLogout" />
+      <Navbar :user="currentUser" />
       
       <!-- Main Content Area -->
       <main class="content">
         <div class="content-container">
-          <!-- Dynamic Page Content -->
-          <ProductsPage 
-            v-if="activeTab === 'productos'" 
-            :categorias="categorias"
-            :lineas="lineas"
-          />
-          <LinesPage v-if="activeTab === 'lineas'" />
-          <CategoriesPage v-if="activeTab === 'categorias'" />
+          <!-- Router View for Dynamic Page Content -->
+          <router-view />
         </div>
       </main>
     </div>
@@ -30,49 +23,44 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { Package, Tag, Grid } from 'lucide-vue-next';
+import { ref, onMounted, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { Package, Layers, Tag } from 'lucide-vue-next';
 import Sidebar from './components/Sidebar.vue';
 import Navbar from './components/Navbar.vue';
-import ProductsPage from './pages/ProductsPage.vue';
-import LinesPage from './pages/LinesPage.vue';
-import CategoriesPage from './pages/CategoriesPage.vue';
-import { useCategorias, useLineas } from './composables/useApi.js';
 
-// Pestañas
-const activeTab = ref('productos');
+const route = useRoute();
+const router = useRouter();
+
+// Datos del usuario actual
+const currentUser = ref({
+  name: 'Admin',
+  email: 'admin@example.com',
+  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+});
+
+// Pestañas de navegación
 const tabs = [
-  { id: 'productos', name: 'Productos', icon: Package },
-  { id: 'lineas', name: 'Líneas', icon: Tag },
-  { id: 'categorias', name: 'Categorías', icon: Grid }
+  { id: 'productos', label: 'Productos', icon: Package, route: '/productos' },
+  { id: 'lineas', label: 'Líneas', icon: Layers, route: '/lineas' },
+  { id: 'categorias', label: 'Categorías', icon: Tag, route: '/categorias' },
 ];
 
-// Usuario actual
-const currentUser = ref({
-  name: 'Juan Pérez',
-  email: 'juan.perez@fabianatura.com',
-  avatar: null // Si no hay avatar, se usará la inicial
+// Pestaña activa basada en la ruta actual
+const activeTab = computed(() => {
+  const path = route.path;
+  if (path.startsWith('/productos')) return 'productos';
+  if (path.startsWith('/lineas')) return 'lineas';
+  if (path.startsWith('/categorias')) return 'categorias';
+  return 'productos';
 });
 
-// Función para manejar logout
-const handleLogout = () => {
-  // Aquí puedes agregar la lógica de logout
-  console.log('Cerrando sesión...');
-  // Por ejemplo: router.push('/login') o limpiar tokens
-};
-
-// Usar composables para cargar datos de la API
-const categorias = ref([]);
-const lineas = ref([]);
-
-onMounted(async () => {
-  const categoriasData = await useCategorias();
-  categorias.value = categoriasData.categorias.value;
-
-  const lineasData = await useLineas();
-  lineas.value = lineasData.lineas.value;
+// Redirigir a la ruta de productos por defecto
+onMounted(() => {
+  if (route.path === '/') {
+    router.push('/productos');
+  }
 });
-
 </script>
 
 <style>

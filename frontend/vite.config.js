@@ -10,9 +10,27 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
+  server: {
+    historyApiFallback: true,
+    strictPort: true,
+    port: 5173
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  base: '/',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vue: ['vue', 'vue-router', 'pinia']
+        }
+      }
+    }
+  }
 })
