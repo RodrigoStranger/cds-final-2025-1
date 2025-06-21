@@ -17,7 +17,7 @@ const app = express();
 
 // Configuración de CORS (temporalmente permitiendo todos los orígenes para pruebas)
 const corsOptions = {
-  origin: true, // Permitir todos los orígenes temporalmente
+  origin: ['https://fabianatura.vercel.app','http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
