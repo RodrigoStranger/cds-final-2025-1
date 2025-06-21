@@ -1,5 +1,8 @@
 <template>
   <div class="dashboard">
+    <!-- Componente de carga global -->
+    <GlobalLoading />
+    
     <!-- Sidebar -->
     <Sidebar 
       :active-tab="activeTab" 
@@ -15,7 +18,11 @@
       <main class="content">
         <div class="content-container">
           <!-- Router View for Dynamic Page Content -->
-          <router-view />
+          <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </div>
       </main>
     </div>
@@ -23,14 +30,32 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, nextTick, provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Package, Layers, Tag } from 'lucide-vue-next';
 import Sidebar from './components/Sidebar.vue';
 import Navbar from './components/Navbar.vue';
+import GlobalLoading from './components/GlobalLoading.vue';
+import { provideLoading } from './composables/useLoading';
 
 const route = useRoute();
 const router = useRouter();
+
+// Proveer el estado de carga global
+const { startLoading, stopLoading } = provideLoading();
+
+// Configurar el manejo de carga en el router
+router.beforeEach((to, from, next) => {
+  startLoading('Cargando...');
+  next();
+});
+
+router.afterEach(() => {
+  // Pequeño retraso para evitar parpadeo
+  setTimeout(() => {
+    stopLoading();
+  }, 100);
+});
 
 // Datos del usuario actual
 const currentUser = ref({

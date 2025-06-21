@@ -33,7 +33,14 @@
           </div>
         </div>
       </div>
-      <div class="categories-grid">
+      <!-- Indicador de carga -->
+      <div v-if="isLoading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Cargando categorías...</p>
+      </div>
+
+      <!-- Contenido principal -->
+      <div v-else class="categories-grid">
         <div v-for="categoria in categoriasPaginadas" :key="categoria.id" class="category-card">
           <div class="category-content">
             <div class="category-icon" v-if="categoria?.nombre">
@@ -42,7 +49,6 @@
             <div class="category-info">
               <h4 class="cell-content">
                 {{ categoria.nombre }}
-                <span class="tooltip">{{ categoria.nombre }}</span>
               </h4>
               <p class="category-description cell-content">
                 {{ categoria.descripcion || 'Sin descripción' }}
@@ -61,7 +67,7 @@
       </div>
       
       <!-- Mensaje cuando no hay categorías -->
-      <div v-if="categoriasVisibles.length === 0" class="empty-state">
+      <div v-if="!isLoading && categoriasVisibles.length === 0" class="empty-state">
         <div class="empty-icon">
           <Grid class="icon-large" />
         </div>
@@ -138,14 +144,19 @@ const editingCategory = ref(null);
 // Estado para búsqueda
 const searchTerm = ref('');
 
-// Cargar categorías al montar el componente
-onMounted(() => {
-  cargarCategorias();
-});
-
-// Estados para paginación
+// Estados
+const isLoading = ref(true);
 const currentPage = ref(1);
 const itemsPerPage = 20;
+
+// Obtener las categorías al cargar el componente
+onMounted(async () => {
+  try {
+    await cargarCategorias();
+  } finally {
+    isLoading.value = false;
+  }
+});
 
 // Formulario de categoría
 const categoryForm = reactive({
@@ -160,13 +171,15 @@ const categoryErrors = reactive({
 
 // Función para filtrar categorías por búsqueda
 const filtrarCategoriasPorBusqueda = (categorias, termino) => {
+  console.log('Categorías recibidas para filtrar:', categorias);
+  
   if (!termino.trim()) return categorias;
   
   const terminoLower = termino.toLowerCase().trim();
   return categorias.filter(categoria => {
     return (
       categoria.nombre?.toLowerCase().includes(terminoLower) ||
-      categoria.descripcion?.toLowerCase().includes(terminoLower)
+      (categoria.descripcion && categoria.descripcion.toLowerCase().includes(terminoLower))
     );
   });
 };
@@ -336,10 +349,19 @@ const saveCategory = async () => {
       }
     }
     
-    // Force a refresh of the categories list
-    await cargarCategorias();
+    // Actualizar la lista de categorías localmente sin recargar todo
+    if (editingCategory.value) {
+      // Actualizar categoría existente
+      const index = categorias.value.findIndex(c => c.id === editingCategory.value.id);
+      if (index !== -1) {
+        categorias.value[index] = { ...categorias.value[index], ...categoriaData };
+      }
+    } else if (response && response.data) {
+      // Agregar nueva categoría
+      categorias.value.push(response.data);
+    }
     
-    // Close the modal after a short delay to show the success message
+    // Cerrar el modal después de un breve retraso para mostrar el mensaje de éxito
     setTimeout(() => {
       closeCategoryModal();
     }, 500);
@@ -388,8 +410,10 @@ const saveCategory = async () => {
       // Show user-friendly error messages for known errors
       if (err.message.includes('ID de categoría')) {
         proxy.$toast.error(err.message, 3000);
+      } else if (err.message.includes('Error al crear la categoría') || err.message.includes('Error al actualizar la categoría')) {
+        proxy.$toast.error(err.message, 3000);
       } else {
-        proxy.$toast.error('Error al procesar la solicitud', 3000);
+        proxy.$toast.error('Error inesperado: ' + err.message, 3000);
       }
     } else {
       // Unknown error

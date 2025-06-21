@@ -354,10 +354,14 @@ const saveLine = async () => {
         return; // Exit early on error
       }
     } else {
-      // For new lines, the response is handled in crearLinea
+      // For new lines
       try {
-        await crearLinea(lineData);
-        // No need to show success message here as it's handled in crearLinea
+        const response = await crearLinea(lineData);
+        if (response && response.resultado) {
+          proxy.$toast.success(response.mensaje || '¡Línea creada exitosamente!', 2000);
+        } else {
+          throw new Error(response?.mensaje || 'Error al crear la línea');
+        }
         await cargarLineas();
         closeLineModal();
       } catch (createError) {
