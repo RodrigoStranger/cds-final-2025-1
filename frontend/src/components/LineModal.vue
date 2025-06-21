@@ -98,7 +98,10 @@ watch(() => props.proveedores, (newProveedores) => {
 }, { immediate: true });
 
 const handleProveedorChange = (event) => {
-  const selectedRuc = event?.target?.value ? event.target.value : null;
+  // Obtener el valor seleccionado y convertirlo a null si es 'null' o undefined
+  const selectedRuc = event?.target?.value === 'null' || event?.target?.value === null || event?.target?.value === undefined || event?.target?.value === '' 
+    ? null 
+    : event.target.value;
   
   // Encontrar el proveedor seleccionado
   const selectedProveedor = selectedRuc 
@@ -106,16 +109,19 @@ const handleProveedorChange = (event) => {
     : null;
     
   // Actualizar el formulario local
-  props.lineForm.proveedorRuc = selectedRuc;
-  props.lineForm.proveedorNombre = selectedProveedor?.nombre || null;
-  props.lineForm.ruc = selectedRuc;
+  const updatedForm = {
+    ...props.lineForm,
+    proveedorRuc: selectedRuc,
+    proveedorNombre: selectedProveedor?.nombre || null,
+    ruc: selectedRuc // Asegurarse de que ruc sea null si no hay proveedor
+  };
   
   // Actualizar el objeto reactivo para la UI
   selectedSupplier.ruc = selectedRuc;
   selectedSupplier.nombre = selectedProveedor?.nombre || null;
   
-  // Emitir el evento de actualización
-  emit('update:lineForm', { ...props.lineForm });
+  // Emitir el evento de actualización con el formulario completo
+  emit('update:lineForm', updatedForm);
 };
 
 const handleSave = (e) => {

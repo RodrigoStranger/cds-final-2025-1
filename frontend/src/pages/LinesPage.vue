@@ -288,19 +288,19 @@ const saveLine = async () => {
       }
     }
 
-    // Obtener el RUC del formulario
-    const ruc = lineForm.value.proveedorRuc;
+    // Obtener el RUC del formulario y asegurarse de que sea null si no hay valor
+    const ruc = (lineForm.value.proveedorRuc === null || 
+                lineForm.value.proveedorRuc === undefined || 
+                lineForm.value.proveedorRuc === '' || 
+                lineForm.value.proveedorRuc === 'null') ? null : lineForm.value.proveedorRuc;
     
     // Preparar los datos para guardar
     const lineData = {
       nombre_linea: nombre,
-      ruc: ruc || null
+      ruc: ruc // Esto será null o el valor del RUC
     };
     
-    // Asegurarse de que el RUC sea un string si existe
-    if (lineData.ruc !== null) {
-      lineData.ruc = String(lineData.ruc);
-    }
+    console.log('Datos a enviar al backend:', lineData);
     
     // Save or update the line
     if (editingLine.value) {

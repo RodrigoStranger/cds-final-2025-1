@@ -194,7 +194,7 @@ export function useLineas() {
       // Mapear los campos de la UI a los nombres que espera el API
       const dataParaAPI = {
         nombre_linea: lineaData.nombre_linea || lineaData.nombre, // Aceptar ambos formatos
-        ruc: lineaData.ruc || null,
+        ruc: lineaData.hasOwnProperty('ruc') ? lineaData.ruc : null, // Asegurar que se envíe null si no hay RUC
         // No incluir proveedor si no es necesario en el backend
       };
       
