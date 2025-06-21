@@ -13,7 +13,8 @@
     background-color: white;
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin: 0 1rem 1.5rem 1rem;
+    margin: 0 15rem 1.5rem 8rem;
+    max-width: 1200px;
     overflow: hidden;
   }
   
@@ -156,10 +157,27 @@
     grid-template-columns: repeat(1, 1fr);
     gap: 1rem;
     padding: 1.5rem;
-    max-height: calc(100vh - 250px);
-    min-height: 400px;
-    overflow-y: auto;
+    max-height: 500px;
     position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #9ca3af #f3f4f6;
+  }
+  
+  .categories-grid::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .categories-grid::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+  }
+  
+  .categories-grid::-webkit-scrollbar-thumb {
+    background-color: #9ca3af;
+    border-radius: 4px;
   }
   
   @media (min-width: 640px) {
@@ -260,14 +278,19 @@
   /* Empty State */
   .empty-state {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 2rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     color: #6b7280;
-    width: 100%;
+    padding: 2rem;
     max-width: 400px;
+    margin: 0 auto;
   }
   
   .empty-icon {
@@ -279,25 +302,28 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1rem;
+    margin: 0 auto 1.5rem;
   }
   
   .icon-large {
     width: 2rem;
     height: 2rem;
+    display: block;
   }
   
   .empty-state h4 {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 500;
     color: #111827;
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.5;
   }
   
   .empty-state p {
     color: #6b7280;
     max-width: 24rem;
-    margin-bottom: 1rem;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.5;
   }
   
   /* Pagination */
