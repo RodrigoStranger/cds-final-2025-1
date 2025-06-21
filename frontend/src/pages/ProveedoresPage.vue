@@ -105,13 +105,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, getCurrentInstance } from 'vue';
 import { Plus, Edit, Search, X } from 'lucide-vue-next';
-import { useToast } from 'vue-toastification';
 import ProveedorModal from '../components/ProveedorModal.vue';
 import ProveedorService from '../services/proveedorService';
 
-const toast = useToast();
+// Obtener la instancia de la aplicación para acceder a las propiedades globales
+const { proxy } = getCurrentInstance();
+const toast = proxy.$toast || { 
+  success: (msg) => console.log('Success:', msg),
+  error: (msg) => console.error('Error:', msg) 
+};
 
 // Estados
 const proveedores = ref([]);
