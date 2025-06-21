@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-// Configuración de la API
-// Usamos una ruta relativa que será manejada por el proxy de Vercel
-const API_BASE_URL = '/api';
+// Configuración de la API - URL directa al backend
+const API_BASE_URL = 'http://54.233.155.184:3000/api';
 
 // Crear una instancia de axios con configuración mejorada
 const api = axios.create({
