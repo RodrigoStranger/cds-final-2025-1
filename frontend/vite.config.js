@@ -27,9 +27,20 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
+        entryFileNames: 'assets/[name].[hash].js',
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash][extname]',
         manualChunks: {
-          vue: ['vue', 'vue-router', 'pinia']
+          vue: ['vue', 'vue-router', 'pinia'],
+          vendor: ['axios']
         }
+      }
+    },
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
       }
     }
   }
