@@ -313,7 +313,7 @@ const saveLine = async () => {
       ruc: ruc // Esto será null o el valor del RUC
     };
     
-    console.log('Datos a enviar al backend:', lineData);
+
     
     // Save or update the line
     if (editingLine.value) {
@@ -343,7 +343,7 @@ const saveLine = async () => {
           throw new Error(updateResponse?.mensaje || 'Error al actualizar la línea');
         }
       } catch (updateError) {
-        console.error('Error al actualizar la línea:', updateError);
+        // Error al actualizar la línea
         const errorMessage = updateError.response?.data?.mensaje || 'Error al actualizar la línea. Por favor, intente nuevamente.';
         
         if (updateError.response?.data?.field) {
@@ -361,7 +361,7 @@ const saveLine = async () => {
         await cargarLineas();
         closeLineModal();
       } catch (createError) {
-        console.error('Error al crear la línea:', createError);
+        // Error al crear la línea
         const errorMessage = createError.response?.data?.mensaje || 'Error al crear la línea. Por favor, intente nuevamente.';
         
         if (createError.response?.data?.field) {
@@ -372,7 +372,7 @@ const saveLine = async () => {
       }
     }
   } catch (err) {
-    console.error('Error inesperado al guardar la línea:', err);
+    // Error inesperado al guardar la línea
     const errorMessage = err.response?.data?.mensaje || 'Ocurrió un error inesperado. Por favor, intente nuevamente.';
     
     if (proxy && proxy.$toast) {

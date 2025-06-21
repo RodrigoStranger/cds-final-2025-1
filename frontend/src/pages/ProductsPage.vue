@@ -365,13 +365,7 @@ const openProductModal = async (product = null) => {
       activo: product.activo !== undefined ? product.activo : true
     });
     
-    console.log('Datos del producto a editar:', {
-      ...product,
-      cod_categoria: productForm.cod_categoria,
-      cod_linea: productForm.cod_linea,
-      categoriasDisponibles: categorias.value,
-      lineasDisponibles: lineas.value
-    });
+
   } else {
     editingProduct.value = null;
     resetProductForm();
@@ -400,7 +394,7 @@ const resetProductForm = () => {
 };
 
 const saveProduct = async (productoData) => {
-  console.log('Iniciando saveProduct');
+
   
   // Usar los datos del formulario o los proporcionados en el parámetro
   const datosAEnviar = productoData || {
@@ -412,15 +406,15 @@ const saveProduct = async (productoData) => {
   };
   
   
-  console.log('Datos a enviar:', JSON.parse(JSON.stringify(datosAEnviar)));
+
   
   try {
     if (editingProduct.value) {
       // Asegurarse de que el ID sea numérico
       const productId = parseInt(editingProduct.value.id || editingProduct.value.cod_producto);
-      console.log('Actualizando producto existente con ID:', productId);
+
       const resultado = await actualizarProducto(productId, datosAEnviar);
-      console.log('Producto actualizado:', resultado);
+
       
       // Recargar los productos después de actualizar
       await cargarProductos();
@@ -428,9 +422,9 @@ const saveProduct = async (productoData) => {
       // Mostrar notificación de éxito
       proxy.$toast.success('Producto actualizado correctamente', 3000);
     } else {
-      console.log('Creando nuevo producto');
+
       const resultado = await crearProducto(datosAEnviar);
-      console.log('Producto creado:', resultado);
+
       
       // Recargar los productos después de crear uno nuevo
       await cargarProductos();
@@ -440,10 +434,8 @@ const saveProduct = async (productoData) => {
     }
     closeProductModal();
   } catch (err) {
-    console.error('Error al guardar producto:', err);
     if (err.response) {
-      console.error('Detalles del error:', err.response.data);
-      console.error('Estado del error:', err.response.status);
+      // Error en la respuesta del servidor
       
       // Mostrar mensaje de error al usuario
       const errorMessage = err.response.data?.mensaje || 'Error al guardar el producto';

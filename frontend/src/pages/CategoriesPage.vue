@@ -313,7 +313,7 @@ const saveCategory = async () => {
       }
       
       // Log the data being sent for debugging
-      console.log('Updating category with ID:', idNum, 'Data:', categoriaData);
+
       
       response = await actualizarCategoria(idNum, {
         nombre: categoriaData.nombre,
@@ -344,13 +344,13 @@ const saveCategory = async () => {
       closeCategoryModal();
     }, 500);
   } catch (err) {
-    console.error('Error al guardar la categoría:', err);
+    // Error al guardar la categoría
     
     // Check for validation errors from the server
     if (err.response) {
       // Server responded with a status code outside the 2xx range
-      console.error('Error response data:', err.response.data);
-      console.error('Error status:', err.response.status);
+      // Error en la respuesta del servidor
+      // Código de estado del error
       
       // Handle specific error cases
       if (err.response.status === 400) {
@@ -379,11 +379,11 @@ const saveCategory = async () => {
       }
     } else if (err.request) {
       // The request was made but no response was received
-      console.error('No response received:', err.request);
+      // No se recibió respuesta del servidor
       proxy.$toast.error('No se pudo conectar con el servidor', 3000);
     } else if (err.message) {
       // Something happened in setting up the request
-      console.error('Request setup error:', err.message);
+      // Error al configurar la petición
       
       // Show user-friendly error messages for known errors
       if (err.message.includes('ID de categoría')) {

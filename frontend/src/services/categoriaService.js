@@ -7,7 +7,7 @@ const CategoriaService = {
       const response = await api.get('/categorias');
       return response.data;
     } catch (error) {
-      console.error('Error al obtener las categorías:', error);
+
       throw error;
     }
   },
@@ -18,7 +18,7 @@ const CategoriaService = {
       const response = await api.get(`/categorias/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener la categoría:', error);
+
       throw error;
     }
   },
@@ -29,7 +29,7 @@ const CategoriaService = {
       const response = await api.post('/categorias', categoriaData);
       return response.data;
     } catch (error) {
-      console.error('Error al crear la categoría:', error);
+
       throw error;
     }
   },
@@ -40,7 +40,7 @@ const CategoriaService = {
       const response = await api.put(`/categorias/${id}`, categoriaData);
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar la categoría:', error);
+
       throw error;
     }
   },
@@ -55,7 +55,7 @@ const CategoriaService = {
         mensaje: response.data.mensaje
       };
     } catch (error) {
-      console.error('Error al verificar el nombre de la categoría:', error);
+
       return {
         existe: false,
         mensaje: 'Error al verificar el nombre de la categoría'
@@ -69,7 +69,7 @@ const CategoriaService = {
       const response = await api.get(`/categorias/existe-id/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al verificar el ID de la categoría:', error);
+
       throw error;
     }
   },

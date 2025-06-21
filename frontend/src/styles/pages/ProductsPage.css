@@ -250,11 +250,6 @@
     color: #4b5563;
     border-top: 1px solid #e5e7eb;
     vertical-align: middle;
-    transition: background-color 0.2s;
-  }
-  
-  .table tbody tr:hover td {
-    background-color: #f8fafc;
   }
   
   .table th.actions,

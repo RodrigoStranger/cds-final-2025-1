@@ -17,7 +17,7 @@ export function useProductos() {
       productos.value = data
     } catch (err) {
       error.value = "Error al cargar los productos"
-      console.error("Error cargando productos:", err)
+
     } finally {
       loading.value = false
     }
@@ -52,7 +52,6 @@ export function useProductos() {
     try {
       return await ProductoService.verificarNombre(nombre)
     } catch (err) {
-      console.error("Error verificando nombre:", err)
       return { existe: false }
     }
   }
@@ -85,7 +84,7 @@ export function useCategorias() {
       categorias.value = data
     } catch (err) {
       error.value = "Error al cargar las categorías"
-      console.error("Error cargando categorías:", err)
+
     } finally {
       loading.value = false
     }
@@ -120,7 +119,6 @@ export function useCategorias() {
     try {
       return await CategoriaService.verificarNombre(nombre)
     } catch (err) {
-      console.error("Error verificando nombre:", err)
       return { existe: false }
     }
   }
@@ -156,7 +154,7 @@ export function useLineas() {
       }))
     } catch (err) {
       error.value = "Error al cargar las líneas"
-      console.error("Error cargando líneas:", err)
+      // Error cargando líneas
     } finally {
       loading.value = false
     }
@@ -166,7 +164,7 @@ export function useLineas() {
     loading.value = true
     error.value = null
     try {
-      console.log('Enviando a la API:', lineaData);
+
       const response = await LineaService.crear(lineaData)
       
       // Si la respuesta es exitosa, recargar la lista de líneas
@@ -189,7 +187,7 @@ export function useLineas() {
     error.value = null;
     
     try {
-      console.log('Actualizando línea con ID:', id, 'Datos:', lineaData);
+
       
       // Mapear los campos de la UI a los nombres que espera el API
       const dataParaAPI = {
@@ -197,8 +195,6 @@ export function useLineas() {
         ruc: lineaData.hasOwnProperty('ruc') ? lineaData.ruc : null, // Asegurar que se envíe null si no hay RUC
         // No incluir proveedor si no es necesario en el backend
       };
-      
-      console.log('Enviando a la API:', dataParaAPI);
       
       const response = await LineaService.actualizar(id, dataParaAPI);
       
@@ -210,7 +206,7 @@ export function useLineas() {
         throw new Error(response?.mensaje || 'Error al actualizar la línea');
       }
     } catch (err) {
-      console.error('Error en actualizarLinea:', err);
+
       error.value = err.message || 'Error al actualizar la línea';
       throw err;
     } finally {
@@ -232,7 +228,7 @@ export function useLineas() {
         data: response.data || null
       };
     } catch (error) {
-      console.error('Error verificando nombre de línea:', error);
+
       return { 
         resultado: false,
         mensaje: 'Error al verificar el nombre de la línea'
@@ -242,15 +238,15 @@ export function useLineas() {
 
   const cargarProveedores = async () => {
     try {
-      console.log('=== INICIO: Cargando proveedores ===');
+
       const data = await ProveedorService.obtenerTodos();
       
       if (!Array.isArray(data)) {
-        console.error('Error: Se esperaba un array de proveedores pero se recibió:', typeof data);
+        // Se esperaba un array de proveedores pero se recibió un tipo diferente
         return;
       }
       
-      console.log('Datos brutos de proveedores recibidos:', JSON.stringify(data, null, 2));
+
       
       // Mapear los proveedores asegurando que el RUC esté presente
       const mappedProveedores = data.map(proveedor => {
@@ -258,7 +254,7 @@ export function useLineas() {
         const ruc = proveedor.ruc || proveedor.RUC || 'SIN_RUC';
         const nombre = proveedor.nombre || proveedor.nombre_proveedor || 'Proveedor sin nombre';
         
-        console.log(`Mapeando proveedor - Nombre: ${nombre}, RUC: ${ruc}`);
+
         
         return {
           id: ruc, // Usar RUC como ID
@@ -268,9 +264,9 @@ export function useLineas() {
       });
       
       proveedores.value = mappedProveedores;
-      console.log('=== FIN: Proveedores mapeados ===', proveedores.value);
+
     } catch (err) {
-      console.error('Error cargando proveedores:', err)
+      // Error al cargar proveedores
     }
   }
 

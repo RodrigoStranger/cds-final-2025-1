@@ -15,17 +15,19 @@ const LineaService = {
 
   // Crear una nueva línea
   crear: async (lineaData) => {
-    console.log('Enviando a /lineas:', JSON.stringify(lineaData, null, 2));
+
     try {
       const response = await api.post('/lineas', lineaData);
-      console.log('Respuesta de /lineas:', response.data);
+
       return response.data;
     } catch (error) {
-      console.error('Error en la petición a /lineas:', {
+      // Error en la petición a /lineas
+      const errorInfo = {
         status: error.response?.status,
         data: error.response?.data,
         message: error.message
-      });
+      };
+      console.error('Error al crear línea:', errorInfo);
       throw error;
     }
   },
@@ -33,12 +35,13 @@ const LineaService = {
   // Actualizar una línea existente
   actualizar: async (id, lineaData) => {
     try {
-      console.log(`Actualizando línea ${id} con datos:`, lineaData);
+
       const response = await api.put(`/lineas/${id}`, lineaData);
-      console.log('Respuesta de actualización:', response.data);
+
       return response.data;
     } catch (error) {
-      console.error('Error en la petición de actualización:', {
+      // Error en la petición de actualización
+      const errorInfo = {
         status: error.response?.status,
         data: error.response?.data,
         message: error.message,
@@ -47,7 +50,8 @@ const LineaService = {
           method: error.config?.method,
           data: error.config?.data
         }
-      });
+      };
+      console.error('Error al actualizar línea:', errorInfo);
       throw error;
     }
   },

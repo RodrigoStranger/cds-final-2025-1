@@ -4,27 +4,15 @@ const ProveedorService = {
   // Obtener todos los proveedores
   obtenerTodos: async () => {
     try {
-      console.log('Fetching proveedores from API...');
       const response = await api.get('/proveedores');
-      console.log('Raw proveedores API response:', JSON.stringify(response.data, null, 2));
-      
-      // Log the first supplier's structure if available
-      if (response.data && response.data.length > 0) {
-        console.log('First supplier structure:', Object.keys(response.data[0]));
-        console.log('First supplier RUC field:', 'ruc' in response.data[0] ? 'exists' : 'missing');
-      }
-      
       return response.data;
     } catch (error) {
-      console.error('Error al obtener los proveedores:', error);
       if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-        console.error('Error response headers:', error.response.headers);
+        // Error en la respuesta del servidor
       } else if (error.request) {
-        console.error('No response received:', error.request);
+        // La petición fue hecha pero no se recibió respuesta
       } else {
-        console.error('Error setting up request:', error.message);
+        // Error al configurar la petición
       }
       throw error;
     }
