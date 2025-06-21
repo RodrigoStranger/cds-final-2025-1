@@ -288,9 +288,53 @@ const updateProductForm = (newFormData) => {
   Object.assign(productForm, newFormData);
 };
 
-const openProductModal = (product = null) => {
+const openProductModal = async (product = null) => {
   if (product) {
+    // Asegurarse de que las categorías y líneas estén cargadas
+    await Promise.all([
+      categorias.value.length === 0 ? cargarCategorias() : Promise.resolve(),
+      lineas.value.length === 0 ? cargarLineas() : Promise.resolve()
+    ]);
+    
     editingProduct.value = product;
+    
+    // Manejar la categoría
+    let categoriaId = null;
+    if (product.categoria && product.categoria !== 'Sin categoría') {
+      // Buscar por ID primero
+      categoriaId = product.cod_categoria || null;
+      
+      // Si no encontramos por ID, buscar por nombre
+      if (!categoriaId) {
+        const categoria = categorias.value.find(c => c.nombre === product.categoria);
+        categoriaId = categoria?.cod_categoria || null;
+      }
+    } else {
+      // Si es 'Sin categoría' o no hay categoría, establecer como null
+      categoriaId = null;
+    }
+    
+    // Manejar la línea
+    let lineaId = null;
+    if (product.linea && product.linea !== 'Sin línea') {
+      // Buscar por ID primero
+      lineaId = product.cod_linea || null;
+      
+      // Si no encontramos por ID, buscar por nombre
+      if (!lineaId) {
+        const linea = lineas.value.find(l => 
+          (l.nombre === product.linea) || 
+          (l.nombre_linea === product.linea) ||
+          (l.id && l.id.toString() === product.linea) ||
+          (l.cod_linea && l.cod_linea.toString() === product.linea)
+        );
+        lineaId = linea?.cod_linea || linea?.id || null;
+      }
+    } else {
+      // Si es 'Sin línea' o no hay línea, establecer como null
+      lineaId = null;
+    }
+    
     // Inicializar el formulario con los datos del producto
     Object.assign(productForm, {
       nombre: product.nombre,
@@ -298,9 +342,17 @@ const openProductModal = (product = null) => {
       precio_compra: product.precio_compra,
       precio_venta: product.precio_venta,
       stock: product.stock,
-      cod_categoria: product.cod_categoria || null,
-      cod_linea: product.cod_linea || null,
+      cod_categoria: categoriaId,
+      cod_linea: lineaId,
+      activo: product.activo !== undefined ? product.activo : true
+    });
     
+    console.log('Datos del producto a editar:', {
+      ...product,
+      cod_categoria: productForm.cod_categoria,
+      cod_linea: productForm.cod_linea,
+      categoriasDisponibles: categorias.value,
+      lineasDisponibles: lineas.value
     });
   } else {
     editingProduct.value = null;
