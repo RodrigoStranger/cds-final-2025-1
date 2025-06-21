@@ -165,35 +165,135 @@
   /* Table */
   .table-container {
     overflow-x: auto;
-    min-height: 200px;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+    background: white;
   }
   
   .table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 600px; /* Ensure table has a minimum width */
   }
   
   .table th {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1rem;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 500;
     text-transform: uppercase;
     color: #6b7280;
     background-color: #f9fafb;
+    white-space: nowrap;
   }
   
   .table td {
-    padding: 1rem 1.5rem;
+    padding: 1rem;
     font-size: 0.875rem;
     color: #4b5563;
     border-top: 1px solid #e5e7eb;
+    vertical-align: middle;
   }
   
   .table th.actions,
   .table td.actions {
     text-align: right;
     width: 80px;
+  }
+  
+  /* Responsive table styles */
+  @media (max-width: 992px) {
+    .table {
+      display: block;
+      min-width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    
+    .table thead {
+      display: none;
+    }
+    
+    .table tbody {
+      display: block;
+      width: 100%;
+    }
+    
+    .table tr {
+      display: block;
+      padding: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      position: relative;
+    }
+    
+    .table tr:last-child {
+      border-bottom: none;
+    }
+    
+    .table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border: none;
+      text-align: right;
+      position: relative;
+      padding-left: 50%;
+    }
+    
+    .table td:before {
+      content: attr(data-label);
+      position: absolute;
+      left: 1rem;
+      width: 45%;
+      padding-right: 1rem;
+      font-weight: 500;
+      color: #4b5563;
+      text-align: left;
+    }
+    
+    .table td.actions {
+      justify-content: flex-end;
+      padding-top: 1rem;
+      padding-left: 0;
+      border-top: 1px solid #e5e7eb;
+      margin-top: 0.5rem;
+    }
+    
+    .table td.actions:before {
+      display: none;
+    }
+    
+    .product-cell {
+      flex-direction: column;
+      align-items: flex-start !important;
+    }
+    
+    .product-image {
+      margin-bottom: 0.5rem;
+    }
+    
+    .stock-badge {
+      margin-left: 0;
+    }
+  }
+  
+  /* For very small screens */
+  @media (max-width: 480px) {
+    .table td {
+      padding: 0.5rem 0 0.5rem 50%;
+    }
+    
+    .table td:before {
+      left: 0.5rem;
+      font-size: 0.75rem;
+    }
+    
+    .table td.actions {
+      padding: 0.75rem 0 0 0;
+    }
   }
   
   /* Product Cell */

@@ -59,7 +59,7 @@
           </thead>
           <tbody>
             <tr v-for="(producto, index) in productosPaginados" :key="producto.id">
-              <td>
+              <td data-label="Nombre">
                 <div class="product-cell">
                   <div class="product-image">
                     {{ producto.nombre.charAt(0).toUpperCase() }}
@@ -67,16 +67,16 @@
                   <div class="product-name">{{ producto.nombre }}</div>
                 </div>
               </td>
-              <td>{{ producto.descripcion || 'Sin descripción' }}</td>
-              <td>S/. {{ producto.precio_compra }}</td>
-              <td>S/. {{ producto.precio_venta }}</td>
-              <td>
+              <td data-label="Descripción">{{ producto.descripcion || 'Sin descripción' }}</td>
+              <td data-label="Precio Compra">S/. {{ producto.precio_compra }}</td>
+              <td data-label="Precio Venta">S/. {{ producto.precio_venta }}</td>
+              <td data-label="Stock">
                 <span class="stock-badge" :class="{ 'stock-low': producto.stock <= 10 && producto.stock > 0, 'stock-out': producto.stock === 0 }">
                   {{ producto.stock }}
                 </span>
               </td>
-              <td>{{ producto.categoria || 'Sin categoría' }}</td>
-              <td>{{ producto.linea || 'Sin línea' }}</td>
+              <td data-label="Categoría">{{ producto.categoria || 'Sin categoría' }}</td>
+              <td data-label="Línea">{{ producto.linea || 'Sin línea' }}</td>
               <td class="actions">
                 <div class="action-buttons">
                   <button @click="openProductModal(producto)" class="icon-button edit">
