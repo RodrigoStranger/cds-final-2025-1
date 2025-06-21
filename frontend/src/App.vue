@@ -32,7 +32,7 @@
 <script setup>
 import { ref, onMounted, computed, nextTick, provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Package, Layers, Tag } from 'lucide-vue-next';
+import { Package, Layers, Tag, Truck } from 'lucide-vue-next';
 import Sidebar from './components/Sidebar.vue';
 import Navbar from './components/Navbar.vue';
 import GlobalLoading from './components/GlobalLoading.vue';
@@ -69,6 +69,7 @@ const tabs = [
   { id: 'productos', label: 'Productos', icon: Package, route: '/productos' },
   { id: 'lineas', label: 'Líneas', icon: Layers, route: '/lineas' },
   { id: 'categorias', label: 'Categorías', icon: Tag, route: '/categorias' },
+  { id: 'proveedores', label: 'Proveedores', icon: Truck, route: '/proveedores' },
 ];
 
 // Pestaña activa basada en la ruta actual
@@ -77,6 +78,7 @@ const activeTab = computed(() => {
   if (path.startsWith('/productos')) return 'productos';
   if (path.startsWith('/lineas')) return 'lineas';
   if (path.startsWith('/categorias')) return 'categorias';
+  if (path.startsWith('/proveedores')) return 'proveedores';
   return 'productos';
 });
 
