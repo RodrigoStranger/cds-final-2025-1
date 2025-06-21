@@ -15,30 +15,21 @@ const proveedorRoutes = require('./src/routes/ProveedorRoute');
 
 const app = express();
 
-// Configuración de CORS
-const allowedOrigins = [
-  'http://localhost:5173',         // Desarrollo local
-  'https://fabianatura.vercel.app', // Producción en Vercel
-  'http://54.233.155.184:3000'      // IP de AWS
-];
-
+// Configuración de CORS (temporalmente permitiendo todos los orígenes para pruebas)
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Permitir solicitudes sin origen (como aplicaciones móviles o curl)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'El origen de la solicitud no está permitido por CORS';
-      console.warn(`Intento de acceso no autorizado desde: ${origin}`);
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+  origin: true, // Permitir todos los orígenes temporalmente
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  optionsSuccessStatus: 200 // Algunos navegadores antiguos (IE11, varios SmartTVs) fallan con 204
+  optionsSuccessStatus: 200
 };
+
+// Log para depuración
+console.log('Configuración CORS:', {
+  origin: 'Todos los orígenes permitidos (modo prueba)',
+  methods: corsOptions.methods,
+  allowedHeaders: corsOptions.allowedHeaders
+});
 
 // Middleware
 app.use(cors(corsOptions));

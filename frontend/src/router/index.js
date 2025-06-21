@@ -3,6 +3,7 @@ import ProductsPage from '../pages/ProductsPage.vue';
 import CategoriesPage from '../pages/CategoriesPage.vue';
 import LinesPage from '../pages/LinesPage.vue';
 import ProveedoresPage from '../pages/ProveedoresPage.vue';
+import TestConnection from '../pages/TestConnection.vue';
 
 const routes = [
   {
@@ -28,6 +29,12 @@ const routes = [
     path: '/proveedores',
     name: 'Proveedores',
     component: ProveedoresPage
+  },
+  {
+    path: '/test-connection',
+    name: 'TestConnection',
+    component: TestConnection,
+    meta: { hideSidebar: true }
   },
   {
     path: '/:pathMatch(.*)*',
