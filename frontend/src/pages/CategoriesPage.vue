@@ -40,8 +40,14 @@
               {{ categoria.nombre.charAt(0).toUpperCase() }}
             </div>
             <div class="category-info">
-              <h4>{{ categoria.nombre }}</h4>
-              <p class="category-description">{{ categoria.descripcion || 'Sin descripción' }}</p>
+              <h4 class="cell-content">
+                {{ categoria.nombre }}
+                <span class="tooltip">{{ categoria.nombre }}</span>
+              </h4>
+              <p class="category-description cell-content">
+                {{ categoria.descripcion || 'Sin descripción' }}
+                <span class="tooltip" v-if="categoria.descripcion">{{ categoria.descripcion }}</span>
+              </p>
             </div>
           </div>
           <div class="category-actions">

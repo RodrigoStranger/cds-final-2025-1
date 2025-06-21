@@ -13,7 +13,8 @@
     background-color: white;
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
+    margin: 0 1rem 1.5rem 1rem;
+    overflow: hidden;
   }
   
   .card-header {
@@ -162,23 +163,78 @@
     justify-content: flex-end;
   }
   
-  /* Table */
+  /* Table Container */
   .table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    margin: 0 -1rem;
-    padding: 0 1rem;
+    margin: 0;
+    padding: 0;
     background: white;
+    max-height: calc(100vh - 250px);
+    min-height: 400px;
+    position: relative;
+    border-radius: 0 0 0.5rem 0.5rem;
   }
   
   .table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px; /* Ensure table has a minimum width */
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.75rem 1rem;
+    white-space: normal;
+    word-wrap: break-word;
+    vertical-align: top;
+  }
+  
+  /* Ajustes específicos para cada columna */
+  .table th:nth-child(1),
+  .table td:nth-child(1) {
+    width: 15%;
+    min-width: 120px;
+  }
+  
+  .table th:nth-child(2),
+  .table td:nth-child(2) {
+    width: 20%;
+    min-width: 150px;
+  }
+  
+  .table th:nth-child(3),
+  .table td:nth-child(3),
+  .table th:nth-child(4),
+  .table td:nth-child(4) {
+    width: 10%;
+    min-width: 100px;
+  }
+  
+  .table th:nth-child(5),
+  .table td:nth-child(5) {
+    width: 8%;
+    min-width: 80px;
+  }
+  
+  .table th:nth-child(6),
+  .table td:nth-child(6),
+  .table th:nth-child(7),
+  .table td:nth-child(7) {
+    width: 15%;
+    min-width: 120px;
+  }
+  
+  .table th:last-child,
+  .table td:last-child {
+    width: 7%;
+    min-width: 80px;
+    text-align: center;
   }
   
   .table th {
-    padding: 0.75rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 500;
@@ -186,14 +242,19 @@
     color: #6b7280;
     background-color: #f9fafb;
     white-space: nowrap;
+    box-shadow: 0 1px 0 #e5e7eb;
   }
   
   .table td {
-    padding: 1rem;
     font-size: 0.875rem;
     color: #4b5563;
     border-top: 1px solid #e5e7eb;
     vertical-align: middle;
+    transition: background-color 0.2s;
+  }
+  
+  .table tbody tr:hover td {
+    background-color: #f8fafc;
   }
   
   .table th.actions,
@@ -346,12 +407,15 @@
   
   /* Empty State */
   .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1.5rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2rem;
     text-align: center;
+    color: #6b7280;
+    width: 100%;
+    max-width: 400px;
   }
   
   .empty-icon {
@@ -363,7 +427,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1rem;
   }
   
   .icon-large {
@@ -410,12 +473,15 @@
   /* Pagination */
   .pagination {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     padding: 1rem 1.5rem;
     border-top: 1px solid #e5e7eb;
-    flex-wrap: wrap;
-    gap: 1rem;
+    background-color: white;
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin: 0;
   }
   
   .pagination-info {

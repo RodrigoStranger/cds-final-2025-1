@@ -13,7 +13,8 @@
     background-color: white;
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
+    margin: 0 1rem 1.5rem 1rem;
+    overflow: hidden;
   }
   
   .card-header {
@@ -155,6 +156,10 @@
     grid-template-columns: repeat(1, 1fr);
     gap: 1rem;
     padding: 1.5rem;
+    max-height: calc(100vh - 250px);
+    min-height: 400px;
+    overflow-y: auto;
+    position: relative;
   }
   
   @media (min-width: 640px) {
@@ -210,16 +215,18 @@
   }
   
   .category-info h4 {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     font-weight: 500;
     color: #111827;
-    margin-bottom: 0.25rem;
+    margin: 0 0 0.25rem 0;
+    word-wrap: break-word;
   }
   
   .category-description {
     font-size: 0.75rem;
     color: #6b7280;
     margin-bottom: 0.25rem;
+    word-wrap: break-word;
   }
   
   .category-actions {
@@ -252,12 +259,15 @@
   
   /* Empty State */
   .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1.5rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2rem;
     text-align: center;
+    color: #6b7280;
+    width: 100%;
+    max-width: 400px;
   }
   
   .empty-icon {
@@ -293,12 +303,15 @@
   /* Pagination */
   .pagination {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     padding: 1rem 1.5rem;
     border-top: 1px solid #e5e7eb;
-    flex-wrap: wrap;
-    gap: 1rem;
+    background-color: white;
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin: 0;
   }
   
   .pagination-info {

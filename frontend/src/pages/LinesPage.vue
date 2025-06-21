@@ -45,13 +45,26 @@
           <tbody>
             <tr v-for="linea in lineasPaginadas" :key="linea.id">
               <td>
-                <div class="line-cell">
-                  <div class="line-avatar">{{ linea.nombre.charAt(0).toUpperCase() }}</div>
-                  <div class="line-name">{{ linea.nombre }}</div>
+                <div class="cell-content">
+                  <div class="line-cell">
+                    <div class="line-avatar">{{ linea.nombre.charAt(0).toUpperCase() }}</div>
+                    <div class="line-name">{{ linea.nombre }}</div>
+                  </div>
+                  <span class="tooltip">{{ linea.nombre }}</span>
                 </div>
               </td>
-              <td>{{ linea.ruc || 'Sin RUC' }}</td>
-              <td>{{ linea.proveedor || 'Sin proveedor' }}</td>
+              <td>
+                <div class="cell-content">
+                  {{ linea.ruc || 'Sin RUC' }}
+                  <span class="tooltip" v-if="linea.ruc">{{ linea.ruc }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  {{ linea.proveedor || 'Sin proveedor' }}
+                  <span class="tooltip" v-if="linea.proveedor">{{ linea.proveedor }}</span>
+                </div>
+              </td>
               <td class="actions">
                 <div class="action-buttons">
                   <button @click="openLineModal(linea)" class="icon-button edit">

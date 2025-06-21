@@ -60,14 +60,22 @@
           <tbody>
             <tr v-for="(producto, index) in productosPaginados" :key="producto.id">
               <td data-label="Nombre">
-                <div class="product-cell">
-                  <div class="product-image">
-                    {{ producto.nombre.charAt(0).toUpperCase() }}
+                <div class="cell-content">
+                  <div class="product-cell">
+                    <div class="product-image">
+                      {{ producto.nombre.charAt(0).toUpperCase() }}
+                    </div>
+                    <div class="product-name">{{ producto.nombre }}</div>
                   </div>
-                  <div class="product-name">{{ producto.nombre }}</div>
+                  <span class="tooltip">{{ producto.nombre }}</span>
                 </div>
               </td>
-              <td data-label="Descripción">{{ producto.descripcion || 'Sin descripción' }}</td>
+              <td data-label="Descripción">
+                <div class="cell-content">
+                  {{ producto.descripcion || 'Sin descripción' }}
+                  <span class="tooltip" v-if="producto.descripcion">{{ producto.descripcion }}</span>
+                </div>
+              </td>
               <td data-label="Precio Compra">S/. {{ producto.precio_compra }}</td>
               <td data-label="Precio Venta">S/. {{ producto.precio_venta }}</td>
               <td data-label="Stock">
@@ -75,8 +83,18 @@
                   {{ producto.stock }}
                 </span>
               </td>
-              <td data-label="Categoría">{{ producto.categoria || 'Sin categoría' }}</td>
-              <td data-label="Línea">{{ producto.linea || 'Sin línea' }}</td>
+              <td data-label="Categoría">
+                <div class="cell-content">
+                  {{ producto.categoria || 'Sin categoría' }}
+                  <span class="tooltip" v-if="producto.categoria">{{ producto.categoria }}</span>
+                </div>
+              </td>
+              <td data-label="Línea">
+                <div class="cell-content">
+                  {{ producto.linea || 'Sin línea' }}
+                  <span class="tooltip" v-if="producto.linea">{{ producto.linea }}</span>
+                </div>
+              </td>
               <td class="actions">
                 <div class="action-buttons">
                   <button @click="openProductModal(producto)" class="icon-button edit">
