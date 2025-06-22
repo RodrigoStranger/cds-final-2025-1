@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-// Configuración de la API - Usando ruta relativa para el proxy de Vercel
-const API_BASE_URL = '/api';
+// Configuración de la API - Detecta entorno automáticamente
+const API_BASE_URL =
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : '/api'; // Cambia la URL según tu entorno de desarrollo o producción
 
 // Crear una instancia de axios con configuración mejorada
 const api = axios.create({
@@ -22,7 +25,7 @@ const api = axios.create({
 // Interceptor para manejar errores globalmente
 api.interceptors.response.use(
   (response) => {
-    console.log(`[${response.status}] ${response.config.method?.toUpperCase()} ${response.config.url}`);
+    // Elimina el log de cada request exitosa
     return response;
   },
   (error) => {

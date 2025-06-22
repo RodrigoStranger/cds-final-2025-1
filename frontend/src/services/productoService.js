@@ -59,9 +59,12 @@ const ProductoService = {
   // Crear un nuevo producto
   crear: async (productoData) => {
     try {
+      // Convertir descripción vacía a null
+      const descripcion = productoData.descripcion === '' ? null : productoData.descripcion;
       // Asegurarse de que el estado siempre esté definido
       const dataToSend = {
         ...productoData,
+        descripcion,
         estado: 'disponible' // Estado por defecto
       };
       const response = await api.post('/productos', dataToSend);
@@ -75,9 +78,12 @@ const ProductoService = {
   // Actualizar un producto existente
   actualizar: async (id, productoData) => {
     try {
+      // Convertir descripción vacía a null
+      const descripcion = productoData.descripcion === '' ? null : productoData.descripcion;
       // Asegurarse de que el estado siempre esté definido
       const dataToSend = {
         ...productoData,
+        descripcion,
         estado: 'disponible' // Estado por defecto
       };
       const response = await api.put(`/productos/${id}`, dataToSend);
