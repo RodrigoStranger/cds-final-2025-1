@@ -7,6 +7,9 @@ require('dotenv').config({ path: '.env.local' });
 // Base de datos
 const database = require('./src/config/Database');
 
+// Middleware de autenticación
+const { verificarToken } = require('./src/middleware/authMiddleware');
+
 // Rutas
 const productoRoutes = require('./src/routes/ProductoRoute');
 const lineaRoutes = require('./src/routes/LineaRoute');
@@ -66,11 +69,11 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Rutas de la API
-app.use('/api/productos', productoRoutes);
-app.use('/api/lineas', lineaRoutes);
-app.use('/api/categorias', categoriaRoutes);
-app.use('/api/proveedores', proveedorRoutes);
+// Rutas de la API (protegidas con autenticación)
+app.use('/api/productos', verificarToken, productoRoutes);
+app.use('/api/lineas', verificarToken, lineaRoutes);
+app.use('/api/categorias', verificarToken, categoriaRoutes);
+app.use('/api/proveedores', verificarToken, proveedorRoutes);
 
 // Puerto
 const PORT = process.env.PORT || 3000;
@@ -102,12 +105,16 @@ const server = app.listen(PORT, async () => {
     console.log(`   Error: ${dbStatus.error}`);
   }
   console.log('='.repeat(60));
-  console.log('📡 Algunos endpoints disponibles:');
-  console.log(`   - GET  /api/health        Verificar estado del servidor`);
-  console.log(`   - GET  /api/productos     Obtener productos`);
-  console.log(`   - GET  /api/lineas        Obtener líneas`);
-  console.log(`   - GET  /api/categorias    Obtener categorías`);
-  console.log(`   - GET  /api/proveedores   Obtener proveedores`);
+  console.log('� Endpoints protegidos (requieren token JWT):');
+  console.log(`   - GET  /api/health        Verificar estado del servidor (público)`);
+  console.log(`   - GET  /api/productos     Obtener productos (protegido)`);
+  console.log(`   - GET  /api/lineas        Obtener líneas (protegido)`);
+  console.log(`   - GET  /api/categorias    Obtener categorías (protegido)`);
+  console.log(`   - GET  /api/proveedores   Obtener proveedores (protegido)`);
+  console.log('');
+  console.log('🔑 Para acceder a las rutas protegidas:');
+  console.log('   1. Hacer login en: http://localhost:3001/api/auth/login');
+  console.log('   2. Usar el token en el header: Authorization: Bearer [token]');
   console.log('='.repeat(60));
 });
 
