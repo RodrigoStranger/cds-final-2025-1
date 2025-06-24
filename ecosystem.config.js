@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "auth",
-      script: "./auth/auth.js",
+      script: "auth.js",
       cwd: "./auth",
       watch: false,
       env: {
@@ -11,7 +11,7 @@ module.exports = {
     },
     {
       name: "backend",
-      script: "./backend/index.js",
+      script: "index.js",
       cwd: "./backend",
       watch: false,
       env: {
