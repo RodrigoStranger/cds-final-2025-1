@@ -1,20 +1,22 @@
 module.exports = {
   apps: [
     {
-      name: 'auth',
-      script: 'auth.js',
-      cwd: '/home/ec2-user/cds-final-2025-1/auth',
+      name: "auth",
+      script: "./auth/auth.js",
+      cwd: "./auth",
+      watch: false,
       env: {
         NODE_ENV: "production"
-     }
+      }
     },
     {
-      name: 'backend',
-      script: 'index.js',
-      cwd: '/home/ec2-user/cds-final-2025-1/backend',
+      name: "backend",
+      script: "./backend/index.js",
+      cwd: "./backend",
+      watch: false,
       env: {
         NODE_ENV: "production"
       }
     }
   ]
-};
+}
