@@ -65,20 +65,6 @@
         <div class="brand-content">
           <h1>¡Bienvenido a FabiaNatura!</h1>
           <p>Sistema de gestión de inventario</p>
-          <div class="features">
-            <div class="feature">
-              <span class="feature-icon">📦</span>
-              <span>Gestión de productos</span>
-            </div>
-            <div class="feature">
-              <span class="feature-icon">📊</span>
-              <span>Control de inventario</span>
-            </div>
-            <div class="feature">
-              <span class="feature-icon">🚚</span>
-              <span>Manejo de proveedores</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
