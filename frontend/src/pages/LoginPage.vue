@@ -23,8 +23,6 @@ if (authStore.isAuthenticated) {
 }
 
 const handleLoginSuccess = async (data) => {
-  console.log('✅ Login exitoso desde página:', data)
-  
   showToast('¡Bienvenido! Sesión iniciada correctamente')
   
   // Redirigir al dashboard

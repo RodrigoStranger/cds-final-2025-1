@@ -133,8 +133,6 @@ const handleLogin = async () => {
   if (!validateForm()) return;
 
   clearErrors();
-
-  console.log('🔐 Iniciando login con store...');
   
   const result = await authStore.login(formData.dni, formData.contraseña);
   

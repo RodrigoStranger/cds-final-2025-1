@@ -113,7 +113,6 @@ const activeTab = computed(() => {
 
 // Manejar logout
 const handleLogout = () => {
-  console.log('🚪 Cerrando sesión desde App.vue');
   authStore.logout();
   showToast('Sesión cerrada correctamente');
   router.push('/login');
@@ -121,18 +120,12 @@ const handleLogout = () => {
 
 // Verificar autenticación al iniciar
 onMounted(async () => {
-  console.log('🚀 Iniciando aplicación...');
-  
   // Si no está en login y no está autenticado, verificar token
   if (route.path !== '/login' && authStore.token) {
-    console.log('🔍 Verificando autenticación existente...');
     const isValid = await authStore.verifyToken();
     
     if (!isValid) {
-      console.log('❌ Token inválido, redirigiendo a login');
       router.push('/login');
-    } else {
-      console.log('✅ Autenticación válida');
     }
   }
   

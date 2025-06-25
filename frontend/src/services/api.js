@@ -30,9 +30,6 @@ api.interceptors.request.use(
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('🔐 Token agregado a la petición:', config.url);
-    } else {
-      console.log('⚠️ No hay token disponible para:', config.url);
     }
     
     return config;
@@ -61,7 +58,6 @@ api.interceptors.response.use(
 
       // Si es un error 401 (No autorizado), limpiar sesión
       if (error.response.status === 401) {
-        console.log('🚨 Token expirado o inválido, limpiando sesión...');
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_data');
         
@@ -88,9 +84,7 @@ api.interceptors.response.use(
 // Función para probar la conexión con el backend
 export const testConnection = async () => {
   try {
-    console.log('Probando conexión con el backend...');
     const response = await api.get('/health');
-    console.log('Respuesta del backend:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error al conectar con el backend:', error);

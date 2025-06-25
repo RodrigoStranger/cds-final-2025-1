@@ -24,8 +24,6 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (dni, contraseña) => {
     isLoading.value = true
     try {
-      console.log('🔐 Intentando login:', { dni })
-      
       const response = await axios.post(`${getAuthUrl()}/auth/login`, {
         dni,
         contraseña
@@ -51,7 +49,6 @@ export const useAuthStore = defineStore('auth', () => {
           justLoggedIn.value = false
         }, 5000)
         
-        console.log('✅ Login exitoso:', response.data.empleado)
         return { success: true, data: response.data }
       } else {
         throw new Error(response.data.message || 'Error en el login')
@@ -74,8 +71,6 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const logout = () => {
-    console.log('🚪 Cerrando sesión')
-    
     // Limpiar estado
     token.value = null
     user.value = null
@@ -89,8 +84,6 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return false
 
     try {
-      console.log('🔍 Verificando token...')
-      
       const response = await axios.get(`${getAuthUrl()}/auth/perfil`, {
         headers: {
           'Authorization': `Bearer ${token.value}`
@@ -99,10 +92,8 @@ export const useAuthStore = defineStore('auth', () => {
       })
 
       if (response.data.success) {
-        console.log('✅ Token válido')
         return true
       } else {
-        console.log('❌ Token inválido')
         logout()
         return false
       }
