@@ -22,6 +22,27 @@ const api = axios.create({
   }
 });
 
+// Interceptor para agregar el token JWT automáticamente
+api.interceptors.request.use(
+  (config) => {
+    // Obtener token del localStorage
+    const token = localStorage.getItem('auth_token');
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      console.log('🔐 Token agregado a la petición:', config.url);
+    } else {
+      console.log('⚠️ No hay token disponible para:', config.url);
+    }
+    
+    return config;
+  },
+  (error) => {
+    console.error('Error en interceptor de request:', error);
+    return Promise.reject(error);
+  }
+);
+
 // Interceptor para manejar errores globalmente
 api.interceptors.response.use(
   (response) => {
@@ -37,6 +58,18 @@ api.interceptors.response.use(
         url: error.config.url,
         method: error.config.method
       });
+
+      // Si es un error 401 (No autorizado), limpiar sesión
+      if (error.response.status === 401) {
+        console.log('🚨 Token expirado o inválido, limpiando sesión...');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        
+        // Redirigir al login si no estamos ya ahí
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
     } else if (error.request) {
       // La solicitud fue hecha pero no se recibió respuesta
       console.error('No se recibió respuesta del servidor:', {

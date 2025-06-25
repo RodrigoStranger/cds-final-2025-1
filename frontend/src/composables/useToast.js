@@ -7,7 +7,8 @@ let toastContainer = null;
 let toastApp = null;
 
 // Show a toast notification
-function showToast(message, { duration = 3000, type = 'success' } = {}) {
+function showToast(message, options = {}) {
+  const { duration = 3000, type = 'success' } = options;
   const id = Date.now().toString();
   
   const newToast = {
@@ -89,10 +90,10 @@ export function useToast() {
     toasts,
     show: showToast,
     remove: removeToast,
-    success: (msg, duration) => showToast(msg, { type: 'success', duration }),
-    error: (msg, duration) => showToast(msg, { type: 'error', duration }),
-    warning: (msg, duration) => showToast(msg, { type: 'warning', duration }),
-    info: (msg, duration) => showToast(msg, { type: 'info', duration })
+    success: (msg, duration = 3000) => showToast(msg, { type: 'success', duration }),
+    error: (msg, duration = 3000) => showToast(msg, { type: 'error', duration }),
+    warning: (msg, duration = 3000) => showToast(msg, { type: 'warning', duration }),
+    info: (msg, duration = 3000) => showToast(msg, { type: 'info', duration })
   };
 }
 
@@ -102,10 +103,10 @@ const ToastPlugin = {
     initToast();
     
     const toast = {
-      success: (msg, duration) => showToast(msg, { type: 'success', duration }),
-      error: (msg, duration) => showToast(msg, { type: 'error', duration }),
-      warning: (msg, duration) => showToast(msg, { type: 'warning', duration }),
-      info: (msg, duration) => showToast(msg, { type: 'info', duration }),
+      success: (msg, duration = 3000) => showToast(msg, { type: 'success', duration }),
+      error: (msg, duration = 3000) => showToast(msg, { type: 'error', duration }),
+      warning: (msg, duration = 3000) => showToast(msg, { type: 'warning', duration }),
+      info: (msg, duration = 3000) => showToast(msg, { type: 'info', duration }),
       remove: removeToast
     };
     

@@ -21,10 +21,18 @@
         </div>
 
         <!-- User Avatar -->
-        <div class="user-avatar">
+        <div class="user-avatar" @click="toggleUserMenu">
           <img v-if="user.avatar" :src="user.avatar" :alt="user.name" class="avatar-image">
           <div v-else class="avatar-initial">
             {{ getUserInitial(user.name) }}
+          </div>
+        </div>
+
+        <!-- User Dropdown Menu -->
+        <div v-if="userMenuOpen" class="user-dropdown" @click.stop>
+          <div class="dropdown-item" @click="handleLogout">
+            <LogOut class="dropdown-icon" />
+            <span>Cerrar Sesión</span>
           </div>
         </div>
       </div>
@@ -42,12 +50,15 @@
         <!-- Aquí puedes agregar el contenido del menú móvil si es necesario -->
       </div>
     </div>
+
+    <!-- Backdrop para cerrar menús -->
+    <div v-if="userMenuOpen" class="backdrop" @click="closeAllMenus"></div>
   </nav>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import { Menu } from 'lucide-vue-next';
+import { Menu, LogOut } from 'lucide-vue-next';
 
 const props = defineProps({
   user: {
@@ -61,7 +72,11 @@ const props = defineProps({
   }
 });
 
+// Emits
+const emit = defineEmits(['logout']);
+
 const mobileMenuOpen = ref(false);
+const userMenuOpen = ref(false);
 
 const getUserInitial = (name) => {
   return name ? name.charAt(0).toUpperCase() : 'U';
@@ -69,6 +84,22 @@ const getUserInitial = (name) => {
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value;
+  userMenuOpen.value = false;
+};
+
+const toggleUserMenu = () => {
+  userMenuOpen.value = !userMenuOpen.value;
+  mobileMenuOpen.value = false;
+};
+
+const handleLogout = () => {
+  closeAllMenus();
+  emit('logout');
+};
+
+const closeAllMenus = () => {
+  mobileMenuOpen.value = false;
+  userMenuOpen.value = false;
 };
 </script>
 
