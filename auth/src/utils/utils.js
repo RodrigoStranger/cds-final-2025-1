@@ -18,12 +18,9 @@ async function hashearContrasenas() {
                     'UPDATE Empleados SET contraseña = ? WHERE cod_empleado = ?',
                     [hashedPassword, empleado.cod_empleado]
                 );
-                
-                console.log(`✅ Contraseña hasheada para empleado DNI: ${empleado.dni}`);
             }
         }
 
-        console.log('✅ Proceso completado');
         process.exit(0);
 
     } catch (error) {
@@ -44,11 +41,6 @@ async function crearEmpleadoPrueba() {
             [dni, hashedPassword, true, 'activo']
         );
 
-        console.log('✅ Empleado de prueba creado:');
-        console.log(`DNI: ${dni}`);
-        console.log(`Contraseña: ${contraseña}`);
-        console.log('Es administrador: Sí');
-
     } catch (error) {
         console.error('❌ Error al crear empleado de prueba:', error);
     }
@@ -61,8 +53,4 @@ if (comando === 'hash') {
     hashearContrasenas();
 } else if (comando === 'test-user') {
     crearEmpleadoPrueba();
-} else {
-    console.log('Comandos disponibles:');
-    console.log('node utils.js hash - Hashear contraseñas existentes');
-    console.log('node utils.js test-user - Crear empleado de prueba');
 }

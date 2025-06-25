@@ -30,13 +30,6 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Log para depuración
-console.log('Configuración CORS:', {
-  origin: corsOptions.origin,
-  methods: corsOptions.methods,
-  allowedHeaders: corsOptions.allowedHeaders
-});
-
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
