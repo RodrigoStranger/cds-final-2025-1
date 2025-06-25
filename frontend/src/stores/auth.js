@@ -20,6 +20,29 @@ export const useAuthStore = defineStore('auth', () => {
       : '/api'
   }
 
+  // FORZAR LIMPIEZA COMPLETA AL INICIALIZAR
+  const forceReset = () => {
+    token.value = null
+    user.value = null
+    justLoggedIn.value = false
+    isLoading.value = false
+    
+    // Limpiar localStorage
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('user_data')
+    localStorage.removeItem('auth_user')
+    
+    // Limpiar cualquier otra posible clave relacionada
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('auth_') || key.startsWith('user_')) {
+        localStorage.removeItem(key)
+      }
+    })
+  }
+
+  // Llamar reset al inicializar el store
+  forceReset()
+
   // Acciones
   const login = async (dni, contraseña) => {
     isLoading.value = true
@@ -127,27 +150,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Inicializar desde localStorage (llamar manualmente)
-  const initializeFromStorage = async () => {
-    const storedToken = localStorage.getItem('auth_token')
-    const storedUser = localStorage.getItem('user_data')
-    
-    if (storedToken) {
-      token.value = storedToken
-      if (storedUser) {
-        user.value = JSON.parse(storedUser)
-      }
-      
-      // Verificar que el token siga siendo válido
-      const isValid = await verifyToken()
-      if (!isValid) {
-        // Si el token no es válido, limpiar todo
-        logout()
-        return false
-      }
-      return true
-    }
-    return false
+  // Forzar limpieza al inicializar la aplicación
+  const clearSession = () => {
+    token.value = null
+    user.value = null
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('user_data')
   }
 
   return {
@@ -166,6 +174,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     verifyToken,
     refreshUserData,
-    initializeFromStorage
+    clearSession,
+    forceReset
   }
 })
