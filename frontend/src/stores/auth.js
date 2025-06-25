@@ -3,9 +3,9 @@ import { ref, computed } from 'vue'
 import axios from 'axios'
 
 export const useAuthStore = defineStore('auth', () => {
-  // Estado
-  const token = ref(localStorage.getItem('auth_token') || null)
-  const user = ref(JSON.parse(localStorage.getItem('user_data') || 'null'))
+  // Estado - inicializar siempre como no autenticado
+  const token = ref(null)
+  const user = ref(null)
   const isLoading = ref(false)
   const justLoggedIn = ref(false) // Flag para indicar login reciente
 
@@ -127,6 +127,29 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Inicializar desde localStorage (llamar manualmente)
+  const initializeFromStorage = async () => {
+    const storedToken = localStorage.getItem('auth_token')
+    const storedUser = localStorage.getItem('user_data')
+    
+    if (storedToken) {
+      token.value = storedToken
+      if (storedUser) {
+        user.value = JSON.parse(storedUser)
+      }
+      
+      // Verificar que el token siga siendo válido
+      const isValid = await verifyToken()
+      if (!isValid) {
+        // Si el token no es válido, limpiar todo
+        logout()
+        return false
+      }
+      return true
+    }
+    return false
+  }
+
   return {
     // Estado
     token,
@@ -142,6 +165,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     logout,
     verifyToken,
-    refreshUserData
+    refreshUserData,
+    initializeFromStorage
   }
 })

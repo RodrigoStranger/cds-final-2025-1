@@ -120,12 +120,13 @@ const handleLogout = () => {
 
 // Verificar autenticación al iniciar
 onMounted(async () => {
-  // Si no está en login y no está autenticado, verificar token
-  if (route.path !== '/login' && authStore.token) {
-    const isValid = await authStore.verifyToken();
+  // Solo intentar restaurar la sesión si no estamos en la página de login
+  if (route.path !== '/login') {
+    const sessionRestored = await authStore.initializeFromStorage()
     
-    if (!isValid) {
-      router.push('/login');
+    // Si no se pudo restaurar la sesión, ir al login
+    if (!sessionRestored) {
+      router.push('/login')
     }
   }
 });

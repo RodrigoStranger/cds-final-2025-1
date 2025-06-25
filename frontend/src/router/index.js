@@ -63,8 +63,8 @@ router.beforeEach(async (to, from, next) => {
       return;
     }
     
-    // Solo verificar token si no venimos de login y no acabamos de hacer login
-    if (from.path !== '/login' && !authStore.justLoggedIn) {
+    // Verificar token si no acabamos de hacer login
+    if (!authStore.justLoggedIn) {
       const isValid = await authStore.verifyToken();
       if (!isValid) {
         next('/login');

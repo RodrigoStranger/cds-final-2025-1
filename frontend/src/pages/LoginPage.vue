@@ -17,6 +17,11 @@ const router = useRouter()
 const authStore = useAuthStore()
 const { success: showToast, error: showError } = useToast()
 
+// Limpiar cualquier sesión anterior cuando se accede al login directamente
+if (router.currentRoute.value.query.clearSession !== 'false') {
+  authStore.logout()
+}
+
 // Redirigir si ya está autenticado
 if (authStore.isAuthenticated) {
   router.push('/productos')
