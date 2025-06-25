@@ -9,6 +9,7 @@
       <Sidebar 
         :active-tab="activeTab" 
         :tabs="tabs"
+        @logout="handleLogout"
       />
 
       <!-- Main Content -->

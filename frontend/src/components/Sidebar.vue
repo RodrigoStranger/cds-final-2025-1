@@ -17,12 +17,20 @@
           <span>{{ tab.label }}</span>
         </router-link>
       </nav>
+      
+      <!-- Logout Button -->
+      <div class="sidebar-bottom">
+        <button @click="handleLogout" class="logout-button">
+          <LogOut class="icon" />
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { Menu, X } from 'lucide-vue-next';
+import { Menu, X, LogOut } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -35,6 +43,9 @@ const props = defineProps({
   }
 });
 
+// Emits
+const emit = defineEmits(['logout']);
+
 // Determinar la pestaña activa basada en la ruta actual
 const activeTab = computed(() => {
   const path = route.path;
@@ -44,6 +55,11 @@ const activeTab = computed(() => {
   if (path.startsWith('/proveedores')) return 'proveedores';
   return 'productos';
 });
+
+// Manejar logout
+const handleLogout = () => {
+  emit('logout');
+};
 </script>
 
 <style scoped>
