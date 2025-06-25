@@ -15,7 +15,7 @@ const routes = [
   },
   {
     path: '/',
-    redirect: '/productos'
+    redirect: '/login'
   },
   {
     path: '/productos',
@@ -43,7 +43,7 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/productos'
+    redirect: '/login'
   }
 ];
 

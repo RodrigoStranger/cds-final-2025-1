@@ -128,11 +128,6 @@ onMounted(async () => {
       router.push('/login');
     }
   }
-  
-  // Si está en la raíz y está autenticado, redirigir a productos
-  if (route.path === '/' && authStore.isAuthenticated) {
-    router.push('/productos');
-  }
 });
 </script>
 
