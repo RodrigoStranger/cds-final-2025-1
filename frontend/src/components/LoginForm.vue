@@ -144,7 +144,11 @@ const handleLogin = async () => {
     });
   } else {
     // Mostrar error
-    errors.general = result.message;
+    if (result.message === 'No se pudo conectar con el servidor') {
+      errors.general = 'No se pudo conectar con el servidor de autenticación. Intenta más tarde o contacta al administrador.';
+    } else {
+      errors.general = result.message;
+    }
     emit('login-error', result.message);
   }
 };
