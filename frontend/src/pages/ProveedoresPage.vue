@@ -102,45 +102,25 @@
               </div>
             </div>
           </div>
-          
-          <!-- Mensaje cuando no hay proveedores en vista móvil -->
-          <div v-if="proveedoresFiltrados.length === 0" class="empty-state">
-            <p>No se encontraron proveedores</p>
+        </div>
+
+        <!-- Mensaje cuando no hay proveedores -->
+        <div v-if="proveedoresFiltrados.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <Users class="icon-large" />
           </div>
-          
-          <!-- Paginación móvil -->
-          <div class="pagination mobile-only">
-            <div class="pagination-info">
-              Mostrando {{ startIndex + 1 }} - {{ Math.min(endIndex, proveedoresFiltrados.length) }} de {{ proveedoresFiltrados.length }} proveedores
-            </div>
-            
-            <div class="pagination-controls">
-              <button 
-                class="pagination-button" 
-                :disabled="currentPage === 1"
-                @click="previousPage"
-              >
-                Anterior
-              </button>
-              
-              <button class="pagination-button active">
-                {{ currentPage }}
-              </button>
-              
-              <button 
-                class="pagination-button" 
-                :disabled="currentPage >= totalPages"
-                @click="nextPage"
-              >
-                Siguiente
-              </button>
-            </div>
-          </div>
+          <h4 v-if="searchTerm">No se encontraron proveedores</h4>
+          <h4 v-else>No hay proveedores registrados</h4>
+          <p v-if="searchTerm">No hay proveedores que coincidan con "{{ searchTerm }}"</p>
+          <p v-else>Agrega proveedores para comenzar a gestionar tu inventario.</p>
+          <button v-if="searchTerm" @click="clearSearch" class="button secondary">
+            Limpiar búsqueda
+          </button>
         </div>
       </div>
 
-      <!-- Paginación desktop -->
-      <div class="pagination desktop-only">
+      <!-- Paginación única para ambas vistas -->
+      <div class="pagination" v-if="proveedoresFiltrados.length > 0">
         <div class="pagination-info">
           Mostrando {{ startIndex + 1 }} - {{ Math.min(endIndex, proveedoresFiltrados.length) }} de {{ proveedoresFiltrados.length }} proveedores
         </div>
@@ -181,7 +161,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, getCurrentInstance } from 'vue';
-import { Plus, Edit, Search, X } from 'lucide-vue-next';
+import { Plus, Edit, Search, X, Users } from 'lucide-vue-next';
 import ProveedorModal from '../components/ProveedorModal.vue';
 import ProveedorService from '../services/proveedorService';
 
