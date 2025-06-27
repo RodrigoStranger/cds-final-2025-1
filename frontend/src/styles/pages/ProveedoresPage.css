@@ -420,6 +420,9 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   margin: 0 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .proveedor-cards::-webkit-scrollbar {
@@ -461,6 +464,7 @@
   
   .proveedor-cards {
     display: flex !important;
+    margin: 0.5rem;
   }
   
   .card {
@@ -502,8 +506,9 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   overflow: hidden;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   transition: box-shadow 0.2s ease;
+  position: relative;
 }
 
 .proveedor-card:hover {
