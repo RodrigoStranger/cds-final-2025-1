@@ -22,6 +22,9 @@
               maxlength="11"
               pattern="\d{11}"
               title="El RUC debe tener 11 dígitos"
+              @input="handleRucInput"
+              @keypress="allowOnlyNumbers"
+              @paste="handleRucPaste"
             />
             <div v-if="errors.ruc" class="error-message">{{ errors.ruc }}</div>
           </div>
@@ -48,6 +51,8 @@
               class="form-control"
               pattern="[0-9]{7,15}"
               title="Ingrese un número de teléfono válido"
+              @keypress="allowOnlyNumbers"
+              @paste="handlePhonePaste"
             />
             <div v-if="errors.telefono" class="error-message">{{ errors.telefono }}</div>
           </div>
@@ -146,6 +151,40 @@ const validateForm = () => {
   }
   
   return isValid;
+};
+
+// Función para permitir solo números en keypress
+const allowOnlyNumbers = (event) => {
+  const char = String.fromCharCode(event.which);
+  if (!/[0-9]/.test(char)) {
+    event.preventDefault();
+  }
+};
+
+// Función para manejar el input del RUC
+const handleRucInput = (event) => {
+  // Filtrar solo números
+  const value = event.target.value.replace(/[^0-9]/g, '');
+  // Limitar a 11 caracteres
+  formData.ruc = value.slice(0, 11);
+};
+
+// Función para manejar el paste en RUC
+const handleRucPaste = (event) => {
+  event.preventDefault();
+  const paste = (event.clipboardData || window.clipboardData).getData('text');
+  // Filtrar solo números y limitar a 11 caracteres
+  const numericValue = paste.replace(/[^0-9]/g, '').slice(0, 11);
+  formData.ruc = numericValue;
+};
+
+// Función para manejar el paste en teléfono
+const handlePhonePaste = (event) => {
+  event.preventDefault();
+  const paste = (event.clipboardData || window.clipboardData).getData('text');
+  // Filtrar solo números y limitar a 15 caracteres
+  const numericValue = paste.replace(/[^0-9]/g, '').slice(0, 15);
+  formData.telefono = numericValue;
 };
 
 const handleSubmit = () => {
