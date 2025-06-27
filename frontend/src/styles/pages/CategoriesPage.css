@@ -409,13 +409,17 @@
   /* Table styles for desktop */
 .table-container {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   background: white;
   border-radius: 0 0 0.5rem 0.5rem;
+  max-height: calc(100vh - 300px);
+  overflow-y: hidden;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px;
 }
 
 .table th,
@@ -423,6 +427,9 @@
   padding: 0.75rem 1rem;
   text-align: left;
   border-bottom: 1px solid #f3f4f6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .table th {

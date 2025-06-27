@@ -138,34 +138,34 @@
       <div v-if="proveedoresFiltrados.length === 0" class="empty-state">
         <p>No se encontraron proveedores</p>
       </div>
+    </div>
+
+    <!-- Paginación para móviles -->
+    <div class="pagination mobile-only">
+      <div class="pagination-info">
+        Mostrando {{ startIndex + 1 }} - {{ Math.min(endIndex, proveedoresFiltrados.length) }} de {{ proveedoresFiltrados.length }} proveedores
+      </div>
       
-      <!-- Paginación móvil -->
-      <div class="pagination">
-        <div class="pagination-info">
-          Mostrando {{ startIndex + 1 }} - {{ Math.min(endIndex, proveedoresFiltrados.length) }} de {{ proveedoresFiltrados.length }} proveedores
-        </div>
+      <div class="pagination-controls">
+        <button 
+          class="pagination-button" 
+          :disabled="currentPage === 1"
+          @click="previousPage"
+        >
+          Anterior
+        </button>
         
-        <div class="pagination-controls">
-          <button 
-            class="pagination-button" 
-            :disabled="currentPage === 1"
-            @click="previousPage"
-          >
-            Anterior
-          </button>
-          
-          <button class="pagination-button active">
-            {{ currentPage }}
-          </button>
-          
-          <button 
-            class="pagination-button" 
-            :disabled="currentPage >= totalPages"
-            @click="nextPage"
-          >
-            Siguiente
-          </button>
-        </div>
+        <button class="pagination-button active">
+          {{ currentPage }}
+        </button>
+        
+        <button 
+          class="pagination-button" 
+          :disabled="currentPage >= totalPages"
+          @click="nextPage"
+        >
+          Siguiente
+        </button>
       </div>
     </div>
 
