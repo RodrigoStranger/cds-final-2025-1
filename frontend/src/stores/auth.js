@@ -20,20 +20,20 @@ export const useAuthStore = defineStore('auth', () => {
       : '/api'
   }
 
-  // Inicializar desde localStorage si existe sesión
+  // Inicializar desde sessionStorage si existe sesión (solo persiste durante la sesión del navegador)
   const initializeFromStorage = () => {
     try {
-      const storedToken = localStorage.getItem('auth_token')
-      const storedUser = localStorage.getItem('user_data')
+      const storedToken = sessionStorage.getItem('auth_token')
+      const storedUser = sessionStorage.getItem('user_data')
       
       if (storedToken && storedUser) {
         token.value = storedToken
         user.value = JSON.parse(storedUser)
-        console.log('✅ Sesión restaurada desde localStorage')
+        console.log('✅ Sesión restaurada desde sessionStorage')
       }
     } catch (error) {
       console.warn('Error al recuperar datos de autenticación:', error)
-      // Si hay error, limpiar localStorage corrupto
+      // Si hay error, limpiar sessionStorage corrupto
       forceReset()
     }
   }
@@ -45,7 +45,11 @@ export const useAuthStore = defineStore('auth', () => {
     justLoggedIn.value = false
     isLoading.value = false
     
-    // Limpiar localStorage
+    // Limpiar sessionStorage
+    sessionStorage.removeItem('auth_token')
+    sessionStorage.removeItem('user_data')
+    
+    // Limpiar localStorage (por compatibilidad con versiones anteriores)
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_data')
     localStorage.removeItem('auth_user')
@@ -54,6 +58,11 @@ export const useAuthStore = defineStore('auth', () => {
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith('auth_') || key.startsWith('user_')) {
         localStorage.removeItem(key)
+      }
+    })
+    Object.keys(sessionStorage).forEach(key => {
+      if (key.startsWith('auth_') || key.startsWith('user_')) {
+        sessionStorage.removeItem(key)
       }
     })
   }
@@ -81,9 +90,9 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = response.data.empleado
         justLoggedIn.value = true // Marcar como recién logueado
         
-        // Persistir en localStorage
-        localStorage.setItem('auth_token', response.data.token)
-        localStorage.setItem('user_data', JSON.stringify(response.data.empleado))
+        // Persistir en sessionStorage (se borra al cerrar pestaña/ventana)
+        sessionStorage.setItem('auth_token', response.data.token)
+        sessionStorage.setItem('user_data', JSON.stringify(response.data.empleado))
         
         // Limpiar flag después de un tiempo
         setTimeout(() => {
@@ -119,7 +128,9 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     user.value = null
     
-    // Limpiar localStorage
+    // Limpiar sessionStorage y localStorage
+    sessionStorage.removeItem('auth_token')
+    sessionStorage.removeItem('user_data')
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_data')
   }
@@ -160,7 +171,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (response.data.success) {
         user.value = response.data.empleado
-        localStorage.setItem('user_data', JSON.stringify(response.data.empleado))
+        sessionStorage.setItem('user_data', JSON.stringify(response.data.empleado))
         return true
       }
       return false
@@ -173,6 +184,8 @@ export const useAuthStore = defineStore('auth', () => {
   const clearSession = () => {
     token.value = null
     user.value = null
+    sessionStorage.removeItem('auth_token')
+    sessionStorage.removeItem('user_data')
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_data')
   }
