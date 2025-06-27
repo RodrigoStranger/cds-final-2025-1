@@ -14,13 +14,13 @@
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin: 0 1rem 1.5rem 1rem;
-    max-width: 1400px;
+    max-width: 1600px;
     overflow: hidden;
   }
 
   @media (min-width: 768px) {
     .card {
-      margin: 0 15rem 1.5rem 8rem;
+      margin: 0 2rem 1.5rem 2rem;
     }
   }
   
