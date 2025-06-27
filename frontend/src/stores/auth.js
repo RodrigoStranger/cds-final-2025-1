@@ -82,7 +82,12 @@ export const useAuthStore = defineStore('auth', () => {
       let message = 'Ha ocurrido un error inesperado'
       
       if (error.response) {
-        message = error.response.data?.message || 'Credenciales incorrectas'
+        // Error 502, 503, 504 = servidor caído o proxy error
+        if ([502, 503, 504].includes(error.response.status)) {
+          message = 'No se pudo conectar con el servidor'
+        } else {
+          message = error.response.data?.message || 'Credenciales incorrectas'
+        }
       } else if (error.request) {
         message = 'No se pudo conectar con el servidor'
       }
