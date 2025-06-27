@@ -380,17 +380,8 @@ const saveCategory = async () => {
       }
     }
     
-    // Actualizar la lista de categorías localmente sin recargar todo
-    if (editingCategory.value) {
-      // Actualizar categoría existente
-      const index = categorias.value.findIndex(c => c.id === editingCategory.value.id);
-      if (index !== -1) {
-        categorias.value[index] = { ...categorias.value[index], ...categoriaData };
-      }
-    } else if (response && response.data) {
-      // Agregar nueva categoría
-      categorias.value.push(response.data);
-    }
+    // Actualizar la lista de categorías recargando desde el servidor
+    await cargarCategorias();
     
     // Cerrar el modal después de un breve retraso para mostrar el mensaje de éxito
     setTimeout(() => {
