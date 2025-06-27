@@ -415,10 +415,11 @@
   padding: 1rem;
   gap: 1rem;
   flex-direction: column;
-  max-height: calc(100vh - 300px);
+  max-height: calc(100vh - 250px);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  margin: 0 0.5rem;
 }
 
 .proveedor-cards::-webkit-scrollbar {

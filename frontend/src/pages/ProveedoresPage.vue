@@ -111,70 +111,36 @@
     </div>
 
     <!-- Vista de tarjetas para móviles -->
-    <div class="card mobile-only">
-      <div class="card-header">
-        <div class="card-header-content">
-          <h3>Proveedores</h3>
-          <div class="header-actions">
-            <!-- Buscador -->
-            <div class="search-container">
-              <div class="search-input-wrapper">
-                <Search class="search-icon" />
-                <input 
-                  v-model="searchTerm"
-                  type="text" 
-                  placeholder="Buscar proveedores..."
-                  class="search-input"
-                  @input="handleSearch"
-                />
-                <button 
-                  v-if="searchTerm"
-                  @click="clearSearch"
-                  class="clear-search-button"
-                >
-                  <X class="icon-small" />
-                </button>
-              </div>
-            </div>
-            <button @click="openProveedorModal()" class="button primary">
-              <Plus class="icon-small" />
-              Nuevo Proveedor
-            </button>
+    <div class="proveedor-cards mobile-only">
+      <div v-for="proveedor in proveedoresPaginados" :key="proveedor.ruc" class="proveedor-card">
+        <div class="proveedor-card-header">
+          <div class="proveedor-avatar">
+            {{ proveedor.nombre?.charAt(0).toUpperCase() || 'P' }}
+          </div>
+          <div class="proveedor-info">
+            <h4 class="proveedor-title">{{ proveedor.nombre || 'N/A' }}</h4>
+            <p class="proveedor-ruc">RUC: {{ proveedor.ruc || 'N/A' }}</p>
+          </div>
+          <button @click="editarProveedor(proveedor)" class="card-edit-button">
+            <Edit class="icon-small" />
+          </button>
+        </div>
+        
+        <div class="proveedor-card-body">
+          <div class="proveedor-detail">
+            <span class="detail-label">Teléfono</span>
+            <span class="detail-value">{{ proveedor.telefono || 'Sin teléfono' }}</span>
           </div>
         </div>
       </div>
       
-      <div class="proveedor-cards">
-        <div v-for="proveedor in proveedoresPaginados" :key="proveedor.ruc" class="proveedor-card">
-          <div class="proveedor-card-header">
-            <div class="proveedor-avatar">
-              {{ proveedor.nombre?.charAt(0).toUpperCase() || 'P' }}
-            </div>
-            <div class="proveedor-info">
-              <h4 class="proveedor-title">{{ proveedor.nombre || 'N/A' }}</h4>
-              <p class="proveedor-ruc">RUC: {{ proveedor.ruc || 'N/A' }}</p>
-            </div>
-            <button @click="editarProveedor(proveedor)" class="card-edit-button">
-              <Edit class="icon-small" />
-            </button>
-          </div>
-          
-          <div class="proveedor-card-body">
-            <div class="proveedor-detail">
-              <span class="detail-label">Teléfono</span>
-              <span class="detail-value">{{ proveedor.telefono || 'Sin teléfono' }}</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Mensaje cuando no hay proveedores en vista móvil -->
-        <div v-if="proveedoresFiltrados.length === 0" class="empty-state">
-          <p>No se encontraron proveedores</p>
-        </div>
+      <!-- Mensaje cuando no hay proveedores en vista móvil -->
+      <div v-if="proveedoresFiltrados.length === 0" class="empty-state">
+        <p>No se encontraron proveedores</p>
       </div>
       
       <!-- Paginación móvil -->
-      <div class="pagination">
+      <div class="pagination mobile-only">
         <div class="pagination-info">
           Mostrando {{ startIndex + 1 }} - {{ Math.min(endIndex, proveedoresFiltrados.length) }} de {{ proveedoresFiltrados.length }} proveedores
         </div>
