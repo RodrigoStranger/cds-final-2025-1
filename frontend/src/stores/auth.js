@@ -77,19 +77,17 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error(response.data.message || 'Error en el login')
       }
     } catch (error) {
-      console.error('❌ Error en login:', error)
-      
       let message = 'Ha ocurrido un error inesperado'
       
       if (error.response) {
         // Error 502, 503, 504 = servidor caído o proxy error
         if ([502, 503, 504].includes(error.response.status)) {
-          message = 'No se pudo conectar con el servidor'
+          message = 'Servidor caído o en mantenimiento'
         } else {
           message = error.response.data?.message || 'Credenciales incorrectas'
         }
       } else if (error.request) {
-        message = 'No se pudo conectar con el servidor'
+        message = 'Servidor caído o en mantenimiento'
       }
       
       return { success: false, message }
@@ -126,7 +124,6 @@ export const useAuthStore = defineStore('auth', () => {
         return false
       }
     } catch (error) {
-      console.error('❌ Error verificando token:', error)
       logout()
       return false
     }
@@ -150,7 +147,6 @@ export const useAuthStore = defineStore('auth', () => {
       }
       return false
     } catch (error) {
-      console.error('Error refrescando datos del usuario:', error)
       return false
     }
   }

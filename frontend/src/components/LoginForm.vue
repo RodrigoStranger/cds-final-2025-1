@@ -144,8 +144,8 @@ const handleLogin = async () => {
     });
   } else {
     // Mostrar error
-    if (result.message === 'No se pudo conectar con el servidor') {
-      errors.general = 'No se pudo conectar con el servidor de autenticación. Intenta más tarde o contacta al administrador.';
+    if (result.message === 'Servidor caído o en mantenimiento') {
+      errors.general = 'Servidor caído o en mantenimiento. Intenta más tarde o contacta al administrador.';
     } else {
       errors.general = result.message;
     }
