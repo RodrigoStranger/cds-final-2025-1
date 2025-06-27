@@ -201,14 +201,14 @@
   
   .table {
     width: 100%;
-    min-width: 600px;
+    min-width: 900px;
     border-collapse: collapse;
     height: 100%;
   }
   
   .table th,
   .table td {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     text-align: left;
     border-bottom: 1px solid #f3f4f6;
     white-space: nowrap;
@@ -233,19 +233,21 @@
   }
   
   .actions {
-    width: 80px;
+    width: 120px;
     text-align: center;
+    min-width: 120px;
   }
   
   /* Proveedor Cell */
   .proveedor-cell {
     display: flex;
     align-items: center;
+    width: 100%;
   }
   
   .proveedor-avatar {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 3rem;
+    height: 3rem;
     border-radius: 50%;
     background-color: #f0fdf4;
     color: #15803d;
@@ -254,9 +256,15 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    margin-right: 1rem;
-    font-size: 1rem;
+    margin-right: 1.25rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
+  }
+  
+  .proveedor-ruc {
+    font-weight: 500;
+    color: #111827;
+    font-size: 0.95rem;
   }
   
   .proveedor-name {
@@ -382,6 +390,31 @@
     border-color: #15803d;
   }
 
+  /* Distribución de columnas en la tabla */
+  .table th:nth-child(1), 
+  .table td:nth-child(1) {
+    width: 25%;
+    min-width: 180px;
+  }
+  
+  .table th:nth-child(2), 
+  .table td:nth-child(2) {
+    width: 40%;
+    min-width: 250px;
+  }
+  
+  .table th:nth-child(3), 
+  .table td:nth-child(3) {
+    width: 25%;
+    min-width: 150px;
+  }
+  
+  .table th:nth-child(4), 
+  .table td:nth-child(4) {
+    width: 10%;
+    min-width: 100px;
+  }
+
   /* Responsive adjustments */
   @media (max-width: 767px) {
     .page-container {
@@ -458,6 +491,34 @@
     
     .table-container {
       max-height: calc(100vh - 200px);
+    }
+    
+    .table {
+      min-width: 1200px;
+    }
+    
+    .table th:nth-child(1), 
+    .table td:nth-child(1) {
+      width: 20%;
+      min-width: 200px;
+    }
+    
+    .table th:nth-child(2), 
+    .table td:nth-child(2) {
+      width: 45%;
+      min-width: 300px;
+    }
+    
+    .table th:nth-child(3), 
+    .table td:nth-child(3) {
+      width: 25%;
+      min-width: 180px;
+    }
+    
+    .table th:nth-child(4), 
+    .table td:nth-child(4) {
+      width: 10%;
+      min-width: 120px;
     }
   }
   
@@ -653,20 +714,18 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: #111827;
-}
-
-/* Tabla responsive - mejoras */
-.table tbody {
+}  /* Tabla responsive - mejoras */
+  .table tbody {
     min-height: 300px;
   }
   
   .table tbody tr {
-    min-height: 60px;
+    min-height: 70px;
   }
   
   .table tbody tr td {
     vertical-align: middle;
-    padding: 1rem;
+    padding: 1.25rem 1.5rem;
   }
   
   .table thead th {
