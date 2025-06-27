@@ -51,7 +51,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="categoria in categoriasPaginadas" :key="categoria.id">
+            <tr v-for="categoria in categoriasPaginadas" :key="categoria.cod_categoria || categoria.id">
               <td>
                 <div class="cell-content">
                   <div class="category-cell">
@@ -79,9 +79,9 @@
         </table>
 
         <!-- Vista de tarjetas para móviles -->
-        <div class="category-cards mobile-only">
-          <div v-for="categoria in categoriasPaginadas" :key="categoria.id" class="category-card">
-            <div class="category-card-header">
+        <div class="category-mobile-cards mobile-only">
+          <div v-for="categoria in categoriasPaginadas" :key="categoria.cod_categoria || categoria.id" class="category-mobile-card">
+            <div class="category-mobile-card-header">
               <div class="category-avatar">
                 {{ categoria.nombre.charAt(0).toUpperCase() }}
               </div>
