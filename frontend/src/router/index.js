@@ -15,7 +15,15 @@ const routes = [
   },
   {
     path: '/',
-    redirect: '/login'
+    name: 'Root',
+    beforeEnter: (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.isAuthenticated) {
+        next('/productos');
+      } else {
+        next('/login');
+      }
+    }
   },
   {
     path: '/productos',

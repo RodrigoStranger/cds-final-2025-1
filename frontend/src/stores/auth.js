@@ -20,7 +20,24 @@ export const useAuthStore = defineStore('auth', () => {
       : '/api'
   }
 
-  // FORZAR LIMPIEZA COMPLETA AL INICIALIZAR
+  // Inicializar desde localStorage si existe sesión
+  const initializeFromStorage = () => {
+    try {
+      const storedToken = localStorage.getItem('auth_token')
+      const storedUser = localStorage.getItem('user_data')
+      
+      if (storedToken && storedUser) {
+        token.value = storedToken
+        user.value = JSON.parse(storedUser)
+      }
+    } catch (error) {
+      console.warn('Error al recuperar datos de autenticación:', error)
+      // Si hay error, limpiar localStorage corrupto
+      forceReset()
+    }
+  }
+
+  // FORZAR LIMPIEZA COMPLETA - solo usar cuando sea necesario
   const forceReset = () => {
     token.value = null
     user.value = null
@@ -40,8 +57,8 @@ export const useAuthStore = defineStore('auth', () => {
     })
   }
 
-  // Llamar reset al inicializar el store
-  forceReset()
+  // Inicializar desde localStorage al cargar
+  initializeFromStorage()
 
   // Acciones
   const login = async (dni, contraseña) => {

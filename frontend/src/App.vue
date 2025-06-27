@@ -120,12 +120,17 @@ const handleLogout = () => {
 
 // Verificar autenticación al iniciar
 onMounted(async () => {
-  // FORZAR limpieza completa al iniciar
-  authStore.forceReset()
-  
-  // Si no estamos en login, redirigir allí
-  if (route.path !== '/login') {
+  // Si no hay autenticación y no estamos en login, redirigir
+  if (!authStore.isAuthenticated && route.path !== '/login') {
     router.push('/login')
+  }
+  
+  // Si hay token, verificar que siga siendo válido
+  if (authStore.isAuthenticated) {
+    const isValid = await authStore.verifyToken()
+    if (!isValid && route.path !== '/login') {
+      router.push('/login')
+    }
   }
 });
 </script>
