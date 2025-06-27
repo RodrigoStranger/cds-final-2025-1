@@ -276,25 +276,23 @@
   }
   
   .form-section {
-    padding: 40px 30px;
+    padding: 2rem 1.5rem;
     min-height: auto;
     order: 1;
   }
   
   .brand-section {
-    padding: 30px;
+    padding: 1.5rem;
     order: 0;
     min-height: 200px;
     flex: none;
   }
   
   .brand-content h1 {
-    font-size: 2rem;
     margin-bottom: 15px;
   }
   
   .brand-content > p {
-    font-size: 1.1rem;
     margin-bottom: 0;
   }
   
@@ -302,12 +300,8 @@
     display: none;
   }
   
-  .form-header h1 {
-    font-size: 1.8rem;
-  }
-  
   .form-header {
-    margin-bottom: 30px;
+    margin-bottom: 1.5rem;
   }
 }
 
@@ -322,39 +316,12 @@
   }
   
   .form-section {
-    padding: 30px 20px;
+    padding: 1.5rem 1rem;
   }
   
   .brand-section {
-    padding: 25px 20px;
+    padding: 1.25rem 1rem;
     min-height: 150px;
-  }
-  
-  .brand-content h1 {
-    font-size: 1.6rem;
-    margin-bottom: 10px;
-  }
-  
-  .brand-content > p {
-    font-size: 0.95rem;
-  }
-  
-  .form-header h1 {
-    font-size: 1.5rem;
-  }
-  
-  .form-header p {
-    font-size: 0.9rem;
-  }
-  
-  .form-input {
-    padding: 12px 16px;
-    font-size: 0.95rem;
-  }
-  
-  .login-button {
-    padding: 14px;
-    font-size: 0.95rem;
   }
 }
 
@@ -364,19 +331,11 @@
   }
   
   .form-section {
-    padding: 25px 15px;
+    padding: 1.25rem 0.75rem;
   }
   
   .brand-section {
-    padding: 20px 15px;
-  }
-  
-  .brand-content h1 {
-    font-size: 1.4rem;
-  }
-  
-  .form-header h1 {
-    font-size: 1.3rem;
+    padding: 1rem 0.75rem;
   }
 }
 
