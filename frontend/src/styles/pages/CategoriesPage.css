@@ -176,6 +176,13 @@
     background: white;
     border-radius: 0 0 0.5rem 0.5rem;
   }
+
+  /* Ocultar grid en móviles */
+  @media (max-width: 767px) {
+    .categories-grid {
+      display: none !important;
+    }
+  }
   
   .categories-grid::-webkit-scrollbar {
     width: 8px;
@@ -481,7 +488,7 @@
   padding: 1rem;
   gap: 1rem;
   flex-direction: column;
-  max-height: calc(100vh - 300px);
+  max-height: calc(100vh - 250px);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;

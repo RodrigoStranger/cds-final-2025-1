@@ -40,9 +40,9 @@
       </div>
 
       <!-- Contenido principal -->
-      <div v-else class="table-container">
+      <div v-else class="table-container desktop-only">
         <!-- Vista de tabla para desktop -->
-        <table class="table desktop-only">
+        <table class="table">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -77,28 +77,39 @@
             </tr>
           </tbody>
         </table>
+      </div>
 
-        <!-- Vista de tarjetas para móviles -->
-        <div class="category-mobile-cards mobile-only">
-          <div v-for="categoria in categoriasPaginadas" :key="categoria.cod_categoria || categoria.id" class="category-mobile-card">
-            <div class="category-mobile-card-header">
-              <div class="category-avatar">
-                {{ categoria.nombre.charAt(0).toUpperCase() }}
-              </div>
-              <div class="category-info">
-                <h4 class="category-title">{{ categoria.nombre }}</h4>
-                <p class="category-description">{{ categoria.descripcion || 'Sin descripción' }}</p>
-              </div>
-              <button @click="openCategoryModal(categoria)" class="card-edit-button">
-                <Edit class="icon-small" />
-              </button>
+      <!-- Vista de tarjetas para móviles -->
+      <div v-if="!isLoading" class="category-mobile-cards mobile-only">
+        <div v-for="categoria in categoriasPaginadas" :key="categoria.cod_categoria || categoria.id" class="category-mobile-card">
+          <div class="category-mobile-card-header">
+            <div class="category-avatar">
+              {{ categoria.nombre.charAt(0).toUpperCase() }}
             </div>
+            <div class="category-info">
+              <h4 class="category-title">{{ categoria.nombre }}</h4>
+              <p class="category-description">{{ categoria.descripcion || 'Sin descripción' }}</p>
+            </div>
+            <button @click="openCategoryModal(categoria)" class="card-edit-button">
+              <Edit class="icon-small" />
+            </button>
           </div>
+        </div>
+        
+        <!-- Mensaje cuando no hay categorías en vista móvil -->
+        <div v-if="categoriasVisibles.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <Grid class="icon-large" />
+          </div>
+          <h4 v-if="searchTerm">No se encontraron categorías</h4>
+          <h4 v-else>No hay categorías disponibles</h4>
+          <p v-if="searchTerm">No hay categorías que coincidan con "{{ searchTerm }}"</p>
+          <p v-else>Agrega categorías para organizar tus productos.</p>
         </div>
       </div>
       
-      <!-- Mensaje cuando no hay categorías -->
-      <div v-if="!isLoading && categoriasVisibles.length === 0" class="empty-state">
+      <!-- Mensaje cuando no hay categorías en desktop -->
+      <div v-if="!isLoading && categoriasVisibles.length === 0" class="empty-state desktop-only">
         <div class="empty-icon">
           <Grid class="icon-large" />
         </div>
