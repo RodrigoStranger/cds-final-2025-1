@@ -80,8 +80,71 @@
         </table>
       </div>
 
-      <!-- Vista de tarjetas para móviles -->
-      <div class="proveedor-cards mobile-only">
+      <!-- Paginación desktop -->
+      <div class="pagination desktop-only">
+        <div class="pagination-info">
+          Mostrando {{ startIndex + 1 }} - {{ Math.min(endIndex, proveedoresFiltrados.length) }} de {{ proveedoresFiltrados.length }} proveedores
+        </div>
+        
+        <div class="pagination-controls">
+          <button 
+            class="pagination-button" 
+            :disabled="currentPage === 1"
+            @click="previousPage"
+          >
+            Anterior
+          </button>
+          
+          <button class="pagination-button active">
+            {{ currentPage }}
+          </button>
+          
+          <button 
+            class="pagination-button" 
+            :disabled="currentPage >= totalPages"
+            @click="nextPage"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista de tarjetas para móviles -->
+    <div class="card mobile-only">
+      <div class="card-header">
+        <div class="card-header-content">
+          <h3>Proveedores</h3>
+          <div class="header-actions">
+            <!-- Buscador -->
+            <div class="search-container">
+              <div class="search-input-wrapper">
+                <Search class="search-icon" />
+                <input 
+                  v-model="searchTerm"
+                  type="text" 
+                  placeholder="Buscar proveedores..."
+                  class="search-input"
+                  @input="handleSearch"
+                />
+                <button 
+                  v-if="searchTerm"
+                  @click="clearSearch"
+                  class="clear-search-button"
+                >
+                  <X class="icon-small" />
+                </button>
+              </div>
+            </div>
+            <button @click="openProveedorModal()" class="button primary">
+              <Plus class="icon-small" />
+              Nuevo Proveedor
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="proveedor-cards">
         <div v-for="proveedor in proveedoresPaginados" :key="proveedor.ruc" class="proveedor-card">
           <div class="proveedor-card-header">
             <div class="proveedor-avatar">
@@ -110,7 +173,7 @@
         </div>
       </div>
       
-      <!-- Paginación -->
+      <!-- Paginación móvil -->
       <div class="pagination">
         <div class="pagination-info">
           Mostrando {{ startIndex + 1 }} - {{ Math.min(endIndex, proveedoresFiltrados.length) }} de {{ proveedoresFiltrados.length }} proveedores
