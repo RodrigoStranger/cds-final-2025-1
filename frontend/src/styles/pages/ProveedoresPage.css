@@ -207,6 +207,13 @@
     text-align: right;
     width: 80px;
   }
+
+  .cell-content {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   
   /* Proveedor Cell */
   .proveedor-cell {
@@ -358,6 +365,12 @@
   flex-direction: column;
 }
 
+@media (max-width: 767px) {
+  .proveedor-cards {
+    display: flex !important;
+  }
+}
+
 /* Desktop/Mobile visibility */
 .desktop-only {
   display: block;
@@ -374,15 +387,11 @@
   }
   
   .mobile-only {
-    display: block;
-  }
-  
-  .proveedor-cards {
-    display: flex;
+    display: block !important;
   }
   
   .table-container {
-    display: none;
+    display: none !important;
   }
   
   .card {
