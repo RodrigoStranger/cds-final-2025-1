@@ -44,7 +44,8 @@
         </div>
       </div>
       <div class="table-container">
-        <table class="table">
+        <!-- Vista de tabla para desktop -->
+        <table class="table desktop-only">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -105,6 +106,49 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Vista de tarjetas para móviles -->
+        <div class="product-cards mobile-only">
+          <div v-for="producto in productosPaginados" :key="producto.id" class="product-card">
+            <div class="product-card-header">
+              <div class="product-avatar">
+                {{ producto.nombre.charAt(0).toUpperCase() }}
+              </div>
+              <div class="product-info">
+                <h4 class="product-title">{{ producto.nombre }}</h4>
+                <p class="product-description">{{ producto.descripcion || 'Sin descripción' }}</p>
+              </div>
+              <button @click="openProductModal(producto)" class="card-edit-button">
+                <Edit class="icon-small" />
+              </button>
+            </div>
+            
+            <div class="product-card-body">
+              <div class="product-detail">
+                <span class="detail-label">Precio Compra</span>
+                <span class="detail-value">S/. {{ producto.precio_compra }}</span>
+              </div>
+              <div class="product-detail">
+                <span class="detail-label">Precio Venta</span>
+                <span class="detail-value">S/. {{ producto.precio_venta }}</span>
+              </div>
+              <div class="product-detail">
+                <span class="detail-label">Stock</span>
+                <span class="stock-badge" :class="{ 'stock-low': producto.stock <= 10 && producto.stock > 0, 'stock-out': producto.stock === 0 }">
+                  {{ producto.stock }}
+                </span>
+              </div>
+              <div class="product-detail" v-if="producto.categoria">
+                <span class="detail-label">Categoría</span>
+                <span class="detail-value">{{ producto.categoria }}</span>
+              </div>
+              <div class="product-detail" v-if="producto.linea">
+                <span class="detail-label">Línea</span>
+                <span class="detail-value">{{ producto.linea }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
         
         <!-- Mensaje cuando no hay productos -->
         <div v-if="productosVisibles.length === 0" class="empty-state">
