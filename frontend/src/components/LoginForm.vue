@@ -14,13 +14,11 @@
               id="dni"
               type="text"
               placeholder="Ingresa tu DNI (8 dígitos)"
-              pattern="\d{8}"
               maxlength="8"
               minlength="8"
               inputmode="numeric"
               v-model="formData.dni"
               :disabled="loading"
-              required
               class="form-input"
               :class="{ 'input-error': errors.dni }"
             />
@@ -35,7 +33,6 @@
               placeholder="Ingresa tu contraseña"
               v-model="formData.contraseña"
               :disabled="loading"
-              required
               class="form-input"
               :class="{ 'input-error': errors.contraseña }"
             />
