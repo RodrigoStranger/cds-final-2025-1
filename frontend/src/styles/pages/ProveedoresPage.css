@@ -154,12 +154,12 @@
   /* Table Container */
   .table-container {
     overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     margin: 0;
     padding: 0;
     background: white;
-    max-height: calc(100vh - 250px);
-    min-height: 400px;
+    max-height: calc(100vh - 300px);
     position: relative;
     border-radius: 0 0 0.5rem 0.5rem;
   }
@@ -168,77 +168,37 @@
     width: 100%;
     min-width: 600px;
     border-collapse: collapse;
-    table-layout: fixed;
   }
   
   .table th,
   .table td {
     padding: 0.75rem 1rem;
-    vertical-align: top;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
-  
-  .table th:first-child,
-  .table td:first-child {
-    width: 40%;
-    min-width: 200px;
-  }
-  
-  .table th:nth-child(2),
-  .table td:nth-child(2) {
-    width: 30%;
-    min-width: 150px;
-  }
-  
-  .table th:nth-child(3),
-  .table td:nth-child(3) {
-    width: 20%;
-    min-width: 120px;
-  }
-  
-  .table th:last-child,
-  .table td:last-child {
-    width: 10%;
-    min-width: 80px;
+    text-align: left;
+    border-bottom: 1px solid #f3f4f6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .table th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    text-align: left;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    color: #6b7280;
     background-color: #f9fafb;
-    box-shadow: 0 1px 0 #e5e7eb;
+    font-weight: 500;
+    color: #6b7280;
+    font-size: 0.875rem;
   }
   
   .table td {
     font-size: 0.875rem;
     color: #4b5563;
-    border-top: 1px solid #e5e7eb;
-    vertical-align: middle;
-    transition: background-color 0.2s;
   }
   
   .table tbody tr:hover td {
     background-color: #f8fafc;
   }
   
-  .table th.actions,
-  .table td.actions {
-    text-align: right;
+  .actions {
     width: 80px;
-  }
-
-  .cell-content {
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    text-align: center;
   }
   
   /* Proveedor Cell */
@@ -412,9 +372,13 @@
 /* Proveedor Cards for Mobile */
 .proveedor-cards {
   display: none;
-  padding: 0;
-  margin: 0;
-  background-color: transparent;
+  padding: 1rem;
+  gap: 1rem;
+  flex-direction: column;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .proveedor-cards::-webkit-scrollbar {
@@ -455,11 +419,7 @@
   }
   
   .proveedor-cards {
-    display: block !important;
-    padding: 1rem;
-    margin: 0;
-    background-color: #f9fafb;
-    min-height: calc(100vh - 200px);
+    display: flex !important;
   }
   
   .card {
