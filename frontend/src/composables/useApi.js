@@ -14,10 +14,10 @@ export function useProductos() {
     error.value = null
     try {
       const data = await ProductoService.obtenerTodos()
-      productos.value = data
+      productos.value = Array.isArray(data) ? data : []
     } catch (err) {
       error.value = "Error al cargar los productos"
-
+      productos.value = [] // Asegurar que siempre sea un array
     } finally {
       loading.value = false
     }
@@ -81,10 +81,10 @@ export function useCategorias() {
     error.value = null
     try {
       const data = await CategoriaService.obtenerTodas()
-      categorias.value = data
+      categorias.value = Array.isArray(data) ? data : []
     } catch (err) {
       error.value = "Error al cargar las categorías"
-
+      categorias.value = [] // Asegurar que siempre sea un array
     } finally {
       loading.value = false
     }
@@ -146,15 +146,19 @@ export function useLineas() {
     try {
       const data = await LineaService.obtenerTodas()
       // Mapear los campos del API a los nombres que usamos en la UI
-      lineas.value = data.map((linea) => ({
-        id: linea.cod_linea,
-        nombre: linea.nombre_linea,
-        ruc: linea.ruc,
-        proveedor: linea.proveedor,
-      }))
+      if (Array.isArray(data)) {
+        lineas.value = data.map((linea) => ({
+          id: linea.cod_linea,
+          nombre: linea.nombre_linea,
+          ruc: linea.ruc,
+          proveedor: linea.proveedor,
+        }))
+      } else {
+        lineas.value = []
+      }
     } catch (err) {
       error.value = "Error al cargar las líneas"
-      // Error cargando líneas
+      lineas.value = [] // Asegurar que siempre sea un array
     } finally {
       loading.value = false
     }
@@ -238,23 +242,19 @@ export function useLineas() {
 
   const cargarProveedores = async () => {
     try {
-
       const data = await ProveedorService.obtenerTodos();
       
       if (!Array.isArray(data)) {
         // Se esperaba un array de proveedores pero se recibió un tipo diferente
+        proveedores.value = [];
         return;
       }
-      
-
       
       // Mapear los proveedores asegurando que el RUC esté presente
       const mappedProveedores = data.map(proveedor => {
         // Asegurarse de que el RUC existe, si no, usar un valor por defecto
         const ruc = proveedor.ruc || proveedor.RUC || 'SIN_RUC';
         const nombre = proveedor.nombre || proveedor.nombre_proveedor || 'Proveedor sin nombre';
-        
-
         
         return {
           id: ruc, // Usar RUC como ID
@@ -267,6 +267,7 @@ export function useLineas() {
 
     } catch (err) {
       // Error al cargar proveedores
+      proveedores.value = []; // Asegurar que siempre sea un array
     }
   }
 

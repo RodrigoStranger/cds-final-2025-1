@@ -4,7 +4,7 @@ import axios from 'axios';
 const API_BASE_URL =
   window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000/api'
-    : '/api'; // Cambia la URL según tu entorno de desarrollo o producción
+    : '/api'; // Puerto 3000 para API principal, puerto 3001 para auth
 
 // Crear una instancia de axios con configuración mejorada
 const api = axios.create({
@@ -25,8 +25,8 @@ const api = axios.create({
 // Interceptor para agregar el token JWT automáticamente
 api.interceptors.request.use(
   (config) => {
-    // Obtener token del localStorage
-    const token = localStorage.getItem('auth_token');
+    // Obtener token del sessionStorage (nuevo) o localStorage (compatibilidad)
+    const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -58,6 +58,9 @@ api.interceptors.response.use(
 
       // Si es un error 401 (No autorizado), limpiar sesión
       if (error.response.status === 401) {
+        // Limpiar tanto sessionStorage como localStorage
+        sessionStorage.removeItem('auth_token');
+        sessionStorage.removeItem('user_data');
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_data');
         
