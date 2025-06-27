@@ -28,8 +28,7 @@ const handleLoginSuccess = async (data) => {
 }
 
 const handleLoginError = (message) => {
-  console.error('❌ Error de login desde página:', message)
-  showError(message || 'Error al iniciar sesión')
+  // Solo mostrar el error en el formulario, no en toast
 }
 </script>
 
