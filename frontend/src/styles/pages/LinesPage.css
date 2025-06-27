@@ -382,6 +382,28 @@
   padding: 1rem;
   gap: 1rem;
   flex-direction: column;
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.line-cards::-webkit-scrollbar {
+  width: 6px;
+}
+
+.line-cards::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.line-cards::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.line-cards::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 @media (max-width: 767px) {
