@@ -1,10 +1,14 @@
 .page-container {
     margin-top: 0.25rem;
+    height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
   }
   
   @media (min-width: 768px) {
     .page-container {
       margin-top: 0;
+      height: calc(100vh - 60px);
     }
   }
   
@@ -15,11 +19,15 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin: 0 1rem 1.5rem 1rem;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 120px);
   }
   
   .card-header {
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
   }
   
   .card-header-content {
@@ -159,9 +167,11 @@
     margin: 0;
     padding: 0;
     background: white;
-    max-height: calc(100vh - 300px);
+    min-height: 400px;
+    max-height: calc(100vh - 280px);
     position: relative;
     border-radius: 0 0 0.5rem 0.5rem;
+    flex: 1;
   }
 
   /* Doble scroll para tabla */
@@ -193,6 +203,7 @@
     width: 100%;
     min-width: 600px;
     border-collapse: collapse;
+    height: 100%;
   }
   
   .table th,
@@ -371,8 +382,42 @@
     border-color: #15803d;
   }
 
-  /* Responsive pagination adjustments */
+  /* Responsive adjustments */
   @media (max-width: 767px) {
+    .page-container {
+      height: calc(100vh - 120px);
+    }
+    
+    .card {
+      margin: 0 0.5rem 1rem 0.5rem;
+      min-height: calc(100vh - 140px);
+    }
+    
+    .card-header {
+      padding: 1rem 1rem;
+    }
+    
+    .card-header-content {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+    }
+    
+    .header-actions {
+      justify-content: space-between;
+      flex-wrap: nowrap;
+    }
+    
+    .search-container {
+      min-width: 200px;
+      flex: 1;
+    }
+    
+    .table-container {
+      min-height: 300px;
+      max-height: calc(100vh - 220px);
+    }
+    
     .pagination {
       padding: 0.75rem 1rem;
       flex-direction: column;
@@ -393,6 +438,26 @@
     .pagination-button {
       padding: 0.375rem 0.75rem;
       font-size: 0.75rem;
+    }
+  }
+  
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .card {
+      min-height: calc(100vh - 100px);
+    }
+    
+    .table-container {
+      max-height: calc(100vh - 240px);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .card {
+      min-height: calc(100vh - 80px);
+    }
+    
+    .table-container {
+      max-height: calc(100vh - 200px);
     }
   }
   
@@ -589,6 +654,28 @@
   font-weight: 600;
   color: #111827;
 }
+
+/* Tabla responsive - mejoras */
+.table tbody {
+    min-height: 300px;
+  }
+  
+  .table tbody tr {
+    min-height: 60px;
+  }
+  
+  .table tbody tr td {
+    vertical-align: middle;
+    padding: 1rem;
+  }
+  
+  .table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f9fafb;
+    z-index: 10;
+    box-shadow: 0 1px 0 0 #e5e7eb;
+  }
 
 @media (max-width: 480px) {
   .proveedor-card {
