@@ -307,7 +307,7 @@ let searchTimeout = null;
 </script>
 
 <style scoped>
-@import '../styles/pages/LinesPage.css';
+@import '../styles/pages/ProveedoresPage.css';
 
 /* Estilos específicos para la página de proveedores */
 .proveedor-avatar {
