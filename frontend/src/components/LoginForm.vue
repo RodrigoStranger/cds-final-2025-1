@@ -21,6 +21,7 @@
               :disabled="loading"
               class="form-input"
               :class="{ 'input-error': errors.dni }"
+              @input="onlyNumbers"
             />
             <span v-if="errors.dni" class="error-message">{{ errors.dni }}</span>
           </div>
@@ -97,6 +98,13 @@ const clearErrors = () => {
   errors.dni = '';
   errors.contraseña = '';
   errors.general = '';
+};
+
+// Permitir solo números en el DNI
+const onlyNumbers = (event) => {
+  const value = event.target.value;
+  const numbersOnly = value.replace(/\D/g, '');
+  formData.dni = numbersOnly;
 };
 
 // Validar formulario
