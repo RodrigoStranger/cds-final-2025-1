@@ -33,7 +33,8 @@
         </div>
       </div>
       <div class="table-container">
-        <table class="table">
+        <!-- Vista de tabla para desktop -->
+        <table class="table desktop-only">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -75,6 +76,31 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Vista de tarjetas para móviles -->
+        <div class="line-cards mobile-only">
+          <div v-for="linea in lineasPaginadas" :key="linea.id" class="line-card">
+            <div class="line-card-header">
+              <div class="line-avatar">
+                {{ linea.nombre.charAt(0).toUpperCase() }}
+              </div>
+              <div class="line-info">
+                <h4 class="line-title">{{ linea.nombre }}</h4>
+                <p class="line-ruc">{{ linea.ruc || 'Sin RUC' }}</p>
+              </div>
+              <button @click="openLineModal(linea)" class="card-edit-button">
+                <Edit class="icon-small" />
+              </button>
+            </div>
+            
+            <div class="line-card-body">
+              <div class="line-detail">
+                <span class="detail-label">Proveedor</span>
+                <span class="detail-value">{{ linea.proveedor || 'Sin proveedor' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
         
         <!-- Mensaje cuando no hay líneas o no hay resultados de búsqueda -->
         <div v-if="lineasFiltradas.length === 0" class="empty-state">

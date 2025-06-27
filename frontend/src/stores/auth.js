@@ -29,6 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (storedToken && storedUser) {
         token.value = storedToken
         user.value = JSON.parse(storedUser)
+        console.log('✅ Sesión restaurada desde localStorage')
       }
     } catch (error) {
       console.warn('Error al recuperar datos de autenticación:', error)

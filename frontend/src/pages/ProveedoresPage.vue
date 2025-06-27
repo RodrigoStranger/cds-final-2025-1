@@ -33,7 +33,8 @@
         </div>
       </div>
       <div class="table-container">
-        <table class="table">
+        <!-- Vista de tabla para desktop -->
+        <table class="table desktop-only">
           <thead>
             <tr>
               <th>RUC</th>
@@ -44,9 +45,24 @@
           </thead>
           <tbody>
             <tr v-for="proveedor in proveedoresPaginados" :key="proveedor.ruc">
-              <td>{{ proveedor.ruc || 'N/A' }}</td>
-              <td>{{ proveedor.nombre || 'N/A' }}</td>
-              <td>{{ proveedor.telefono || 'N/A' }}</td>
+              <td>
+                <div class="cell-content">
+                  <div class="proveedor-cell">
+                    <div class="proveedor-avatar">{{ proveedor.nombre?.charAt(0).toUpperCase() || 'P' }}</div>
+                    <div class="proveedor-ruc">{{ proveedor.ruc || 'N/A' }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  {{ proveedor.nombre || 'N/A' }}
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  {{ proveedor.telefono || 'N/A' }}
+                </div>
+              </td>
               <td class="actions">
                 <div class="action-buttons">
                   <button @click="editarProveedor(proveedor)" class="icon-button edit">
@@ -62,6 +78,36 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Vista de tarjetas para móviles -->
+        <div class="proveedor-cards mobile-only">
+          <div v-for="proveedor in proveedoresPaginados" :key="proveedor.ruc" class="proveedor-card">
+            <div class="proveedor-card-header">
+              <div class="proveedor-avatar">
+                {{ proveedor.nombre?.charAt(0).toUpperCase() || 'P' }}
+              </div>
+              <div class="proveedor-info">
+                <h4 class="proveedor-title">{{ proveedor.nombre || 'N/A' }}</h4>
+                <p class="proveedor-ruc">RUC: {{ proveedor.ruc || 'N/A' }}</p>
+              </div>
+              <button @click="editarProveedor(proveedor)" class="card-edit-button">
+                <Edit class="icon-small" />
+              </button>
+            </div>
+            
+            <div class="proveedor-card-body">
+              <div class="proveedor-detail">
+                <span class="detail-label">Teléfono</span>
+                <span class="detail-value">{{ proveedor.telefono || 'Sin teléfono' }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Mensaje cuando no hay proveedores en vista móvil -->
+          <div v-if="proveedoresFiltrados.length === 0" class="empty-state">
+            <p>No se encontraron proveedores</p>
+          </div>
+        </div>
       </div>
       
       <!-- Paginación -->

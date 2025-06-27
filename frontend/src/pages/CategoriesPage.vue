@@ -40,25 +40,56 @@
       </div>
 
       <!-- Contenido principal -->
-      <div v-else class="categories-grid">
-        <div v-for="categoria in categoriasPaginadas" :key="categoria.id" class="category-card">
-          <div class="category-content">
-            <div class="category-icon" v-if="categoria?.nombre">
-              {{ categoria.nombre.charAt(0).toUpperCase() }}
-            </div>
-            <div class="category-info">
-              <h4 class="cell-content">
-                {{ categoria.nombre }}
-              </h4>
-              <p class="category-description cell-content">
-                {{ categoria.descripcion || 'Sin descripción' }}
-                <span class="tooltip" v-if="categoria.descripcion">{{ categoria.descripcion }}</span>
-              </p>
-            </div>
-          </div>
-          <div class="category-actions">
-            <div class="action-buttons">
-              <button @click="openCategoryModal(categoria)" class="icon-button edit">
+      <div v-else class="table-container">
+        <!-- Vista de tabla para desktop -->
+        <table class="table desktop-only">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th class="actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="categoria in categoriasPaginadas" :key="categoria.id">
+              <td>
+                <div class="cell-content">
+                  <div class="category-cell">
+                    <div class="category-avatar">{{ categoria.nombre.charAt(0).toUpperCase() }}</div>
+                    <div class="category-name">{{ categoria.nombre }}</div>
+                  </div>
+                  <span class="tooltip">{{ categoria.nombre }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="cell-content">
+                  {{ categoria.descripcion || 'Sin descripción' }}
+                  <span class="tooltip" v-if="categoria.descripcion">{{ categoria.descripcion }}</span>
+                </div>
+              </td>
+              <td class="actions">
+                <div class="action-buttons">
+                  <button @click="openCategoryModal(categoria)" class="icon-button edit">
+                    <Edit class="icon-small" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Vista de tarjetas para móviles -->
+        <div class="category-cards mobile-only">
+          <div v-for="categoria in categoriasPaginadas" :key="categoria.id" class="category-card">
+            <div class="category-card-header">
+              <div class="category-avatar">
+                {{ categoria.nombre.charAt(0).toUpperCase() }}
+              </div>
+              <div class="category-info">
+                <h4 class="category-title">{{ categoria.nombre }}</h4>
+                <p class="category-description">{{ categoria.descripcion || 'Sin descripción' }}</p>
+              </div>
+              <button @click="openCategoryModal(categoria)" class="card-edit-button">
                 <Edit class="icon-small" />
               </button>
             </div>
