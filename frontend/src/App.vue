@@ -15,7 +15,7 @@
       <!-- Main Content -->
       <div class="main-content">
         <!-- Navbar -->
-        <Navbar :user="currentUser" @logout="handleLogout" />
+        <Navbar :user="currentUser" :tabs="tabs" @logout="handleLogout" />
         
         <!-- Main Content Area -->
         <main class="content">

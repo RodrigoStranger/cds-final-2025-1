@@ -48,6 +48,19 @@
           </button>
         </div>
         <!-- Aquí puedes agregar el contenido del menú móvil si es necesario -->
+        <nav class="mobile-nav">
+          <router-link 
+            v-for="(tab, index) in tabs" 
+            :key="index" 
+            :to="tab.route"
+            class="mobile-nav-item"
+            :class="{ active: activeTab === tab.id }"
+            @click="toggleMobileMenu"
+          >
+            <component :is="tab.icon" class="nav-icon" />
+            <span>{{ tab.label }}</span>
+          </router-link>
+        </nav>
       </div>
     </div>
 
@@ -57,8 +70,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { Menu, LogOut } from 'lucide-vue-next';
+
+const route = useRoute();
 
 const props = defineProps({
   user: {
@@ -69,6 +85,11 @@ const props = defineProps({
       email: 'usuario@ejemplo.com',
       avatar: null
     })
+  },
+  tabs: {
+    type: Array,
+    required: true,
+    default: () => []
   }
 });
 
@@ -77,6 +98,16 @@ const emit = defineEmits(['logout']);
 
 const mobileMenuOpen = ref(false);
 const userMenuOpen = ref(false);
+
+// Determinar la pestaña activa basada en la ruta actual
+const activeTab = computed(() => {
+  const path = route.path;
+  if (path.startsWith('/productos')) return 'productos';
+  if (path.startsWith('/lineas')) return 'lineas';
+  if (path.startsWith('/categorias')) return 'categorias';
+  if (path.startsWith('/proveedores')) return 'proveedores';
+  return 'productos';
+});
 
 const getUserInitial = (name) => {
   return name ? name.charAt(0).toUpperCase() : 'U';
