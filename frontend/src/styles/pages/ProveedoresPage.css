@@ -154,7 +154,7 @@
   /* Table Container */
   .table-container {
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     margin: 0;
     padding: 0;
@@ -166,6 +166,7 @@
 
   /* Doble scroll para tabla */
   .table-container::-webkit-scrollbar {
+    width: 12px;
     height: 12px;
   }
 
@@ -181,6 +182,11 @@
 
   .table-container::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
+  }
+  
+  /* Corner del scrollbar cuando ambos están presentes */
+  .table-container::-webkit-scrollbar-corner {
+    background: #f1f1f1;
   }
   
   .table {
