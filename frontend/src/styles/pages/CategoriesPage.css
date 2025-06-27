@@ -163,13 +163,18 @@
     grid-template-columns: repeat(1, 1fr);
     gap: 1rem;
     padding: 1.5rem;
-    max-height: 500px;
+    max-height: calc(100vh - 300px);
+    min-height: 400px;
     position: relative;
     width: 100%;
     box-sizing: border-box;
     overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: #9ca3af #f3f4f6;
+    background: white;
+    border-radius: 0 0 0.5rem 0.5rem;
   }
   
   .categories-grid::-webkit-scrollbar {
@@ -615,6 +620,11 @@
       order: -1;
       width: 100%;
       margin-bottom: 0.5rem;
+    }
+    
+    .categories-grid {
+      max-height: calc(100vh - 350px);
+      padding: 1rem;
     }
   }
   
