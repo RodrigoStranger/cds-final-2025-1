@@ -60,6 +60,14 @@
             <component :is="tab.icon" class="nav-icon" />
             <span>{{ tab.label }}</span>
           </router-link>
+          
+          <!-- Logout Button para móvil -->
+          <div class="mobile-logout-section">
+            <button @click="handleLogout" class="mobile-logout-button">
+              <LogOut class="nav-icon" />
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
         </nav>
       </div>
     </div>
