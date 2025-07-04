@@ -12,7 +12,7 @@
   "routes": [
     {
       "src": "/api/auth/(.*)",
-      "dest": "http://56.124.76.9:3001/api/auth/$1",
+      "dest": "http://52.67.79.142:3001/api/auth/$1",
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -21,7 +21,7 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "http://56.124.76.9:3000/api/$1",
+      "dest": "http://52.67.79.142:3000/api/$1",
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
